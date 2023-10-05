@@ -1,0 +1,64 @@
+{
+  "extends": [
+    "airbnb",
+    "airbnb-typescript",
+    "prettier",
+    "plugin:node/recommended",
+    "eslint:recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
+    "plugin:@typescript-eslint/recommended-type-checked",
+    "plugin:@typescript-eslint/strict",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking"
+  ],
+  "plugins": ["prettier", "@typescript-eslint"],
+  "parser": "@typescript-eslint/parser",
+
+  "env": { "es6": true },
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "project": true,
+    "tsconfigRootDir": "tsconfig.json"
+  },
+  "root": true,
+
+  "rules": {
+    "node/no-unsupported-features/es-syntax": [
+      "error",
+      { "ignores": ["modules"] }
+    ],
+    "node/no-missing-import": [
+      "error",
+      {
+        "allowModules": [],
+        "resolvePaths": ["/path/to/a/modules/directory"],
+        "tryExtensions": [".ts", ".js", ".json", ".node"]
+      }
+    ],
+    "@typescript-eslint/no-unsafe-argument": "error",
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/quotes": "off",
+    "@typescript-eslint/lines-between-class-members": "off",
+    "arrow-body-style": "off",
+    "import/prefer-default-export": "off",
+    "prefer-arrow-callback": "off",
+    "prettier/prettier": "off",
+    "spaced-comment": "off",
+    "no-console": "warn",
+    "consistent-return": "off",
+    "func-names": "off",
+    "object-shorthand": "off",
+    "no-process-exit": "off",
+    "no-param-reassign": "off",
+    "no-return-await": "off",
+    "no-underscore-dangle": "off",
+    "class-methods-use-this": "off",
+    "prefer-destructuring": ["error", { "object": true, "array": false }],
+    "no-unused-vars": ["error", { "argsIgnorePattern": "req|res|next|val" }],
+    "dot-notation": "off",
+    "comma-dangle": "off",
+    "@typescript-eslint/comma-dangle": "off",
+    "@typescript-eslint/space-before-function-paren": "off"
+  }
+}
