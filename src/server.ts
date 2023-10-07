@@ -1,5 +1,5 @@
-import app from "./app";
+import expressServer from "./app";
 
-app.listen("2000", () => {
+expressServer.listen("2000", () => {
   console.log("server running on port 2000");
 });

@@ -2,6 +2,8 @@ import bodyParser from "body-parser";
 import express from "express";
 import cors from "cors";
 import fs from "fs";
+import http from "http";
+import { Server } from "socket.io";
 
 const app = express();
 app.use(cors());
@@ -35,4 +37,12 @@ app.get("/video/:filename", (req, res) => {
   }
 });
 
-export default app;
+const expressServer = http.createServer(app);
+
+//Socket.io
+const ioServer = new Server(expressServer);
+ioServer.on("messageFromClient", (data) => {
+  console.log(data);
+});
+
+export default expressServer;
