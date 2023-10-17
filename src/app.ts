@@ -5,6 +5,7 @@ import fs from "fs";
 import http from "http";
 import { Server } from "socket.io";
 import { MessageDataApi } from "./utils/@types/types";
+import EVENT_NAMES from "./utils/constants/EVENT_NAMES";
 
 const app = express();
 app.use(bodyParser.json());
@@ -80,9 +81,17 @@ ioServer.on("connection", (socket) => {
     console.log(data);
   });
 
-  socket.on("messageEmitted", (message: MessageDataApi) => {
+  socket.on(EVENT_NAMES.MESSAGE_EMITTED, (message: MessageDataApi) => {
     console.log(message);
-    ioServer.emit("messageEmitted", message);
+    ioServer.emit(EVENT_NAMES.MESSAGE_EMITTED, message);
+  });
+
+  socket.on(EVENT_NAMES.VIDEO_PAUSED, () => {
+    ioServer.emit(EVENT_NAMES.VIDEO_PAUSED);
+  });
+
+  socket.on(EVENT_NAMES.VIDEO_PLAYED, () => {
+    ioServer.emit(EVENT_NAMES.VIDEO_PLAYED);
   });
 });
 
