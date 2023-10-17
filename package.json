@@ -7,7 +7,7 @@
     "node": ">=16"
   },
   "scripts": {
-    "start": "nodemon dist/server.js",
+    "start": "node dist/server.js",
     "build": "tsc",
     "dev": "set NODE_ENV=development&& nodemon ./dist/server.js"
   },
