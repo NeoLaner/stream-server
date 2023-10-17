@@ -4,10 +4,20 @@ import cors from "cors";
 import fs from "fs";
 import http from "http";
 import { Server } from "socket.io";
+import { MessageDataApi } from "./utils/@types/types";
 
 const app = express();
-app.use(cors());
 app.use(bodyParser.json());
+app.use(
+  cors({
+    //NOTE: allows cross-origin requests to include credentials
+    //(such as cookies, HTTP authentication, and client-side SSL certificates).
+    credentials: true,
+    //NOTE: origin: true (or origin: '*') allows requests from any origin (domain).
+    //This essentially opens up your server to cross-origin requests from any site.
+    origin: process.env.NODE_ENV === "development" ? true : "",
+  })
+);
 
 app.get("/video/:filename", (req, res) => {
   const filepath = "src/bigbuck.mp4";
@@ -26,6 +36,7 @@ app.get("/video/:filename", (req, res) => {
       "Accept-Ranges": "bytes",
       "Content-Length": contentLength,
       "Content-Type": "video/mp4",
+      "Access-Control-Allow-Origin": "http://localhost:5173",
     };
     res.writeHead(206, head);
     file.pipe(res);
@@ -40,9 +51,39 @@ app.get("/video/:filename", (req, res) => {
 const expressServer = http.createServer(app);
 
 //Socket.io
-const ioServer = new Server(expressServer);
-ioServer.on("messageFromClient", (data) => {
-  console.log(data);
+const ioServer = new Server(expressServer, {
+  cors: {
+    origin: "http://localhost:5173",
+  },
+});
+
+// ioServer.on("connect", (data) => {
+//   console.log("client connected", data.id);
+// });
+
+ioServer.on("connection", (socket) => {
+  console.log("client connected", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("user disconnected", socket.id);
+  });
+
+  socket.on("messageFromClient", (data) => {
+    console.log(data);
+  });
+
+  socket.on("readyToPlay", (data) => {
+    console.log(data);
+  });
+
+  socket.on("pause", (data) => {
+    console.log(data);
+  });
+
+  socket.on("messageEmitted", (message: MessageDataApi) => {
+    console.log(message);
+    ioServer.emit("messageEmitted", message);
+  });
 });
 
 export default expressServer;
