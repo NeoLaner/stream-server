@@ -16,7 +16,8 @@ app.use(
     credentials: true,
     //NOTE: origin: true (or origin: '*') allows requests from any origin (domain).
     //This essentially opens up your server to cross-origin requests from any site.
-    origin: process.env.NODE_ENV === "development" ? true : "",
+    // origin: process.env.NODE_ENV === "development" ? true : "",
+    origin: true,
   })
 );
 
