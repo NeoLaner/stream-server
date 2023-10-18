@@ -17,7 +17,7 @@ app.use(
     //NOTE: origin: true (or origin: '*') allows requests from any origin (domain).
     //This essentially opens up your server to cross-origin requests from any site.
     // origin: process.env.NODE_ENV === "development" ? true : "",
-    origin: "https://playful-semifreddo-d4e38c.netlify.app/",
+    origin: "http://localhost:5173",
   })
 );
 
@@ -38,8 +38,7 @@ app.get("/video/:filename", (req, res) => {
       "Accept-Ranges": "bytes",
       "Content-Length": contentLength,
       "Content-Type": "video/mp4",
-      "Access-Control-Allow-Origin":
-        "https://playful-semifreddo-d4e38c.netlify.app/",
+      "Access-Control-Allow-Origin": "http://localhost:5173",
     };
     res.writeHead(206, head);
     file.pipe(res);
@@ -56,7 +55,7 @@ const expressServer = http.createServer(app);
 //Socket.io
 const ioServer = new Server(expressServer, {
   cors: {
-    origin: "https://playful-semifreddo-d4e38c.netlify.app/",
+    origin: "http://localhost:5173",
   },
 });
 
