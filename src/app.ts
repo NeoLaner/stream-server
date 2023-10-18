@@ -17,7 +17,7 @@ app.use(
     //NOTE: origin: true (or origin: '*') allows requests from any origin (domain).
     //This essentially opens up your server to cross-origin requests from any site.
     // origin: process.env.NODE_ENV === "development" ? true : "",
-    origin: "https://stream-client-gvgyysq18-neolaner.vercel.app/",
+    origin: "https://playful-semifreddo-d4e38c.netlify.app/",
   })
 );
 
@@ -39,7 +39,7 @@ app.get("/video/:filename", (req, res) => {
       "Content-Length": contentLength,
       "Content-Type": "video/mp4",
       "Access-Control-Allow-Origin":
-        "https://stream-client-gvgyysq18-neolaner.vercel.app/",
+        "https://playful-semifreddo-d4e38c.netlify.app/",
     };
     res.writeHead(206, head);
     file.pipe(res);
@@ -56,7 +56,7 @@ const expressServer = http.createServer(app);
 //Socket.io
 const ioServer = new Server(expressServer, {
   cors: {
-    origin: "https://stream-client-gvgyysq18-neolaner.vercel.app/",
+    origin: "https://playful-semifreddo-d4e38c.netlify.app/",
   },
 });
 
