@@ -9,17 +9,25 @@ import EVENT_NAMES from "./utils/constants/EVENT_NAMES";
 
 const app = express();
 app.use(bodyParser.json());
-app.use(
-  cors({
-    //NOTE: allows cross-origin requests to include credentials
-    //(such as cookies, HTTP authentication, and client-side SSL certificates).
-    // credentials: true,
-    //NOTE: origin: true (or origin: '*') allows requests from any origin (domain).
-    //This essentially opens up your server to cross-origin requests from any site.
-    // origin: process.env.NODE_ENV === "development" ? true : "",
-    origin: "*",
-  })
-);
+// app.use(
+//   cors({
+//     //NOTE: allows cross-origin requests to include credentials
+//     //(such as cookies, HTTP authentication, and client-side SSL certificates).
+//     // credentials: true,
+//     //NOTE: origin: true (or origin: '*') allows requests from any origin (domain).
+//     //This essentially opens up your server to cross-origin requests from any site.
+//     // origin: process.env.NODE_ENV === "development" ? true : "",
+//     origin: "*",
+//     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+//   })
+// );
+
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
 
 app.get("/video/:filename", (req, res) => {
   const filepath = "src/bigbuck.mp4";
