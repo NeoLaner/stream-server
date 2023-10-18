@@ -17,7 +17,7 @@ app.use(
     //NOTE: origin: true (or origin: '*') allows requests from any origin (domain).
     //This essentially opens up your server to cross-origin requests from any site.
     // origin: process.env.NODE_ENV === "development" ? true : "",
-    origin: "http://localhost:5173",
+    origin: "*",
   })
 );
 
@@ -55,7 +55,7 @@ const expressServer = http.createServer(app);
 //Socket.io
 const ioServer = new Server(expressServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "*",
   },
 });
 
