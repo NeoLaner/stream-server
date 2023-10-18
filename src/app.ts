@@ -13,7 +13,7 @@ app.use(
   cors({
     //NOTE: allows cross-origin requests to include credentials
     //(such as cookies, HTTP authentication, and client-side SSL certificates).
-    credentials: true,
+    // credentials: true,
     //NOTE: origin: true (or origin: '*') allows requests from any origin (domain).
     //This essentially opens up your server to cross-origin requests from any site.
     // origin: process.env.NODE_ENV === "development" ? true : "",
