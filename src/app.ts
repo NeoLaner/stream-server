@@ -56,7 +56,7 @@ const expressServer = http.createServer(app);
 //Socket.io
 const ioServer = new Server(expressServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "https://stream-client-gvgyysq18-neolaner.vercel.app/",
   },
 });
 
