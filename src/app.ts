@@ -18,6 +18,7 @@ app.use(
     //This essentially opens up your server to cross-origin requests from any site.
     // origin: process.env.NODE_ENV === "development" ? true : "",
     origin: "http://localhost:5173",
+    optionsSuccessStatus: 204,
   })
 );
 
