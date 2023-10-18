@@ -17,7 +17,7 @@ app.use(
     //NOTE: origin: true (or origin: '*') allows requests from any origin (domain).
     //This essentially opens up your server to cross-origin requests from any site.
     // origin: process.env.NODE_ENV === "development" ? true : "",
-    origin: "http://localhost:5173",
+    origin: "*",
     optionsSuccessStatus: 204,
   })
 );
@@ -39,7 +39,7 @@ app.get("/video/:filename", (req, res) => {
       "Accept-Ranges": "bytes",
       "Content-Length": contentLength,
       "Content-Type": "video/mp4",
-      "Access-Control-Allow-Origin": "http://localhost:5173",
+      "Access-Control-Allow-Origin": "*",
     };
     res.writeHead(206, head);
     file.pipe(res);
