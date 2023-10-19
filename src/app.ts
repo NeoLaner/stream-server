@@ -1,3 +1,4 @@
+import path from "path";
 import bodyParser from "body-parser";
 import express from "express";
 import cors from "cors";
@@ -8,30 +9,32 @@ import { MessageDataApi } from "./utils/@types/types";
 import EVENT_NAMES from "./utils/constants/EVENT_NAMES";
 
 const app = express();
+
 app.use(bodyParser.json());
-// app.use(
-//   cors({
-//     //NOTE: allows cross-origin requests to include credentials
-//     //(such as cookies, HTTP authentication, and client-side SSL certificates).
-//     // credentials: true,
-//     //NOTE: origin: true (or origin: '*') allows requests from any origin (domain).
-//     //This essentially opens up your server to cross-origin requests from any site.
-//     // origin: process.env.NODE_ENV === "development" ? true : "",
-//     origin: "*",
-//     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-//   })
-// );
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  console.log(req.ip);
   next();
 });
 
+app.use(
+  cors({
+    //NOTE: allows cross-origin requests to include credentials
+    //(such as cookies, HTTP authentication, and client-side SSL certificates).
+    // credentials: true,
+    //NOTE: origin: true (or origin: '*') allows requests from any origin (domain).
+    //This essentially opens up your server to cross-origin requests from any site.
+    origin:
+      process.env.NODE_ENV === "development"
+        ? true
+        : "https://stream-client-psi.vercel.app/",
+  })
+);
+
 app.get("/video/:filename", (req, res) => {
-  const filepath = "src/bigbuck.mp4";
-  const stat = fs.statSync(filepath);
+  const fileName = "bigbuck.mp4";
+  const filePath = path.join(__dirname, "public", fileName);
+  const stat = fs.statSync(filePath);
   const fileSize = stat.size;
   const { range } = req.headers;
 
@@ -40,13 +43,16 @@ app.get("/video/:filename", (req, res) => {
     const start = Number(range.replace(/\D/g, ""));
     const end = Math.min(start + CHUNK_SIZE, fileSize - 1);
     const contentLength = end - start + 1;
-    const file = fs.createReadStream(filepath, { start, end });
+    const file = fs.createReadStream(filePath, { start, end });
     const head = {
       "Content-Range": `bytes ${start}-${end}/${fileSize}`,
       "Accept-Ranges": "bytes",
       "Content-Length": contentLength,
       "Content-Type": "video/mp4",
-      "Access-Control-Allow-Origin": "http://localhost:5173",
+      "Access-Control-Allow-Origin":
+        process.env.NODE_ENV === "development"
+          ? "*"
+          : "https://stream-client-psi.vercel.app/",
     };
     res.writeHead(206, head);
     file.pipe(res);
@@ -54,7 +60,7 @@ app.get("/video/:filename", (req, res) => {
     console.log("No range in header");
     const head = { "Content-Length": fileSize, "Content-Type": "video/mp4" };
     res.writeHead(200, head);
-    fs.createReadStream(filepath).pipe(res);
+    fs.createReadStream(filePath).pipe(res);
   }
 });
 
@@ -63,7 +69,10 @@ const expressServer = http.createServer(app);
 //Socket.io
 const ioServer = new Server(expressServer, {
   cors: {
-    origin: "*",
+    origin:
+      process.env.NODE_ENV === "development"
+        ? "*"
+        : "https://stream-client-psi.vercel.app/",
   },
 });
 
@@ -91,7 +100,6 @@ ioServer.on("connection", (socket) => {
   });
 
   socket.on(EVENT_NAMES.MESSAGE_EMITTED, (message: MessageDataApi) => {
-    console.log(message);
     ioServer.emit(EVENT_NAMES.MESSAGE_EMITTED, message);
   });
 
