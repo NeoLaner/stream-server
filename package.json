@@ -8,8 +8,8 @@
   },
   "scripts": {
     "start": "node dist/server.js",
-    "build": "tsc&& node src/copy-public.js",
-    "dev": "set NODE_ENV=development&& nodemon ./dist/server.js&& node src/copy-public.js"
+    "build": "tsc&& node dist/copy-public.js",
+    "dev": "set NODE_ENV=development&& nodemon ./dist/server.js&& node ./dist/copy-public.js"
   },
   "author": "NeoLaner",
   "license": "ISC",

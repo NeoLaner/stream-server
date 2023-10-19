@@ -14,7 +14,7 @@
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
-  "include": [".eslintrc.cjs ", "src/**/*.ts"]
+  "include": [".eslintrc.cjs ", "src/**/*.ts", "copy-public.ts"]
 }
 
 // {
