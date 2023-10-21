@@ -25,11 +25,18 @@ app.use(
     //NOTE: origin: true (or origin: '*') allows requests from any origin (domain).
     //This essentially opens up your server to cross-origin requests from any site.
     origin:
-      process.env.NODE_ENV === "development"
-        ? true
-        : "https://stream-client-psi.vercel.app/",
+      process.env.NODE_ENV === "development" ? true : "http://localhost:5173/",
   })
 );
+
+app.get("/test", (req, res) => {
+  res.json({
+    status: "success",
+    data: {
+      message: "Everything is fine",
+    },
+  });
+});
 
 app.get("/video/:filename", (req, res) => {
   const fileName = "bigbuck.mp4";
@@ -50,9 +57,7 @@ app.get("/video/:filename", (req, res) => {
       "Content-Length": contentLength,
       "Content-Type": "video/mp4",
       "Access-Control-Allow-Origin":
-        process.env.NODE_ENV === "development"
-          ? "*"
-          : "https://stream-client-psi.vercel.app/",
+        process.env.NODE_ENV === "development" ? "*" : "http://localhost:5173/",
     };
     res.writeHead(206, head);
     file.pipe(res);
@@ -70,9 +75,7 @@ const expressServer = http.createServer(app);
 const ioServer = new Server(expressServer, {
   cors: {
     origin:
-      process.env.NODE_ENV === "development"
-        ? "*"
-        : "https://stream-client-psi.vercel.app/",
+      process.env.NODE_ENV === "development" ? "*" : "http://localhost:5173/",
   },
 });
 
