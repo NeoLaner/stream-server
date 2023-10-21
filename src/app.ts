@@ -24,8 +24,7 @@ app.use(
     // credentials: true,
     //NOTE: origin: true (or origin: '*') allows requests from any origin (domain).
     //This essentially opens up your server to cross-origin requests from any site.
-    origin:
-      process.env.NODE_ENV === "development" ? true : "http://localhost:5173/",
+    origin: "http://188.121.117.100:5173/",
   })
 );
 
@@ -56,8 +55,7 @@ app.get("/video/:filename", (req, res) => {
       "Accept-Ranges": "bytes",
       "Content-Length": contentLength,
       "Content-Type": "video/mp4",
-      "Access-Control-Allow-Origin":
-        process.env.NODE_ENV === "development" ? "*" : "http://localhost:5173/",
+      "Access-Control-Allow-Origin": "http://188.121.117.100:5173/",
     };
     res.writeHead(206, head);
     file.pipe(res);
@@ -74,8 +72,7 @@ const expressServer = http.createServer(app);
 //Socket.io
 const ioServer = new Server(expressServer, {
   cors: {
-    origin:
-      process.env.NODE_ENV === "development" ? "*" : "http://localhost:5173/",
+    origin: "http://188.121.117.100:5173/",
   },
 });
 
