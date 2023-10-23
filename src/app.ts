@@ -5,8 +5,11 @@ import cors from "cors";
 import fs from "fs";
 import http from "http";
 import { Server } from "socket.io";
-import { MessageDataApi } from "./utils/@types/types";
+import { MessageDataApi } from "./utils/@types";
 import EVENT_NAMES from "./utils/constants/EVENT_NAMES";
+import userRouter from "./routes/userRouter";
+import AppError from "./utils/classes/appError";
+import globalErrorControl from "./controllers/errorControl";
 
 const app = express();
 
@@ -24,7 +27,10 @@ app.use(
     // credentials: true,
     //NOTE: origin: true (or origin: '*') allows requests from any origin (domain).
     //This essentially opens up your server to cross-origin requests from any site.
-    origin: "http://188.121.117.100:5173",
+    origin:
+      process.env.NODE_ENV === "development"
+        ? process.env.LOCAL_CLIENT_SERVER
+        : process.env.CLIENT_SERVER,
   })
 );
 
@@ -37,7 +43,7 @@ app.get("/test", (req, res) => {
   });
 });
 
-app.get("/video/:filename", (req, res) => {
+app.get("/api/v1/video/:filename", (req, res) => {
   const fileName = "bigbuck.mp4";
   const filePath = path.join(__dirname, "public", fileName);
   const stat = fs.statSync(filePath);
@@ -55,7 +61,10 @@ app.get("/video/:filename", (req, res) => {
       "Accept-Ranges": "bytes",
       "Content-Length": contentLength,
       "Content-Type": "video/mp4",
-      "Access-Control-Allow-Origin": "http://188.121.117.100:5173",
+      "Access-Control-Allow-Origin":
+        process.env.NODE_ENV === "development"
+          ? process.env.LOCAL_CLIENT_SERVER
+          : process.env.CLIENT_SERVER,
     };
     res.writeHead(206, head);
     file.pipe(res);
@@ -69,10 +78,21 @@ app.get("/video/:filename", (req, res) => {
 
 const expressServer = http.createServer(app);
 
+app.use("/api/v1/users", userRouter);
+
+app.all("*", (req, res, next) => {
+  return next(new AppError(`Can't find  ${req.originalUrl}`, 404));
+});
+
+app.use(globalErrorControl);
+
 //Socket.io
 const ioServer = new Server(expressServer, {
   cors: {
-    origin: "http://188.121.117.100:5173",
+    origin:
+      process.env.NODE_ENV === "development"
+        ? process.env.LOCAL_CLIENT_SERVER
+        : process.env.CLIENT_SERVER,
   },
 });
 
