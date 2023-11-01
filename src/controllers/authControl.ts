@@ -1,23 +1,18 @@
 import { CookieOptions, Response } from "express";
 import jwt from "jsonwebtoken";
-import { Types } from "mongoose";
+import mongoose from "mongoose";
+import { promisify } from "util";
 import bcrypt from "bcryptjs";
 import User from "../models/userModel";
 import catchAsync from "../utils/factory/catchAsync";
 import AppError from "../utils/classes/appError";
 import { ExpressMiddlewareFn, UserDataApi } from "../utils/@types";
 
-function createToken(id: Types.ObjectId) {
+function createToken(payload: object) {
   if (!process.env.SECRET_KEY) return;
-  const token = jwt.sign(
-    {
-      id,
-    },
-    process.env.SECRET_KEY,
-    {
-      expiresIn: process.env.JWT_EXPIRATION_IN,
-    }
-  );
+  const token = jwt.sign(payload, process.env.SECRET_KEY, {
+    expiresIn: process.env.JWT_EXPIRATION_IN,
+  });
   return token;
 }
 
@@ -26,7 +21,12 @@ function createAndSendTheToken(
   statusCode: number,
   res: Response
 ) {
-  const token = createToken(user._id);
+  const token = createToken({
+    _id: user._id,
+    userId: user.userId,
+    name: user.name,
+    photo: user.photo,
+  });
 
   const cookieOptions: CookieOptions = {
     expires: new Date(
@@ -35,12 +35,11 @@ function createAndSendTheToken(
     ),
     domain:
       process.env.NODE_ENV === "development"
-        ? "localhost"
+        ? "127.0.0.1" // "localhost" gives an error
         : process.env.CLIENT_SERVER,
     path: "/", //sub domain
-    sameSite: "lax",
-    // can not manipulate the cookie from browser
-    httpOnly: true,
+    sameSite: "lax", // lax for 1st party cookies and none for 3rd party cookies
+    httpOnly: true, // can not manipulate the cookie from browser or read from client side
     //just send it over in https
     secure: process.env.NODE_ENV === "production",
   };
@@ -100,7 +99,45 @@ export const login: ExpressMiddlewareFn<void> = catchAsync(
   }
 );
 
-console.log(
-  process.env.JWT_EXPIRATION_IN,
-  process.env.JWT_COOKIE_EXPIRATION_IN
-);
+interface JwtPayload {
+  _id: mongoose.ObjectId;
+  userId: string;
+  photo: string;
+  name: string;
+  iat: number;
+  exp: number;
+}
+
+export const protect = catchAsync(async function (req, res, next) {
+  let token;
+  //check token is exist
+  if (req.headers.cookie?.startsWith("jwt=")) {
+    token = req.headers.cookie?.split("jwt=")[1];
+  }
+  if (!token)
+    return next(
+      new AppError("You are not logged in, please login to get access ", 401)
+    );
+  // verification token
+  if (!process.env.SECRET_KEY) return;
+  const verifyAsync = promisify(jwt.verify) as unknown as (
+    token: string,
+    key: string
+  ) => Promise<JwtPayload>;
+  const decoded = await verifyAsync(token, process.env.SECRET_KEY);
+
+  // check if user is exist
+
+  const curUser = await User.findById(decoded._id);
+
+  if (!curUser) return next(new AppError("The user no longer exists", 401));
+
+  // check if the password is not changed
+  if (curUser.changePasswordAfter(decoded.iat))
+    return next(
+      new AppError("The password has been changed please login again ", 401)
+    );
+
+  req.user = curUser;
+  next();
+});

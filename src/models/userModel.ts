@@ -3,7 +3,11 @@ import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import { UserDataApi } from "../utils/@types/index";
 
-const userSchema = new mongoose.Schema<UserDataApi>({
+interface Methods {
+  changePasswordAfter(JWTTimeStamp: number): boolean;
+}
+
+const userSchema = new mongoose.Schema<UserDataApi & Methods>({
   name: {
     type: String,
     required: [true, "Please tell us your name."],
@@ -59,6 +63,7 @@ const userSchema = new mongoose.Schema<UserDataApi>({
 
   passwordChangedAt: {
     type: Date,
+    default: null,
   },
   passwordResetToken: {
     type: String,
@@ -94,6 +99,17 @@ userSchema.pre("save", function (next) {
   this.passwordChangedAt = new Date(Date.now() - 1000);
   next();
 });
+
+userSchema.methods.changePasswordAfter = function (
+  this: UserDataApi,
+  JWTTimeStamp: number
+) {
+  if (this.passwordChangedAt) {
+    const passwordChangedAt = this.passwordChangedAt.getTime() / 1000;
+    return passwordChangedAt > JWTTimeStamp;
+  }
+  return false;
+};
 
 const User = mongoose.model("User", userSchema);
 
