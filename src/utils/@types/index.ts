@@ -19,6 +19,24 @@ export type UserDataApi = {
   location?: string;
 };
 
+export type UserDataRes = {
+  data: { user: Pick<UserDataApi, "_id" | "photo" | "name" | "userId"> };
+} & { status: "success" | "fail" | "error" };
+
+export type MongooseObjectId = Types.ObjectId;
+
+export type RoomData = {
+  hostId: Types.ObjectId;
+  roomName: string;
+  roomId: string;
+  bgPhoto: string;
+  active: boolean;
+  password?: string;
+  videoLink?: string;
+  // guests
+  // messages
+};
+
 export type MessageDataApi = {
   senderId: string;
   messageId: string;
@@ -34,6 +52,11 @@ export type PauseVideoDataApi = {
 
 export type UserJoinedRoomDataApi = {
   userId: string;
+};
+
+export type CreateRoomReqDataApi = {
+  roomName: string;
+  videoLink: string;
 };
 
 //Just for api

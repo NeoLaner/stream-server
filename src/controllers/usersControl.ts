@@ -1,14 +1,22 @@
-import { ExpressMiddlewareFn } from "../utils/@types";
+import { ExpressMiddlewareFn, UserDataRes } from "../utils/@types";
 
-export const getUser: ExpressMiddlewareFn<void> = function (req, res) {
-  const { user } = req;
-  res.status(200).send({
+export const getUserViaToken: ExpressMiddlewareFn<void> = function (req, res) {
+  //eslint-disable-next-line
+  const user = req.user!; //from protect middleware
+
+  const data = {
+    _id: user._id,
+    photo: user.photo,
+    name: user.name,
+    userId: user.userId,
+  };
+
+  const respond: UserDataRes = {
     status: "success",
     data: {
-      _id: user?._id,
-      name: user?.name,
-      userId: user?.userId,
-      photo: user?.photo,
+      user: data,
     },
-  });
+  };
+
+  res.status(200).send(respond);
 };

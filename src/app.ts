@@ -9,6 +9,7 @@ import userRouter from "./routes/userRouter";
 import AppError from "./utils/classes/appError";
 import globalErrorControl from "./controllers/errorControl";
 import videoRouter from "./routes/videoRouter";
+import roomRouter from "./routes/roomRouter";
 
 const app = express();
 
@@ -45,6 +46,8 @@ app.get("/test", (req, res) => {
 app.use("/api/v1/video", videoRouter);
 
 app.use("/api/v1/users", userRouter);
+
+app.use("/api/v1/room", roomRouter);
 
 app.all("*", (req, res, next) => {
   return next(new AppError(`Can't find  ${req.originalUrl}`, 404));

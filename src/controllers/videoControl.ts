@@ -3,7 +3,7 @@ import fs from "fs";
 import { ExpressMiddlewareFn } from "../utils/@types";
 
 export const videoStream: ExpressMiddlewareFn<void> = function (req, res) {
-  const fileName = "bigbuck.mp4";
+  const fileName = "bigbuck1.mp4";
   const filePath = path.join(__dirname, "../public", fileName);
 
   const stat = fs.statSync(filePath);

@@ -1,12 +1,11 @@
 import { CookieOptions, Response } from "express";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
-import { promisify } from "util";
 import bcrypt from "bcryptjs";
 import User from "../models/userModel";
 import catchAsync from "../utils/factory/catchAsync";
 import AppError from "../utils/classes/appError";
-import { ExpressMiddlewareFn, UserDataApi } from "../utils/@types";
+import { ExpressMiddlewareFn, UserDataApi, UserDataRes } from "../utils/@types";
+import decodeToken from "../utils/factory/decodeToken";
 
 function createToken(payload: object) {
   if (!process.env.SECRET_KEY) return;
@@ -44,19 +43,22 @@ function createAndSendTheToken(
     secure: process.env.NODE_ENV === "production",
   };
 
-  res.cookie("jwt", token, cookieOptions);
-  res.status(statusCode).json({
+  const data = {
+    _id: user._id,
+    photo: user.photo,
+    name: user.name,
+    userId: user.userId,
+  };
+
+  const respond: UserDataRes = {
     status: "success",
-    token,
     data: {
-      user: {
-        name: user.name,
-        userId: user.userId,
-        email: user.email,
-        role: user.role,
-      },
+      user: data,
     },
-  });
+  };
+
+  res.cookie("jwt", token, cookieOptions);
+  res.status(statusCode).json(respond);
 }
 
 export const signup: ExpressMiddlewareFn<void> = catchAsync(
@@ -99,15 +101,6 @@ export const login: ExpressMiddlewareFn<void> = catchAsync(
   }
 );
 
-interface JwtPayload {
-  _id: mongoose.ObjectId;
-  userId: string;
-  photo: string;
-  name: string;
-  iat: number;
-  exp: number;
-}
-
 export const protect = catchAsync(async function (req, res, next) {
   let token;
   //check token is exist
@@ -119,12 +112,7 @@ export const protect = catchAsync(async function (req, res, next) {
       new AppError("You are not logged in, please login to get access ", 401)
     );
   // verification token
-  if (!process.env.SECRET_KEY) return;
-  const verifyAsync = promisify(jwt.verify) as unknown as (
-    token: string,
-    key: string
-  ) => Promise<JwtPayload>;
-  const decoded = await verifyAsync(token, process.env.SECRET_KEY);
+  const decoded = await decodeToken(token);
 
   // check if user is exist
 
