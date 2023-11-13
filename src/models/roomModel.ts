@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { RoomData } from "../utils/@types/index";
+import { type RoomData } from "../utils/@types";
 import User from "./userModel";
 
 const roomSchema = new mongoose.Schema<RoomData>({
@@ -8,48 +8,45 @@ const roomSchema = new mongoose.Schema<RoomData>({
     required: [true, "The room must has a name."],
   },
 
-  hostId: {
+  roomAuthor: {
     type: mongoose.Schema.ObjectId,
     ref: User,
     lowercase: true,
     required: [true, "The room must have a user as a host."],
   },
 
-  roomId: {
-    type: String,
-    required: [true, "The room must have unique id."],
-    unique: true,
-    lowercase: true,
-  },
-
   videoLink: {
     type: String,
+    required: [true, "The room must have video link attached."],
   },
 
-  bgPhoto: {
+  cover: {
     type: String,
     default: null,
   },
 
-  password: {
-    type: String,
-    minlength: [
-      8,
-      "Please provide a password which has at least 8 characters.",
-    ],
-    select: false,
-  },
-
-  active: {
+  isActive: {
     type: Boolean,
     default: true,
-    select: false,
   },
 
-  // aboutUser: {
-  //   type: mongoose.Schema.ObjectId,
-  //   ref: AboutUser,
-  // },
+  isPrivate: {
+    type: Boolean,
+    default: false,
+  },
+
+  crossorigin: {
+    type: Boolean,
+    default: false,
+  },
+
+  hasSoftSubtitle: {
+    type: Boolean,
+    default: false,
+  },
+
+  hasHardSubtitle: { type: Boolean, default: false },
+  subtitles: { type: [String] },
 });
 
 const Room = mongoose.model("Room", roomSchema);

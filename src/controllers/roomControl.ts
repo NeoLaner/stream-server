@@ -1,28 +1,27 @@
 import Room from "../models/roomModel";
-import { ExpressMiddlewareFn } from "../utils/@types";
+import {
+  RoomDataRes,
+  type ExpressMiddlewareFn,
+  RoomDataReq,
+} from "../utils/@types";
 import catchAsync from "../utils/factory/catchAsync";
-import generateRandomRoomId from "../utils/factory/generateRandomId";
 
 export const roomCreate: ExpressMiddlewareFn<void> = catchAsync(
   async function (req, res) {
-    const { roomName, videoLink } = req.body as {
-      roomName: unknown;
-      videoLink: unknown;
-    };
+    const reqData = req.body as Record<keyof RoomDataReq, unknown>;
 
-    const roomId = generateRandomRoomId(12);
     const userId = req.user?._id;
 
     const data = await Room.create({
-      hostId: userId,
-      roomId,
-      roomName,
-      videoLink,
+      ...reqData,
+      roomAuthor: userId,
     });
 
-    res.status(200).send({
+    const respondData: RoomDataRes = {
       status: "success",
       data: { room: data },
-    });
+    };
+
+    res.status(200).send(respondData);
   }
 );

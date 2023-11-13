@@ -1,6 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 import { Types } from "mongoose";
 
+type Status = "success" | "fail" | "error";
+
 export type UserDataApi = {
   _id: Types.ObjectId;
   name: string;
@@ -20,19 +22,39 @@ export type UserDataApi = {
 };
 
 export type UserDataRes = {
+  status: Status;
   data: { user: Pick<UserDataApi, "_id" | "photo" | "name" | "userId"> };
-} & { status: "success" | "fail" | "error" };
+};
 
 export type MongooseObjectId = Types.ObjectId;
 
 export type RoomData = {
-  hostId: Types.ObjectId;
+  _id: Types.ObjectId;
+  roomAuthor: Types.ObjectId;
   roomName: string;
-  roomId: string;
-  bgPhoto: string;
-  active: boolean;
+  cover: string;
+  isActive: boolean;
+  isPrivate: boolean;
+  videoLink: string;
+  hasHardSubtitle: boolean;
+  hasSoftSubtitle: boolean;
+  subtitles: Array<string>;
+  crossorigin: boolean;
+};
+
+export type RoomDataRes = {
+  status: Status;
+  data: {
+    room: Omit<RoomData, "password">;
+  };
+};
+
+export type RoomDataReq = Omit<RoomData, "_id" | "isActive">;
+
+export type RoomInstanceData = {
+  _id: Types.ObjectId;
+  hostId: Types.ObjectId;
   password?: string;
-  videoLink?: string;
   // guests
   // messages
 };

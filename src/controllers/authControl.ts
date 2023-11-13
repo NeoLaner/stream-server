@@ -4,7 +4,11 @@ import bcrypt from "bcryptjs";
 import User from "../models/userModel";
 import catchAsync from "../utils/factory/catchAsync";
 import AppError from "../utils/classes/appError";
-import { ExpressMiddlewareFn, UserDataApi, UserDataRes } from "../utils/@types";
+import {
+  type ExpressMiddlewareFn,
+  type UserDataApi,
+  type UserDataRes,
+} from "../utils/@types";
 import decodeToken from "../utils/factory/decodeToken";
 
 function createToken(payload: object) {
