@@ -4,6 +4,7 @@ import {
   type ExpressMiddlewareFn,
   RoomDataReq,
 } from "../utils/@types";
+
 import catchAsync from "../utils/factory/catchAsync";
 
 export const roomCreate: ExpressMiddlewareFn<void> = catchAsync(

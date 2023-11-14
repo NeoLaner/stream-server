@@ -1,8 +1,15 @@
 import mongoose from "mongoose";
-import { RoomInstanceData } from "../utils/@types";
+import { InstanceData } from "../utils/@types";
 import User from "./userModel";
+import Room from "./roomModel";
 
-const roomSchema = new mongoose.Schema<RoomInstanceData>({
+const instanceSchema = new mongoose.Schema<InstanceData>({
+  rootRoom: {
+    type: mongoose.Schema.ObjectId,
+    ref: Room,
+    lowercase: true,
+    required: [true, "The room must have a room as a root."],
+  },
   hostId: {
     type: mongoose.Schema.ObjectId,
     ref: User,
@@ -20,6 +27,6 @@ const roomSchema = new mongoose.Schema<RoomInstanceData>({
   },
 });
 
-const Room = mongoose.model("Room", roomSchema);
+const Instance = mongoose.model("Instance", instanceSchema);
 
-export default Room;
+export default Instance;

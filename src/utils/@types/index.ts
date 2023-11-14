@@ -51,12 +51,40 @@ export type RoomDataRes = {
 
 export type RoomDataReq = Omit<RoomData, "_id" | "isActive">;
 
-export type RoomInstanceData = {
+export type InstanceData = {
   _id: Types.ObjectId;
+  rootRoom: Types.ObjectId;
   hostId: Types.ObjectId;
   password?: string;
   // guests
   // messages
+};
+
+export type InstanceReq = {
+  password?: string;
+  rootRoomId: string;
+};
+
+export type InstanceRes = {
+  status: Status;
+  data: {
+    instance: {
+      _id: Types.ObjectId;
+      hostId: Types.ObjectId;
+      rootRoom: Pick<
+        RoomData,
+        | "_id"
+        | "cover"
+        | "crossorigin"
+        | "roomAuthor"
+        | "roomName"
+        | "subtitles"
+        | "videoLink"
+      >;
+    };
+  };
+  //guests
+  //messages
 };
 
 export type MessageDataApi = {
