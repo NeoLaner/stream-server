@@ -87,6 +87,8 @@ export type InstanceRes = {
   //messages
 };
 
+//SOCKET
+
 export type MessageDataApi = {
   senderId: string;
   messageId: string;
