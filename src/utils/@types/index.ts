@@ -88,7 +88,6 @@ export type InstanceRes = {
 };
 
 //SOCKET
-
 export type MessageDataApi = {
   senderId: string;
   messageId: string;
@@ -102,8 +101,11 @@ export type PauseVideoDataApi = {
   isPlaying: false;
 };
 
-export type UserJoinedRoomDataApi = {
+export type UserJoinedRoomData = {
+  user_id: string | string[];
+  instanceId: string | string[];
   userId: string;
+  status: "NotReady";
 };
 
 export type CreateRoomReqDataApi = {

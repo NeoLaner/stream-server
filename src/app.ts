@@ -3,8 +3,8 @@ import express from "express";
 import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
-import { MessageDataApi } from "./utils/@types";
-import { EVENT_NAMES } from "./utils/constants";
+import { UserJoinedRoomData, MessageDataApi } from "./utils/@types";
+import { EVENT_NAMES, USER_EVENT } from "./utils/constants";
 import userRouter from "./routes/userRouter";
 import AppError from "./utils/classes/appError";
 import globalErrorControl from "./controllers/errorControl";
@@ -71,39 +71,31 @@ const ioServer = new Server(expressServer, {
 // });
 
 ioServer.on("connection", (socket) => {
-  console.log("client connected", socket);
+  console.log("client connected", socket.id);
 
   socket.on("disconnect", () => {
     console.log("user disconnected", socket.id);
   });
 
-  // socket.join("")
-  socket.on("messageFromClient", (data) => {
-    console.log(data);
+  //USER
+  socket.on(USER_EVENT.JOINED_ROOM, async (data: UserJoinedRoomData) => {
+    await socket.join(data.instanceId);
+    console.log("user joined in this room: ", data.instanceId);
+    socket.to(data.instanceId).emit(USER_EVENT.JOINED_ROOM, data);
   });
 
-  socket.on("readyToPlay", (data) => {
-    console.log(data);
-  });
-
-  socket.on("pause", (data) => {
-    console.log(data);
-  });
-
-  // socket.on(EVENT_NAMES.JOIN_ROOM, (roomId: string | string[]) => {
-  //   socket.join(roomId);
-  // });
-
-  socket.on(EVENT_NAMES.MESSAGE_EMITTED, (message: MessageDataApi) => {
-    ioServer.emit(EVENT_NAMES.MESSAGE_EMITTED, message);
-  });
-
+  //MEDIA
   socket.on(EVENT_NAMES.VIDEO_PAUSED, () => {
     ioServer.emit(EVENT_NAMES.VIDEO_PAUSED);
   });
 
   socket.on(EVENT_NAMES.VIDEO_PLAYED, () => {
     ioServer.emit(EVENT_NAMES.VIDEO_PLAYED);
+  });
+
+  //CHAT
+  socket.on(EVENT_NAMES.MESSAGE_EMITTED, (message: MessageDataApi) => {
+    ioServer.emit(EVENT_NAMES.MESSAGE_EMITTED, message);
   });
 });
 
