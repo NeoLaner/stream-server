@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { Types } from "mongoose";
+import { EVENT_NAMES } from "../constants";
 
 type Status = "success" | "fail" | "error";
 
@@ -102,11 +103,30 @@ export type PauseVideoDataApi = {
 };
 
 export type UserJoinedRoomData = {
-  user_id: string | string[];
-  instanceId: string | string[];
-  userId: string;
-  status: "NotReady";
+  eventType: typeof EVENT_NAMES.USER_JOINED_ROOM;
+  payload: {
+    user_id: string | string[];
+    instanceId: string | string[];
+    userId: string;
+    status: "notReady";
+  };
 };
+
+export type UserWaitingForData = {
+  eventType: "user_waiting_for_data";
+};
+
+export type EventNames = (typeof EVENT_NAMES)[keyof typeof EVENT_NAMES];
+
+export type EventData<EventType extends EventNames> = {
+  user_joined_room: UserJoinedRoomData;
+  user_waiting_for_data: UserWaitingForData;
+  MESSAGE_EMITTED: UserJoinedRoomData;
+  VIDEO_PAUSED: UserJoinedRoomData;
+  VIDEO_PLAYED: UserJoinedRoomData;
+  USER_READY: UserJoinedRoomData;
+  GET_USER: UserJoinedRoomData;
+}[EventType];
 
 export type CreateRoomReqDataApi = {
   roomName: string;

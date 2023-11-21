@@ -4,7 +4,7 @@ import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
 import { UserJoinedRoomData, MessageDataApi } from "./utils/@types";
-import { EVENT_NAMES, USER_EVENT } from "./utils/constants";
+import { EVENT_NAMES } from "./utils/constants";
 import userRouter from "./routes/userRouter";
 import AppError from "./utils/classes/appError";
 import globalErrorControl from "./controllers/errorControl";
@@ -17,7 +17,7 @@ const app = express();
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
-  console.log(req.ip);
+  // console.log(req.ip);
   next();
 });
 
@@ -78,10 +78,10 @@ ioServer.on("connection", (socket) => {
   });
 
   //USER
-  socket.on(USER_EVENT.JOINED_ROOM, async (data: UserJoinedRoomData) => {
-    await socket.join(data.instanceId);
-    console.log("user joined in this room: ", data.instanceId);
-    socket.to(data.instanceId).emit(USER_EVENT.JOINED_ROOM, data);
+  socket.on("user", async (data: UserJoinedRoomData) => {
+    await socket.join(data.payload.instanceId);
+    console.log("user joined in this room:", data.payload.instanceId);
+    socket.to(data.payload.instanceId).emit("user", data);
   });
 
   //MEDIA
