@@ -57,7 +57,12 @@ export type InstanceData = {
   rootRoom: Types.ObjectId;
   hostId: Types.ObjectId;
   password?: string;
-  // guests
+  guests: {
+    _id: string;
+    userId: string;
+    status: UserStatus;
+    instanceId: string;
+  }[];
   // messages
 };
 
@@ -72,6 +77,7 @@ export type InstanceRes = {
     instance: {
       _id: Types.ObjectId;
       hostId: Types.ObjectId;
+      guests: InstanceData["guests"];
       rootRoom: Pick<
         RoomData,
         | "_id"
@@ -102,30 +108,28 @@ export type PauseVideoDataApi = {
   isPlaying: false;
 };
 
-export type UserJoinedRoomData = {
+export type UserStatus = "notReady" | "waitingForData";
+
+export type UserSocketData = {
   eventType: typeof EVENT_NAMES.USER_JOINED_ROOM;
   payload: {
-    user_id: string | string[];
-    instanceId: string | string[];
+    _id: string;
     userId: string;
-    status: "notReady";
+    status: UserStatus;
+    instanceId: string | string[];
   };
-};
-
-export type UserWaitingForData = {
-  eventType: "user_waiting_for_data";
 };
 
 export type EventNames = (typeof EVENT_NAMES)[keyof typeof EVENT_NAMES];
 
 export type EventData<EventType extends EventNames> = {
-  user_joined_room: UserJoinedRoomData;
-  user_waiting_for_data: UserWaitingForData;
-  MESSAGE_EMITTED: UserJoinedRoomData;
-  VIDEO_PAUSED: UserJoinedRoomData;
-  VIDEO_PLAYED: UserJoinedRoomData;
-  USER_READY: UserJoinedRoomData;
-  GET_USER: UserJoinedRoomData;
+  user_joined_room: UserSocketData;
+  user_waiting_for_data: UserSocketData;
+  MESSAGE_EMITTED: UserSocketData;
+  VIDEO_PAUSED: UserSocketData;
+  VIDEO_PLAYED: UserSocketData;
+  USER_READY: UserSocketData;
+  GET_USER: UserSocketData;
 }[EventType];
 
 export type CreateRoomReqDataApi = {

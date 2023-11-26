@@ -8,15 +8,22 @@ const instanceSchema = new mongoose.Schema<InstanceData>({
     type: mongoose.Schema.ObjectId,
     ref: Room,
     lowercase: true,
-    required: [true, "The room must have a room as a root."],
+    required: [true, "The instance must have a room as a root."],
   },
   hostId: {
     type: mongoose.Schema.ObjectId,
     ref: User,
     lowercase: true,
-    required: [true, "The room must have a user as a host."],
+    required: [true, "The instance must have a user as a host."],
   },
-
+  guests: [
+    {
+      userId: String,
+      user_id: String,
+      status: String,
+      instanceId: String,
+    },
+  ],
   password: {
     type: String,
     minlength: [

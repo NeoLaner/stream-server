@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
-import { UserJoinedRoomData, MessageDataApi } from "./utils/@types";
+import { MessageDataApi, UserSocketData } from "./utils/@types";
 import { EVENT_NAMES } from "./utils/constants";
 import userRouter from "./routes/userRouter";
 import AppError from "./utils/classes/appError";
@@ -11,6 +11,7 @@ import globalErrorControl from "./controllers/errorControl";
 import videoRouter from "./routes/videoRouter";
 import roomRouter from "./routes/roomRouter";
 import instanceRouter from "./routes/instanceRouter";
+import Instance from "./models/instanceModel";
 
 const app = express();
 
@@ -78,7 +79,24 @@ ioServer.on("connection", (socket) => {
   });
 
   //USER
-  socket.on("user", async (data: UserJoinedRoomData) => {
+  socket.on("user", async (data: UserSocketData) => {
+    // await Instance.findByIdAndUpdate(data.payload.instanceId, data);
+    const oldInstanceData = await Instance.findById(data.payload.instanceId);
+    if (!oldInstanceData) return;
+    const oldGuestData = oldInstanceData.guests.filter(
+      (guest) => guest.userId !== data.payload.userId
+    );
+    await oldInstanceData?.updateOne({
+      oldInstanceData,
+      guests: [
+        ...oldGuestData,
+        {
+          status: data.payload.status,
+          userId: data.payload.userId,
+          instanceId: data.payload.instanceId,
+        },
+      ],
+    });
     await socket.join(data.payload.instanceId);
     console.log("user joined in this room:", data.payload.instanceId);
     socket.to(data.payload.instanceId).emit("user", data);

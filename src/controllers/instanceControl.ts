@@ -29,6 +29,7 @@ export const createInstance: ExpressMiddlewareFn<void> = catchAsync(
         instance: {
           _id: roomInstanceData._id,
           hostId: roomInstanceData.hostId,
+          guests: [],
           rootRoom: {
             _id: rootRoomData._id,
             cover: rootRoomData.cover,
@@ -65,6 +66,7 @@ export const getInstance: ExpressMiddlewareFn<void> = catchAsync(
         instance: {
           _id: roomInstanceData._id,
           hostId: roomInstanceData.hostId,
+          guests: roomInstanceData.guests,
           rootRoom: {
             _id: rootRoomData._id,
             cover: rootRoomData.cover,
