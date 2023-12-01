@@ -111,7 +111,7 @@ export type PauseVideoDataApi = {
 export type UserStatus = "notReady" | "waitingForData";
 
 export type UserSocketData = {
-  eventType: typeof EVENT_NAMES.USER_JOINED_ROOM;
+  eventType: `user_${string}`;
   payload: {
     _id: string;
     userId: string;

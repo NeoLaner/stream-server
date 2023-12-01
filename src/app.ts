@@ -74,18 +74,18 @@ const ioServer = new Server(expressServer, {
 ioServer.on("connection", (socket) => {
   console.log("client connected", socket.id);
 
-  socket.on("disconnect", () => {
-    console.log("user disconnected", socket.id);
-  });
-
   //USER
   socket.on("user", async (data: UserSocketData) => {
-    // await Instance.findByIdAndUpdate(data.payload.instanceId, data);
+    //get instance data
     const oldInstanceData = await Instance.findById(data.payload.instanceId);
     if (!oldInstanceData) return;
+
+    //delete old data of current user from the guests array
     const oldGuestData = oldInstanceData.guests.filter(
       (guest) => guest.userId !== data.payload.userId
     );
+
+    //persist data to database
     await oldInstanceData?.updateOne({
       oldInstanceData,
       guests: [
@@ -97,9 +97,37 @@ ioServer.on("connection", (socket) => {
         },
       ],
     });
-    await socket.join(data.payload.instanceId);
-    console.log("user joined in this room:", data.payload.instanceId);
-    socket.to(data.payload.instanceId).emit("user", data);
+
+    //join the room
+    const roomId = data.payload.instanceId;
+    await socket.join(roomId);
+    console.log("user joined in this room:", roomId);
+    console.log(`user ${data.payload.userId} joined`, socket.rooms);
+
+    socket.to(roomId).emit("user", data);
+
+    socket.on("disconnecting", async () => {
+      console.log(`user ${data.payload.userId} disconnecting`, socket.rooms);
+
+      const documentId = oldInstanceData._id; // Replace with the actual document ID
+      const guestId = data.payload.userId; // Replace with the actual guest ID to delete
+      /*
+
+      await Instance.updateOne(
+        { _id: documentId },
+        { $pull: { guests: { userId: guestIdToDelete } } }
+      ); //delete the guests by id
+      */
+      await Instance.updateOne(
+        { _id: documentId, "guests.userId": guestId },
+        {
+          $set: {
+            "guests.$.status": "disconnected", // Replace with the new status value
+            // Add other fields to update as needed
+          },
+        }
+      );
+    });
   });
 
   //MEDIA
@@ -114,6 +142,10 @@ ioServer.on("connection", (socket) => {
   //CHAT
   socket.on(EVENT_NAMES.MESSAGE_EMITTED, (message: MessageDataApi) => {
     ioServer.emit(EVENT_NAMES.MESSAGE_EMITTED, message);
+  });
+  //
+  socket.on("disconnect", () => {
+    console.log("user disconnected", socket.id);
   });
 });
 
