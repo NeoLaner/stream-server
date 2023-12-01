@@ -125,10 +125,10 @@ export type EventNames = (typeof EVENT_NAMES)[keyof typeof EVENT_NAMES];
 export type EventData<EventType extends EventNames> = {
   user_joined_room: UserSocketData;
   user_waiting_for_data: UserSocketData;
+  user_ready: UserSocketData;
   MESSAGE_EMITTED: UserSocketData;
   VIDEO_PAUSED: UserSocketData;
   VIDEO_PLAYED: UserSocketData;
-  USER_READY: UserSocketData;
   GET_USER: UserSocketData;
 }[EventType];
 

@@ -104,7 +104,7 @@ ioServer.on("connection", (socket) => {
     console.log("user joined in this room:", roomId);
     console.log(`user ${data.payload.userId} joined`, socket.rooms);
 
-    socket.to(roomId).emit("user", data);
+    ioServer.to(roomId).emit("user", data);
 
     socket.on("disconnecting", async () => {
       console.log(`user ${data.payload.userId} disconnecting`, socket.rooms);
