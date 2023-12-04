@@ -59,6 +59,7 @@
     "dot-notation": "off",
     "comma-dangle": "off",
     "@typescript-eslint/comma-dangle": "off",
-    "@typescript-eslint/space-before-function-paren": "off"
+    "@typescript-eslint/space-before-function-paren": "off",
+    "no-void": "off"
   }
 }

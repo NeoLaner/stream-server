@@ -113,7 +113,6 @@ export type UserStatus = "notReady" | "waitingForData";
 export type UserSocketData = {
   eventType: `user_${string}`;
   payload: {
-    _id: string;
     userId: string;
     status: UserStatus;
     instanceId: string | string[];
@@ -126,6 +125,7 @@ export type EventData<EventType extends EventNames> = {
   user_joined_room: UserSocketData;
   user_waiting_for_data: UserSocketData;
   user_ready: UserSocketData;
+  user_disconnected: UserSocketData;
   MESSAGE_EMITTED: UserSocketData;
   VIDEO_PAUSED: UserSocketData;
   VIDEO_PLAYED: UserSocketData;

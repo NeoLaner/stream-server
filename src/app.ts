@@ -12,6 +12,7 @@ import videoRouter from "./routes/videoRouter";
 import roomRouter from "./routes/roomRouter";
 import instanceRouter from "./routes/instanceRouter";
 import Instance from "./models/instanceModel";
+import { disconnectController } from "./controllers/socketControl";
 
 const app = express();
 
@@ -75,14 +76,14 @@ ioServer.on("connection", (socket) => {
   console.log("client connected", socket.id);
 
   //USER
-  socket.on("user", async (data: UserSocketData) => {
+  socket.on("user", async (wsData: UserSocketData) => {
     //get instance data
-    const oldInstanceData = await Instance.findById(data.payload.instanceId);
+    const oldInstanceData = await Instance.findById(wsData.payload.instanceId);
     if (!oldInstanceData) return;
 
     //delete old data of current user from the guests array
     const oldGuestData = oldInstanceData.guests.filter(
-      (guest) => guest.userId !== data.payload.userId
+      (guest) => guest.userId !== wsData.payload.userId
     );
 
     //persist data to database
@@ -91,43 +92,30 @@ ioServer.on("connection", (socket) => {
       guests: [
         ...oldGuestData,
         {
-          status: data.payload.status,
-          userId: data.payload.userId,
-          instanceId: data.payload.instanceId,
+          status: wsData.payload.status,
+          userId: wsData.payload.userId,
+          instanceId: wsData.payload.instanceId,
         },
       ],
     });
 
     //join the room
-    const roomId = data.payload.instanceId;
+    const roomId = wsData.payload.instanceId;
     await socket.join(roomId);
     console.log("user joined in this room:", roomId);
-    console.log(`user ${data.payload.userId} joined`, socket.rooms);
+    console.log(`user ${wsData.payload.userId} joined`, socket.rooms);
 
-    ioServer.to(roomId).emit("user", data);
+    ioServer.to(roomId).emit("user", wsData);
 
-    socket.on("disconnecting", async () => {
-      console.log(`user ${data.payload.userId} disconnecting`, socket.rooms);
-
-      const documentId = oldInstanceData._id; // Replace with the actual document ID
-      const guestId = data.payload.userId; // Replace with the actual guest ID to delete
-      /*
-
-      await Instance.updateOne(
-        { _id: documentId },
-        { $pull: { guests: { userId: guestIdToDelete } } }
-      ); //delete the guests by id
-      */
-      await Instance.updateOne(
-        { _id: documentId, "guests.userId": guestId },
-        {
-          $set: {
-            "guests.$.status": "disconnected", // Replace with the new status value
-            // Add other fields to update as needed
-          },
-        }
-      );
-    });
+    socket.on(
+      "disconnecting",
+      disconnectController.bind(this, {
+        socket,
+        oldInstanceData,
+        wsData,
+        roomId,
+      })
+    );
   });
 
   //MEDIA
