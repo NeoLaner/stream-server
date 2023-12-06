@@ -119,6 +119,10 @@ export type UserSocketData = {
   };
 };
 
+export type MediaPausedSocket = {
+  playedSeconds: number;
+};
+
 export type EventNames = (typeof EVENT_NAMES)[keyof typeof EVENT_NAMES];
 
 export type EventData<EventType extends EventNames> = {
@@ -126,10 +130,10 @@ export type EventData<EventType extends EventNames> = {
   user_waiting_for_data: UserSocketData;
   user_ready: UserSocketData;
   user_disconnected: UserSocketData;
-  MESSAGE_EMITTED: UserSocketData;
-  VIDEO_PAUSED: UserSocketData;
-  VIDEO_PLAYED: UserSocketData;
+  media_paused: MediaPausedSocket;
+  media_played: null;
   GET_USER: UserSocketData;
+  MESSAGE_EMITTED: UserSocketData;
 }[EventType];
 
 export type CreateRoomReqDataApi = {

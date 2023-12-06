@@ -74,10 +74,10 @@ const ioServer = new Server(expressServer, {
 
 ioServer.on("connection", (socket) => {
   console.log("client connected", socket.id);
-
   //USER
   socket.on("user", async (wsData: UserSocketData) => {
     //get instance data
+
     const oldInstanceData = await Instance.findById(wsData.payload.instanceId);
     if (!oldInstanceData) return;
 
@@ -117,14 +117,14 @@ ioServer.on("connection", (socket) => {
       })
     );
   });
-
   //MEDIA
-  socket.on(EVENT_NAMES.VIDEO_PAUSED, () => {
-    ioServer.emit(EVENT_NAMES.VIDEO_PAUSED);
+  console.log(socket.rooms);
+  socket.on(EVENT_NAMES.MEDIA_PAUSED, () => {
+    ioServer.to(Array.from(socket.rooms)[1]).emit(EVENT_NAMES.MEDIA_PAUSED);
   });
 
-  socket.on(EVENT_NAMES.VIDEO_PLAYED, () => {
-    ioServer.emit(EVENT_NAMES.VIDEO_PLAYED);
+  socket.on(EVENT_NAMES.MEDIA_PLAYED, () => {
+    ioServer.emit(EVENT_NAMES.MEDIA_PLAYED);
   });
 
   //CHAT
