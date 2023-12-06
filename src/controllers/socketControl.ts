@@ -48,7 +48,6 @@ export async function disconnectController({
     payload: {
       userId: wsData.payload.userId,
       status: "disconnected",
-      instanceId: wsData.payload.instanceId,
     },
   });
 }

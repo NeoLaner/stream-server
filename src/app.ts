@@ -74,6 +74,7 @@ const ioServer = new Server(expressServer, {
 
 ioServer.on("connection", (socket) => {
   console.log("client connected", socket.id);
+
   //USER
   socket.on("user", async (wsData: UserSocketData) => {
     //get instance data
@@ -94,12 +95,12 @@ ioServer.on("connection", (socket) => {
         {
           status: wsData.payload.status,
           userId: wsData.payload.userId,
-          instanceId: wsData.payload.instanceId,
         },
       ],
     });
 
     //join the room
+
     const roomId = wsData.payload.instanceId;
     await socket.join(roomId);
     console.log("user joined in this room:", roomId);

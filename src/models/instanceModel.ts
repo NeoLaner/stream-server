@@ -19,9 +19,7 @@ const instanceSchema = new mongoose.Schema<InstanceData>({
   guests: [
     {
       userId: String,
-      user_id: String,
       status: String,
-      instanceId: String,
     },
   ],
   password: {

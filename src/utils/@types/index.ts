@@ -61,7 +61,6 @@ export type InstanceData = {
     _id: string;
     userId: string;
     status: UserStatus;
-    instanceId: string;
   }[];
   // messages
 };
@@ -108,7 +107,7 @@ export type PauseVideoDataApi = {
   isPlaying: false;
 };
 
-export type UserStatus = "notReady" | "waitingForData";
+export type UserStatus = "notReady" | "ready" | "waitingForData";
 
 export type UserSocketData = {
   eventType: `user_${string}`;
