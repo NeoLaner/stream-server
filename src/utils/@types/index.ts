@@ -107,7 +107,12 @@ export type PauseVideoDataApi = {
   isPlaying: false;
 };
 
-export type UserStatus = "notReady" | "ready" | "waitingForData";
+export type UserStatus =
+  | "notReady"
+  | "ready"
+  | "waitingForData"
+  | "paused"
+  | "disconnected";
 
 export type UserSocketData = {
   eventType: `user_${string}`;
@@ -118,8 +123,14 @@ export type UserSocketData = {
   };
 };
 
-export type MediaPausedSocket = {
-  playedSeconds: number;
+export type MediaSocketData = {
+  eventType: `media_${string}`;
+  payload: {
+    userId: string;
+    status: UserStatus;
+    playedSeconds: number;
+    instanceId: string | string[];
+  };
 };
 
 export type EventNames = (typeof EVENT_NAMES)[keyof typeof EVENT_NAMES];
@@ -129,8 +140,8 @@ export type EventData<EventType extends EventNames> = {
   user_waiting_for_data: UserSocketData;
   user_ready: UserSocketData;
   user_disconnected: UserSocketData;
-  media_paused: MediaPausedSocket;
-  media_played: null;
+  media_paused: MediaSocketData;
+  media_played: MediaSocketData;
   GET_USER: UserSocketData;
   MESSAGE_EMITTED: UserSocketData;
 }[EventType];

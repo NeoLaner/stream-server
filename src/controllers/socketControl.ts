@@ -5,7 +5,7 @@ import Instance from "../models/instanceModel";
 import { EVENT_NAMES } from "../utils/constants";
 
 type DisconnectController = {
-  socket: Socket;
+  ioServer: Server;
   wsData: UserSocketData;
   oldInstanceData: Document<unknown, NonNullable<unknown>, InstanceData> &
     InstanceData &
@@ -15,11 +15,11 @@ type DisconnectController = {
 };
 
 async function disconnectController({
-  socket,
+  ioServer,
   wsData,
   oldInstanceData,
 }: DisconnectController) {
-  console.log(`user ${wsData.payload.userId} disconnecting`, socket.rooms);
+  // console.log(`user ${wsData.payload.userId} disconnecting`, socket.rooms);
 
   const documentId = oldInstanceData._id; // Replace with the actual document ID
   const guestId = wsData.payload.userId; // Replace with the actual guest ID to delete
@@ -40,13 +40,15 @@ async function disconnectController({
     }
   );
 
-  socket.to(wsData.payload.instanceId).emit("user", {
+  const dcWsData: UserSocketData = {
     eventType: EVENT_NAMES.USER_DISCONNECTED,
     payload: {
       userId: wsData.payload.userId,
       status: "disconnected",
+      instanceId: wsData.payload.instanceId,
     },
-  });
+  };
+  ioServer.to(wsData.payload.instanceId).emit("user", dcWsData);
 }
 
 type UserSocketControl = {
@@ -91,9 +93,23 @@ export async function userSocketControl({
 
   socket.on("disconnecting", () =>
     disconnectController({
-      socket,
+      ioServer,
       oldInstanceData,
       wsData,
     })
   );
 }
+
+/*
+type MediaSocketControl = {
+  ioServer: Server;
+  socket: Socket;
+  wsData: MediaPausedSocket;
+};
+
+export async function mediaSocketControl({
+  ioServer,
+  socket,
+  wsData,
+}: UserSocketControl) {}
+*/

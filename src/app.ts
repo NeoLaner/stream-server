@@ -3,7 +3,11 @@ import express from "express";
 import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
-import { MessageDataApi, UserSocketData } from "./utils/@types";
+import {
+  MediaSocketData,
+  MessageDataApi,
+  UserSocketData,
+} from "./utils/@types";
 import { EVENT_NAMES } from "./utils/constants";
 import userRouter from "./routes/userRouter";
 import AppError from "./utils/classes/appError";
@@ -80,6 +84,11 @@ ioServer.on("connection", (socket) => {
   );
 
   //MEDIA
+  socket.on("media", (wsData: MediaSocketData) => {
+    ioServer.to(wsData.payload.instanceId).emit("media", wsData);
+  });
+
+  /*
   socket.on(EVENT_NAMES.MEDIA_PAUSED, () => {
     ioServer.to(Array.from(socket.rooms)[1]).emit(EVENT_NAMES.MEDIA_PAUSED);
   });
@@ -87,6 +96,7 @@ ioServer.on("connection", (socket) => {
   socket.on(EVENT_NAMES.MEDIA_PLAYED, () => {
     ioServer.emit(EVENT_NAMES.MEDIA_PLAYED);
   });
+  */
 
   //CHAT
   socket.on(EVENT_NAMES.MESSAGE_EMITTED, (message: MessageDataApi) => {
