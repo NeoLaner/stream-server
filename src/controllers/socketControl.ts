@@ -1,5 +1,5 @@
 import type { Document, Types } from "mongoose";
-import { Socket } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { InstanceData, UserSocketData } from "../utils/@types";
 import Instance from "../models/instanceModel";
 import { EVENT_NAMES } from "../utils/constants";
@@ -12,14 +12,12 @@ type DisconnectController = {
     Required<{
       _id: Types.ObjectId;
     }>;
-  roomId: string | string[];
 };
 
-export async function disconnectController({
+async function disconnectController({
   socket,
   wsData,
   oldInstanceData,
-  roomId,
 }: DisconnectController) {
   console.log(`user ${wsData.payload.userId} disconnecting`, socket.rooms);
 
@@ -32,7 +30,7 @@ export async function disconnectController({
     { $pull: { guests: { userId: guestIdToDelete } } }
   ); //delete the guests by id
   */
-  const newData = await Instance.updateOne(
+  await Instance.updateOne(
     { _id: documentId, "guests.userId": guestId },
     {
       $set: {
@@ -41,13 +39,61 @@ export async function disconnectController({
       },
     }
   );
-  console.log(newData);
 
-  socket.to(roomId).emit("user", {
+  socket.to(wsData.payload.instanceId).emit("user", {
     eventType: EVENT_NAMES.USER_DISCONNECTED,
     payload: {
       userId: wsData.payload.userId,
       status: "disconnected",
     },
   });
+}
+
+type UserSocketControl = {
+  ioServer: Server;
+  socket: Socket;
+  wsData: UserSocketData;
+};
+export async function userSocketControl({
+  ioServer,
+  socket,
+  wsData,
+}: UserSocketControl) {
+  //get instance data
+
+  const oldInstanceData = await Instance.findById(wsData.payload.instanceId);
+  if (!oldInstanceData) return;
+
+  //delete old data of current user from the guests array
+  const oldGuestData = oldInstanceData.guests.filter(
+    (guest) => guest.userId !== wsData.payload.userId
+  );
+
+  //persist data to database
+  await oldInstanceData?.updateOne({
+    oldInstanceData,
+    guests: [
+      ...oldGuestData,
+      {
+        status: wsData.payload.status,
+        userId: wsData.payload.userId,
+      },
+    ],
+  });
+
+  //join the room
+  const roomId = wsData.payload.instanceId;
+  await socket.join(roomId);
+  console.log("user joined in this room:", roomId);
+  console.log(`user ${wsData.payload.userId} joined`, socket.rooms);
+
+  ioServer.to(roomId).emit("user", wsData);
+
+  socket.on("disconnecting", () =>
+    disconnectController({
+      socket,
+      oldInstanceData,
+      wsData,
+    })
+  );
 }

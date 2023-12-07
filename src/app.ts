@@ -11,8 +11,7 @@ import globalErrorControl from "./controllers/errorControl";
 import videoRouter from "./routes/videoRouter";
 import roomRouter from "./routes/roomRouter";
 import instanceRouter from "./routes/instanceRouter";
-import Instance from "./models/instanceModel";
-import { disconnectController } from "./controllers/socketControl";
+import { userSocketControl } from "./controllers/socketControl";
 
 const app = express();
 
@@ -75,51 +74,12 @@ const ioServer = new Server(expressServer, {
 ioServer.on("connection", (socket) => {
   console.log("client connected", socket.id);
 
-  //USER
-  socket.on("user", async (wsData: UserSocketData) => {
-    //get instance data
+  //USER (handling Joining Room, Disconnection)
+  socket.on("user", (wsData: UserSocketData) =>
+    userSocketControl({ ioServer, socket, wsData })
+  );
 
-    const oldInstanceData = await Instance.findById(wsData.payload.instanceId);
-    if (!oldInstanceData) return;
-
-    //delete old data of current user from the guests array
-    const oldGuestData = oldInstanceData.guests.filter(
-      (guest) => guest.userId !== wsData.payload.userId
-    );
-
-    //persist data to database
-    await oldInstanceData?.updateOne({
-      oldInstanceData,
-      guests: [
-        ...oldGuestData,
-        {
-          status: wsData.payload.status,
-          userId: wsData.payload.userId,
-        },
-      ],
-    });
-
-    //join the room
-
-    const roomId = wsData.payload.instanceId;
-    await socket.join(roomId);
-    console.log("user joined in this room:", roomId);
-    console.log(`user ${wsData.payload.userId} joined`, socket.rooms);
-
-    ioServer.to(roomId).emit("user", wsData);
-
-    socket.on(
-      "disconnecting",
-      disconnectController.bind(this, {
-        socket,
-        oldInstanceData,
-        wsData,
-        roomId,
-      })
-    );
-  });
   //MEDIA
-  console.log(socket.rooms);
   socket.on(EVENT_NAMES.MEDIA_PAUSED, () => {
     ioServer.to(Array.from(socket.rooms)[1]).emit(EVENT_NAMES.MEDIA_PAUSED);
   });
