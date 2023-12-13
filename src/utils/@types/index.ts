@@ -112,7 +112,8 @@ export type UserStatus =
   | "ready"
   | "waitingForData"
   | "paused"
-  | "disconnected";
+  | "disconnected"
+  | "played";
 
 export type UserSocketData = {
   eventType: `user_${string}`;
