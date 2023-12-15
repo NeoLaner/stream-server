@@ -111,9 +111,9 @@ export type UserStatus =
   | "notReady"
   | "ready"
   | "waitingForData"
-  | "paused"
-  | "disconnected"
-  | "played";
+  | "disconnected";
+
+export type MediaStatus = "played" | "paused";
 
 export type UserSocketData = {
   eventType: `user_${string}`;
@@ -128,7 +128,7 @@ export type MediaSocketData = {
   eventType: `media_${string}`;
   payload: {
     userId: string;
-    status: UserStatus;
+    status: MediaStatus;
     playedSeconds: number;
     instanceId: string | string[];
   };
