@@ -62,6 +62,7 @@ export type InstanceData = {
     userId: string;
     status: UserStatus;
   }[];
+  // media: object;
   // messages
 };
 
@@ -124,12 +125,14 @@ export type UserSocketData = {
   };
 };
 
+export type MediaCaused = "auto" | "manual";
 export type MediaSocketData = {
   eventType: `media_${string}`;
   payload: {
     userId: string;
     status: MediaStatus;
     playedSeconds: number;
+    caused?: MediaCaused;
     instanceId: string | string[];
   };
 };
