@@ -144,6 +144,7 @@ export type EventData<EventType extends EventNames> = {
   user_waiting_for_data: UserSocketData;
   user_ready: UserSocketData;
   user_disconnected: UserSocketData;
+  user_set_id: UserSocketData;
   media_paused: MediaSocketData;
   media_played: MediaSocketData;
   GET_USER: UserSocketData;
