@@ -1,18 +1,18 @@
-import { Server, Socket } from "socket.io";
+import { Namespace, Socket } from "socket.io";
 import { UserSocketData } from "../utils/@types";
 import Instance from "../models/instanceModel";
 import { EVENT_NAMES } from "../utils/constants";
+import { disconnectController } from "./disconnectControl";
 
-const userSocketMap = new Map<string, string>();
 /*
 const userRoomMapByNamespace: Record<string, Map<string, string>> = {};
 async function joinRoomOnce({
-  socket,
+  socketUser,
   namespace,
   userId,
   roomId,
 }: {
-  socket: Socket;
+  socketUser: Socket;
   namespace: string;
   userId: string;
   roomId: string;
@@ -29,65 +29,26 @@ async function joinRoomOnce({
 
   if (currentRoom) {
     // User is already in a room, leave that room
-    await socket.leave(currentRoom);
+    await socketUser.leave(currentRoom);
     console.log("user leave the room", { userId });
   }
 
   // Join the specified room
-  await socket.join(roomId);
+  await socketUser.join(roomId);
 
   // Update the user-room map
   userRoomMap.set(userId, roomId);
 }
 */
-type DisconnectController = {
-  ioServer: Server;
-  wsData: UserSocketData;
-};
-
-async function disconnectController({
-  ioServer,
-  wsData,
-}: DisconnectController) {
-  // console.log(`user ${wsData.payload.userId} disconnecting`, socket.rooms);
-
-  const documentId = wsData.payload.instanceId; // Replace with the actual document ID
-  const guestId = wsData.payload.userId; // Replace with the actual guest ID to delete
-  /*
-
-  await Instance.updateOne(
-    { _id: documentId },
-    { $pull: { guests: { userId: guestIdToDelete } } }
-  ); //delete the guests by id
-  */
-
-  const dcWsData: UserSocketData = {
-    eventType: EVENT_NAMES.USER_DISCONNECTED,
-    payload: {
-      userId: wsData.payload.userId,
-      status: "disconnected",
-      instanceId: wsData.payload.instanceId,
-    },
-  };
-  ioServer.to(wsData.payload.instanceId).emit("user", dcWsData);
-  await Instance.updateOne(
-    { _id: documentId, "guests.userId": guestId },
-    {
-      $set: {
-        "guests.$.status": "disconnected", // Replace with the new status value
-        // Add other fields to update as needed
-      },
-    }
-  );
-}
+const userSocketMap = new Map<string, string>();
 
 type UserSocketControl = {
-  ioServer: Server;
+  userNamespace: Namespace;
   socket: Socket;
   wsData: UserSocketData;
 };
 export async function userSocketControl({
-  ioServer,
+  userNamespace,
   socket,
   wsData,
 }: UserSocketControl) {
@@ -97,7 +58,7 @@ export async function userSocketControl({
     if (currentRoom) {
       //dc the previous socket of user if he had.
       console.log("disconnect worked sucka bliat");
-      ioServer.sockets.sockets.get(currentRoom)?.disconnect();
+      userNamespace.sockets.get(currentRoom)?.disconnect();
     }
     userSocketMap.set(userId, socket.id);
   }
@@ -105,12 +66,13 @@ export async function userSocketControl({
   const roomId = wsData.payload.instanceId as string;
   await socket.join(roomId);
 
-  ioServer.to(roomId).emit("user", wsData);
+  userNamespace.to(roomId).emit("user", wsData);
 
   socket.on("disconnecting", () =>
     disconnectController({
-      ioServer,
-      wsData,
+      userNamespace,
+      instanceId: wsData.payload.instanceId,
+      userId: wsData.payload.userId,
     })
   );
   //get instance data
@@ -137,13 +99,13 @@ export async function userSocketControl({
 /*
 type MediaSocketControl = {
   ioServer: Server;
-  socket: Socket;
+  socketUser: Socket;
   wsData: MediaPausedSocket;
 };
 
 export async function mediaSocketControl({
   ioServer,
-  socket,
+  socketUser,
   wsData,
 }: UserSocketControl) {}
 */

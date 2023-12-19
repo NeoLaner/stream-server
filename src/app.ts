@@ -15,7 +15,7 @@ import globalErrorControl from "./controllers/errorControl";
 import videoRouter from "./routes/videoRouter";
 import roomRouter from "./routes/roomRouter";
 import instanceRouter from "./routes/instanceRouter";
-import { userSocketControl } from "./controllers/socketControl";
+import { userSocketControl } from "./controllers/userSocketControl";
 
 const app = express();
 
@@ -78,11 +78,6 @@ const ioServer = new Server(expressServer, {
 ioServer.on("connection", (socket) => {
   console.log("client connected", socket.id);
 
-  //USER (handling Joining Room, Disconnection)
-  socket.on("user", (wsData: UserSocketData) =>
-    userSocketControl({ ioServer, socket, wsData })
-  );
-
   //MEDIA
   socket.on("media", (wsData: MediaSocketData) => {
     ioServer.to(wsData.payload.instanceId).emit("media", wsData);
@@ -107,5 +102,19 @@ ioServer.on("connection", (socket) => {
     console.log("user disconnected", socket.id);
   });
 });
+
+const userNamespace = ioServer.of("/user");
+userNamespace.on("connection", (socket) => {
+  socket.on("user", (wsData: UserSocketData) =>
+    userSocketControl({ userNamespace, socket, wsData })
+  );
+});
+
+// const mediaNamespace = ioServer.of("/media");
+// userNamespace.on("connection", (socket) => {
+//   socket.on("media", (wsData: UserSocketData) =>
+//     userSocketControl({ userNamespace, socket, wsData })
+//   );
+// });
 
 export default expressServer;
