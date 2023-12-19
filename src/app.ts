@@ -16,6 +16,7 @@ import videoRouter from "./routes/videoRouter";
 import roomRouter from "./routes/roomRouter";
 import instanceRouter from "./routes/instanceRouter";
 import { userSocketControl } from "./controllers/userSocketControl";
+import { mediaSocketControl } from "./controllers/mediaSocketControl";
 
 const app = express();
 
@@ -79,19 +80,9 @@ ioServer.on("connection", (socket) => {
   console.log("client connected", socket.id);
 
   //MEDIA
-  socket.on("media", (wsData: MediaSocketData) => {
-    ioServer.to(wsData.payload.instanceId).emit("media", wsData);
-  });
-
-  /*
-  socket.on(EVENT_NAMES.MEDIA_PAUSED, () => {
-    ioServer.to(Array.from(socket.rooms)[1]).emit(EVENT_NAMES.MEDIA_PAUSED);
-  });
-
-  socket.on(EVENT_NAMES.MEDIA_PLAYED, () => {
-    ioServer.emit(EVENT_NAMES.MEDIA_PLAYED);
-  });
-  */
+  // socket.on("media", (wsData: MediaSocketData) => {
+  //   ioServer.to(wsData.payload.instanceId).emit("media", wsData);
+  // });
 
   //CHAT
   socket.on(EVENT_NAMES.MESSAGE_EMITTED, (message: MessageDataApi) => {
@@ -110,11 +101,11 @@ userNamespace.on("connection", (socket) => {
   );
 });
 
-// const mediaNamespace = ioServer.of("/media");
-// userNamespace.on("connection", (socket) => {
-//   socket.on("media", (wsData: UserSocketData) =>
-//     userSocketControl({ userNamespace, socket, wsData })
-//   );
-// });
+const mediaNamespace = ioServer.of("/media");
+mediaNamespace.on("connection", (socket) => {
+  socket.on("media", (wsData: MediaSocketData) =>
+    mediaSocketControl({ mediaNamespace, socket, wsData })
+  );
+});
 
 export default expressServer;

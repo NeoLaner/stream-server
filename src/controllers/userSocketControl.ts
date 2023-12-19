@@ -2,7 +2,10 @@ import { Namespace, Socket } from "socket.io";
 import { UserSocketData } from "../utils/@types";
 import Instance from "../models/instanceModel";
 import { EVENT_NAMES } from "../utils/constants";
-import { disconnectController } from "./disconnectControl";
+import {
+  disconnectController,
+  disconnectPreviousSockets,
+} from "./disconnectControl";
 
 /*
 const userRoomMapByNamespace: Record<string, Map<string, string>> = {};
@@ -40,7 +43,6 @@ async function joinRoomOnce({
   userRoomMap.set(userId, roomId);
 }
 */
-const userSocketMap = new Map<string, string>();
 
 type UserSocketControl = {
   userNamespace: Namespace;
@@ -52,21 +54,21 @@ export async function userSocketControl({
   socket,
   wsData,
 }: UserSocketControl) {
-  if (wsData.eventType === EVENT_NAMES.USER_SET_ID) {
-    const { userId } = wsData.payload;
-    const currentRoom = userSocketMap.get(userId);
-    if (currentRoom) {
-      //dc the previous socket of user if he had.
-      console.log("disconnect worked sucka bliat");
-      userNamespace.sockets.get(currentRoom)?.disconnect();
-    }
-    userSocketMap.set(userId, socket.id);
-  }
-  //join the room
   const roomId = wsData.payload.instanceId as string;
-  await socket.join(roomId);
-
-  userNamespace.to(roomId).emit("user", wsData);
+  switch (wsData.eventType) {
+    case EVENT_NAMES.JOIN_ROOM:
+      await disconnectPreviousSockets({
+        namespace: userNamespace,
+        namespaceName: "user",
+        socket,
+        wsData,
+      });
+      userNamespace.to(roomId).emit("user", wsData);
+      break;
+    default:
+      userNamespace.to(roomId).emit("user", wsData);
+      break;
+  }
 
   socket.on("disconnecting", () =>
     disconnectController({
@@ -75,6 +77,8 @@ export async function userSocketControl({
       userId: wsData.payload.userId,
     })
   );
+  /*
+   */
   //get instance data
   const oldInstanceData = await Instance.findById(wsData.payload.instanceId);
   if (!oldInstanceData) return;
