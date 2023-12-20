@@ -48,22 +48,35 @@ type UserSocketControl = {
   userNamespace: Namespace;
   socket: Socket;
   wsData: UserSocketData;
+  userRoomMapByNamespace: Record<string, Map<string, string>>;
 };
 export async function userSocketControl({
   userNamespace,
   socket,
   wsData,
+  userRoomMapByNamespace,
 }: UserSocketControl) {
   const roomId = wsData.payload.instanceId as string;
+  // Initialize the user-room map for the namespace if not exists
+  const namespaceName = "user";
+  if (!userRoomMapByNamespace[namespaceName]) {
+    userRoomMapByNamespace[namespaceName] = new Map();
+  }
+  const userSocketMap = userRoomMapByNamespace[namespaceName];
+
   switch (wsData.eventType) {
     case EVENT_NAMES.JOIN_ROOM:
-      await disconnectPreviousSockets({
+      disconnectPreviousSockets({
         namespace: userNamespace,
         namespaceName: "user",
-        socket,
         wsData,
+        userSocketMap,
       });
+      await socket.join(roomId);
+      userSocketMap.set(wsData.payload.userId, socket.id);
       userNamespace.to(roomId).emit("user", wsData);
+      break;
+    case EVENT_NAMES.KICK:
       break;
     default:
       userNamespace.to(roomId).emit("user", wsData);

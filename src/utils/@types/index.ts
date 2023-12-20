@@ -117,7 +117,7 @@ export type UserStatus =
 export type MediaStatus = "played" | "paused";
 
 export type UserSocketData = {
-  eventType: `user_${string}` | "set_id" | "join_room";
+  eventType: `user_${string}` | "set_id" | "join_room" | "kick";
   payload: {
     userId: string;
     status: UserStatus;
@@ -127,7 +127,7 @@ export type UserSocketData = {
 
 export type MediaCaused = "auto" | "manual";
 export type MediaSocketData = {
-  eventType: `media_${string}` | "set_id" | "join_room";
+  eventType: `media_${string}` | "set_id" | "join_room" | "kick";
   payload: {
     userId: string;
     status: MediaStatus;
@@ -147,6 +147,7 @@ export type EventData<EventType extends EventNames> = {
   media_played: MediaSocketData;
   set_id: UserSocketData;
   join_room: UserSocketData;
+  kick: UserSocketData;
   GET_USER: UserSocketData;
   MESSAGE_EMITTED: UserSocketData;
 }[EventType];

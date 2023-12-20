@@ -1,39 +1,28 @@
-import { Namespace, Socket } from "socket.io";
+import { Namespace } from "socket.io";
 import { MediaSocketData, UserSocketData } from "../utils/@types";
 import { EVENT_NAMES } from "../utils/constants";
 import Instance from "../models/instanceModel";
 
-const userRoomMapByNamespace: Record<string, Map<string, string>> = {};
-
 type DisconnectPreviousSockets = {
   namespace: Namespace;
   namespaceName: string;
-  socket: Socket;
   wsData: UserSocketData | MediaSocketData;
+  userSocketMap: Map<string, string>;
 };
 
-export async function disconnectPreviousSockets({
+export function disconnectPreviousSockets({
   namespace,
   namespaceName,
-  socket,
   wsData,
+  userSocketMap,
 }: DisconnectPreviousSockets) {
-  // Initialize the user-room map for the namespace if not exists
-  if (!userRoomMapByNamespace[namespaceName]) {
-    userRoomMapByNamespace[namespaceName] = new Map();
-  }
-
   const { userId } = wsData.payload;
-  const userSocketMap = userRoomMapByNamespace[namespaceName];
   const currentRoom = userSocketMap.get(userId);
   if (currentRoom) {
     //dc the previous socket of user if he had.
     console.log("disconnect worked sucka bliat from", namespaceName);
     namespace.sockets.get(currentRoom)?.disconnect();
   }
-  const roomId = wsData.payload.instanceId;
-  await socket.join(roomId);
-  userSocketMap.set(userId, socket.id);
 }
 
 type DisconnectController = {

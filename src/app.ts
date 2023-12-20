@@ -62,6 +62,8 @@ app.all("*", (req, res, next) => {
 app.use(globalErrorControl);
 
 const expressServer = http.createServer(app);
+
+const userRoomMapByNamespace: Record<string, Map<string, string>> = {};
 //Socket.io
 const ioServer = new Server(expressServer, {
   cors: {
@@ -72,40 +74,41 @@ const ioServer = new Server(expressServer, {
   },
 });
 
-// ioServer.on("connect", (data) => {
-//   console.log("client connected", data.id);
-// });
-
-ioServer.on("connection", (socket) => {
-  console.log("client connected", socket.id);
-
-  //MEDIA
-  // socket.on("media", (wsData: MediaSocketData) => {
-  //   ioServer.to(wsData.payload.instanceId).emit("media", wsData);
-  // });
-
-  //CHAT
-  socket.on(EVENT_NAMES.MESSAGE_EMITTED, (message: MessageDataApi) => {
-    ioServer.emit(EVENT_NAMES.MESSAGE_EMITTED, message);
-  });
-  //
-  socket.on("disconnect", () => {
-    console.log("user disconnected", socket.id);
-  });
-});
-
 const userNamespace = ioServer.of("/user");
 userNamespace.on("connection", (socket) => {
   socket.on("user", (wsData: UserSocketData) =>
-    userSocketControl({ userNamespace, socket, wsData })
+    userSocketControl({ userNamespace, socket, wsData, userRoomMapByNamespace })
   );
 });
 
 const mediaNamespace = ioServer.of("/media");
 mediaNamespace.on("connection", (socket) => {
   socket.on("media", (wsData: MediaSocketData) =>
-    mediaSocketControl({ mediaNamespace, socket, wsData })
+    mediaSocketControl({
+      mediaNamespace,
+      socket,
+      wsData,
+      userRoomMapByNamespace,
+    })
   );
+});
+
+ioServer.on("connection", (socket) => {
+  console.log("client connected", socket.id);
+
+  //CHAT
+  socket.on(EVENT_NAMES.MESSAGE_EMITTED, (message: MessageDataApi) => {
+    ioServer.emit(EVENT_NAMES.MESSAGE_EMITTED, message);
+  });
+  //
+  socket.on("kick", (wsData) => {
+    mediaNamespace.emit("media", wsData);
+    userNamespace.emit("user", wsData);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("user disconnected", socket.id);
+  });
 });
 
 export default expressServer;
