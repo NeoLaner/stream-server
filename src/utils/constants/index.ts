@@ -9,5 +9,6 @@ export const EVENT_NAMES = {
   MESSAGE_EMITTED: "MESSAGE_EMITTED",
   MEDIA_PAUSED: "media_paused",
   MEDIA_PLAYED: "media_played",
+  MEDIA_SEEKED: "media_seeked",
   GET_USER: "GET_USER",
 } as const;

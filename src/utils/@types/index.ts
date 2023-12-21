@@ -153,6 +153,7 @@ export type EventData<EventType extends EventNames> = {
   user_disconnected: UserSocketData;
   media_paused: MediaSocketData;
   media_played: MediaSocketData;
+  media_seeked: MediaSocketData;
   set_id: UserSocketData;
   join_room: UserSocketData;
   kick: KickSocketData;
