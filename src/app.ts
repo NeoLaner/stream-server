@@ -100,11 +100,6 @@ ioServer.on("connection", (socket) => {
   socket.on(EVENT_NAMES.MESSAGE_EMITTED, (message: MessageDataApi) => {
     ioServer.emit(EVENT_NAMES.MESSAGE_EMITTED, message);
   });
-  //
-  socket.on("kick", (wsData) => {
-    mediaNamespace.emit("media", wsData);
-    userNamespace.emit("user", wsData);
-  });
 
   socket.on("disconnect", () => {
     console.log("user disconnected", socket.id);

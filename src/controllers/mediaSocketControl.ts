@@ -23,6 +23,7 @@ export async function mediaSocketControl({
     userRoomMapByNamespace[namespaceName] = new Map();
   }
   const userSocketMap = userRoomMapByNamespace[namespaceName];
+  const curSocketId = userSocketMap.get(wsData.payload.userId);
 
   switch (wsData.eventType) {
     case EVENT_NAMES.JOIN_ROOM:
@@ -37,6 +38,7 @@ export async function mediaSocketControl({
       mediaNamespace.to(roomId).emit("media", wsData);
       break;
     case EVENT_NAMES.KICK:
+      if (curSocketId) mediaNamespace.sockets.get(curSocketId)?.disconnect();
       break;
     default:
       mediaNamespace.to(wsData.payload.instanceId).emit("media", wsData);

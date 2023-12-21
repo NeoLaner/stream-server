@@ -63,7 +63,7 @@ export async function userSocketControl({
     userRoomMapByNamespace[namespaceName] = new Map();
   }
   const userSocketMap = userRoomMapByNamespace[namespaceName];
-
+  const curSocketId = userSocketMap.get(wsData.payload.userId);
   switch (wsData.eventType) {
     case EVENT_NAMES.JOIN_ROOM:
       disconnectPreviousSockets({
@@ -76,7 +76,8 @@ export async function userSocketControl({
       userSocketMap.set(wsData.payload.userId, socket.id);
       userNamespace.to(roomId).emit("user", wsData);
       break;
-    case EVENT_NAMES.KICK:
+    case EVENT_NAMES.UNSYNC:
+      if (curSocketId) userNamespace.sockets.get(curSocketId)?.disconnect();
       break;
     default:
       userNamespace.to(roomId).emit("user", wsData);
