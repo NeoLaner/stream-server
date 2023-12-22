@@ -4,6 +4,11 @@ import { EVENT_NAMES } from "../constants";
 
 type Status = "success" | "fail" | "error";
 
+export type SignInApiParams = {
+  email: "string";
+  password: "string";
+};
+
 export type UserDataApi = {
   _id: Types.ObjectId;
   name: string;
