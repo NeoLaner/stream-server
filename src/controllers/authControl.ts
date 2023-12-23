@@ -44,7 +44,7 @@ function createAndSendTheToken(
     sameSite: "lax", // lax for 1st party cookies and none for 3rd party cookies
     httpOnly: true, // can not manipulate the cookie from browser or read from client side
     //just send it over in https
-    secure: process.env.NODE_ENV === "production",
+    secure: false,
   };
 
   const data = {
