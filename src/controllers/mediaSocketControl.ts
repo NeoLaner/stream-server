@@ -41,7 +41,7 @@ export async function mediaSocketControl({
       if (curSocketId) mediaNamespace.sockets.get(curSocketId)?.disconnect();
       break;
     default:
-      mediaNamespace.to(wsData.payload.instanceId).emit("media", wsData);
+      socket.to(wsData.payload.instanceId).emit("media", wsData);
       break;
   }
 }
