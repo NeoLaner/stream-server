@@ -41,7 +41,7 @@ function createAndSendTheToken(
         ? "127.0.0.1" // "localhost" gives an error
         : process.env.CLIENT_SERVER,
     path: "/", //sub domain
-    sameSite: "lax", // lax for 1st party cookies and none for 3rd party cookies
+    sameSite: "strict", // lax for 1st party cookies and none for 3rd party cookies
     httpOnly: true, // can not manipulate the cookie from browser or read from client side
     //just send it over in https
     secure: false,
