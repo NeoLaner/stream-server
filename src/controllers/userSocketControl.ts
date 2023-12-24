@@ -1,3 +1,4 @@
+/*
 import { Namespace, Socket } from "socket.io";
 import { UserSocketData } from "../utils/@types";
 import Instance from "../models/instanceModel";
@@ -7,42 +8,7 @@ import {
   disconnectPreviousSockets,
 } from "./disconnectControl";
 
-/*
-const userRoomMapByNamespace: Record<string, Map<string, string>> = {};
-async function joinRoomOnce({
-  socketUser,
-  namespace,
-  userId,
-  roomId,
-}: {
-  socketUser: Socket;
-  namespace: string;
-  userId: string;
-  roomId: string;
-}) {
-  // Initialize the user-room map for the namespace if not exists
-  if (!userRoomMapByNamespace[namespace]) {
-    userRoomMapByNamespace[namespace] = new Map();
-  }
 
-  const userRoomMap = userRoomMapByNamespace[namespace];
-
-  // Check if the user is already in a room in the namespace
-  const currentRoom = userRoomMap.get(userId);
-
-  if (currentRoom) {
-    // User is already in a room, leave that room
-    await socketUser.leave(currentRoom);
-    console.log("user leave the room", { userId });
-  }
-
-  // Join the specified room
-  await socketUser.join(roomId);
-
-  // Update the user-room map
-  userRoomMap.set(userId, roomId);
-}
-*/
 
 type UserSocketControl = {
   userNamespace: Namespace;
@@ -91,8 +57,7 @@ export async function userSocketControl({
       userId: wsData.payload.userId,
     })
   );
-  /*
-   */
+
   //get instance data
   const oldInstanceData = await Instance.findById(wsData.payload.instanceId);
   if (!oldInstanceData) return;
@@ -113,17 +78,4 @@ export async function userSocketControl({
     ],
   });
 }
-
-/*
-type MediaSocketControl = {
-  ioServer: Server;
-  socketUser: Socket;
-  wsData: MediaPausedSocket;
-};
-
-export async function mediaSocketControl({
-  ioServer,
-  socketUser,
-  wsData,
-}: UserSocketControl) {}
 */

@@ -40,14 +40,13 @@ export async function disconnectController({
   const guestId = userId; // Replace with the actual guest ID to delete
 
   const dcWsData: UserSocketData = {
-    eventType: EVENT_NAMES.USER_DISCONNECTED,
     payload: {
       userId: userId,
       status: "disconnected",
       instanceId: instanceId,
     },
   };
-  userNamespace.to(instanceId).emit("user", dcWsData);
+  userNamespace.to(instanceId).emit(EVENT_NAMES.USER_DISCONNECTED, dcWsData);
   await Instance.updateOne(
     { _id: documentId, "guests.userId": guestId },
     {

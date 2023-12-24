@@ -15,8 +15,8 @@ import globalErrorControl from "./controllers/errorControl";
 import videoRouter from "./routes/videoRouter";
 import roomRouter from "./routes/roomRouter";
 import instanceRouter from "./routes/instanceRouter";
-import { userSocketControl } from "./controllers/userSocketControl";
 import { mediaSocketControl } from "./controllers/mediaSocketControl";
+import { disconnectPreviousSockets } from "./controllers/disconnectControl";
 
 const app = express();
 
@@ -63,7 +63,6 @@ app.use(globalErrorControl);
 
 const expressServer = http.createServer(app);
 
-const userRoomMapByNamespace: Record<string, Map<string, string>> = {};
 //Socket.io
 const ioServer = new Server(expressServer, {
   cors: {
@@ -74,15 +73,74 @@ const ioServer = new Server(expressServer, {
   },
 });
 
+const userRoomMapByNamespace: Record<string, Map<string, string>> = {};
+
 const userNamespace = ioServer.of("/user");
 userNamespace.on("connection", (socket) => {
-  socket.on("user", (wsData: UserSocketData) =>
-    userSocketControl({ userNamespace, socket, wsData, userRoomMapByNamespace })
-  );
+  const namespaceName = "user";
+  if (!userRoomMapByNamespace[namespaceName]) {
+    userRoomMapByNamespace[namespaceName] = new Map();
+  }
+  const userSocketMap = userRoomMapByNamespace[namespaceName];
+
+  socket.on(EVENT_NAMES.JOIN_ROOM, async (wsData: UserSocketData) => {
+    const roomId = wsData.payload.instanceId as string;
+
+    disconnectPreviousSockets({
+      namespace: userNamespace,
+      namespaceName: "user",
+      wsData,
+      userSocketMap,
+    });
+    await socket.join(roomId);
+    userSocketMap.set(wsData.payload.userId, socket.id);
+    userNamespace.to(roomId).emit("user", wsData);
+  });
+
+  socket.on(EVENT_NAMES.UNSYNC, (wsData: UserSocketData) => {
+    const curSocketId = userSocketMap.get(wsData.payload.userId);
+    if (curSocketId) userNamespace.sockets.get(curSocketId)?.disconnect();
+  });
+
+  socket.on(EVENT_NAMES.USER_READY, (wsData: UserSocketData) => {
+    const roomId = wsData.payload.instanceId as string;
+    userNamespace.to(roomId).emit("user", wsData);
+  });
+
+  socket.on(EVENT_NAMES.USER_WAITING_FOR_DATA, (wsData: UserSocketData) => {
+    const roomId = wsData.payload.instanceId as string;
+    userNamespace.to(roomId).emit("user", wsData);
+  });
+
+  // socket.on("disconnecting", async () => {
+  //   await disconnectController({
+  //     userNamespace,
+  //     instanceId: wsData.payload.instanceId,
+  //     userId: wsData.payload.userId,
+  //   });
+  // });
 });
 
 const mediaNamespace = ioServer.of("/media");
 mediaNamespace.on("connection", (socket) => {
+  // Initialize the user-room map for the namespace if not exists
+  const namespaceName = "media";
+  if (!userRoomMapByNamespace[namespaceName]) {
+    userRoomMapByNamespace[namespaceName] = new Map();
+  }
+  const userSocketMap = userRoomMapByNamespace[namespaceName];
+  socket.on(EVENT_NAMES.JOIN_ROOM, async (wsData: MediaSocketData) => {
+    const roomId = wsData.payload.instanceId as string;
+    disconnectPreviousSockets({
+      namespace: mediaNamespace,
+      namespaceName: "media",
+      wsData,
+      userSocketMap,
+    });
+    await socket.join(roomId);
+    userSocketMap.set(wsData.payload.userId, socket.id);
+    mediaNamespace.to(roomId).emit("media", wsData);
+  });
   socket.on("media", (wsData: MediaSocketData) =>
     mediaSocketControl({
       mediaNamespace,

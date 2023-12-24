@@ -121,8 +121,8 @@ export type UserStatus =
 
 export type MediaStatus = "played" | "paused";
 
+// eventType: `user_${string}` | "set_id" | "join_room" | "unsync";
 export type UserSocketData = {
-  eventType: `user_${string}` | "set_id" | "join_room" | "unsync";
   payload: {
     userId: string;
     status: UserStatus;
