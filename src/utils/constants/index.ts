@@ -3,6 +3,7 @@ export const EVENT_NAMES = {
   SET_ID: "set_id",
   KICK: "kick",
   UNSYNC: "unsync",
+  USER_INITIAL_DATA: "user_initial_data",
   USER_READY: "user_ready",
   USER_WAITING_FOR_DATA: "user_waiting_for_data",
   USER_DISCONNECTED: "user_disconnected",

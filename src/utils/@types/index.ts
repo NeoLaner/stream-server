@@ -161,6 +161,7 @@ export type EventData<EventType extends EventNames> = {
   media_seeked: MediaSocketData;
   set_id: UserSocketData;
   join_room: UserSocketData;
+  user_initial_data: UserSocketData;
   kick: KickSocketData;
   unsync: KickSocketData;
   GET_USER: UserSocketData;

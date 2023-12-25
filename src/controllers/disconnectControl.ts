@@ -8,6 +8,7 @@ type DisconnectPreviousSockets = {
   namespaceName: string;
   wsData: UserSocketData | MediaSocketData;
   userSocketMap: Map<string, string>;
+  userRoomMap: Map<string, string>;
 };
 
 export function disconnectPreviousSockets({
@@ -15,13 +16,15 @@ export function disconnectPreviousSockets({
   namespaceName,
   wsData,
   userSocketMap,
+  userRoomMap,
 }: DisconnectPreviousSockets) {
   const { userId } = wsData.payload;
-  const currentRoom = userSocketMap.get(userId);
-  if (currentRoom) {
+  const currentSocket = userSocketMap.get(userId);
+  if (currentSocket) {
     //dc the previous socket of user if he had.
     console.log("disconnect worked sucka bliat from", namespaceName);
-    namespace.sockets.get(currentRoom)?.disconnect();
+    namespace.sockets.get(currentSocket)?.disconnect();
+    userRoomMap.delete(userId);
   }
 }
 
