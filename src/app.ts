@@ -2,8 +2,8 @@ import bodyParser from "body-parser";
 import express from "express";
 import cors from "cors";
 import http from "http";
-import { Server } from "socket.io";
-import { MediaSocketData, MessageDataApi } from "./utils/@types";
+import { Namespace, Server } from "socket.io";
+import { MediaEvents, MediaSocketData } from "./utils/@types";
 import { EVENT_NAMES } from "./utils/constants";
 import userRouter from "./routes/userRouter";
 import AppError from "./utils/classes/appError";
@@ -60,14 +60,35 @@ app.use(globalErrorControl);
 
 const expressServer = http.createServer(app);
 
+interface AuthData {
+  userId: unknown;
+  // other authentication properties
+}
+interface SocketData {
+  user: AuthData;
+}
+type ClientToServerEvents = object;
+type ServerToClintEvents = object;
+type NamespaceSpecificInterServerEvents = object;
 //Socket.io
-const ioServer = new Server(expressServer, {
+const ioServer = new Server<
+  ClientToServerEvents,
+  ServerToClintEvents,
+  NamespaceSpecificInterServerEvents,
+  SocketData
+>(expressServer, {
   cors: {
     origin:
       process.env.NODE_ENV === "development"
         ? process.env.LOCAL_CLIENT_SERVER
         : process.env.CLIENT_SERVER,
   },
+});
+
+ioServer.use(function (socket, next) {
+  const auth = socket.handshake.auth as AuthData;
+  socket.data.user = { userId: String(auth.userId) };
+  next();
 });
 
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
@@ -83,7 +104,21 @@ userNamespace.on("connection", (socket) => {
   });
 });
 
-const mediaNamespace = ioServer.of("/media");
+type MediaClientToServerEvents = Record<
+  MediaEvents | "media",
+  (wsData: MediaSocketData) => void
+>;
+
+type MediaServerToClientEvents = Record<
+  "media",
+  (wsData: MediaSocketData) => void
+>;
+
+const mediaNamespace: Namespace<
+  MediaClientToServerEvents,
+  MediaServerToClientEvents
+> = ioServer.of("/media");
+
 mediaNamespace.on("connection", (socket) => {
   // Initialize the user-room map for the namespace if not exists
   const namespaceName = "media";
@@ -122,11 +157,6 @@ mediaNamespace.on("connection", (socket) => {
 
 ioServer.on("connection", (socket) => {
   console.log("client connected", socket.id);
-
-  //CHAT
-  socket.on(EVENT_NAMES.MESSAGE_EMITTED, (message: MessageDataApi) => {
-    ioServer.emit(EVENT_NAMES.MESSAGE_EMITTED, message);
-  });
 
   socket.on("disconnect", () => {
     console.log("user disconnected", socket.id);

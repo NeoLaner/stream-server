@@ -1,5 +1,5 @@
 import { Namespace, Socket } from "socket.io";
-import { UserSocketData } from "../utils/@types";
+import { UserEvents, UserSocketData } from "../utils/@types";
 import { EVENT_NAMES } from "../utils/constants";
 import { disconnectPreviousSockets } from "./disconnectControl";
 
@@ -20,6 +20,16 @@ function updateGuestsData({
   else guestsData[guestsData.length] = wsData.payload;
 }
 
+type UserClientToServerEvents = Record<
+  UserEvents,
+  (wsData: UserSocketData) => void
+>;
+
+type UserServerToClientEvents = Record<
+  "user",
+  (wsData: UserSocketData) => void
+>;
+
 export function socketControl({
   socket,
   userNamespace,
@@ -27,7 +37,7 @@ export function socketControl({
   userRoomMapByNamespace,
 }: {
   socket: Socket;
-  userNamespace: Namespace;
+  userNamespace: Namespace<UserClientToServerEvents, UserServerToClientEvents>;
   userSocketMapByNamespace: Record<string, Map<string, string>>;
   userRoomMapByNamespace: Record<string, Map<string, string>>;
 }) {
