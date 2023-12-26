@@ -1,81 +1,91 @@
-/*
 import { Namespace, Socket } from "socket.io";
 import { UserSocketData } from "../utils/@types";
-import Instance from "../models/instanceModel";
 import { EVENT_NAMES } from "../utils/constants";
-import {
-  disconnectController,
-  disconnectPreviousSockets,
-} from "./disconnectControl";
+import { disconnectPreviousSockets } from "./disconnectControl";
 
+const guestsDataByRoomId: Record<string, Array<UserSocketData["payload"]>> = {};
 
-
-type UserSocketControl = {
-  userNamespace: Namespace;
-  socket: Socket;
-  wsData: UserSocketData;
-  userRoomMapByNamespace: Record<string, Map<string, string>>;
-};
-export async function userSocketControl({
-  userNamespace,
-  socket,
+function updateGuestsData({
+  guestsData,
   wsData,
+}: {
+  guestsData: Array<UserSocketData["payload"]>;
+  wsData: UserSocketData;
+}) {
+  const foundIndex = guestsData.findIndex(
+    (guest) => guest.userId === wsData.payload.userId
+  );
+  if (foundIndex !== -1)
+    guestsData[foundIndex] = wsData.payload; // Update the data
+  else guestsData[guestsData.length] = wsData.payload;
+}
+
+export function socketControl({
+  socket,
+  userNamespace,
+  userSocketMapByNamespace,
   userRoomMapByNamespace,
-}: UserSocketControl) {
-  const roomId = wsData.payload.instanceId as string;
-  // Initialize the user-room map for the namespace if not exists
+}: {
+  socket: Socket;
+  userNamespace: Namespace;
+  userSocketMapByNamespace: Record<string, Map<string, string>>;
+  userRoomMapByNamespace: Record<string, Map<string, string>>;
+}) {
   const namespaceName = "user";
+  if (!userSocketMapByNamespace[namespaceName]) {
+    userSocketMapByNamespace[namespaceName] = new Map();
+  }
+  const userSocketMap = userSocketMapByNamespace[namespaceName];
   if (!userRoomMapByNamespace[namespaceName]) {
     userRoomMapByNamespace[namespaceName] = new Map();
   }
-  const userSocketMap = userRoomMapByNamespace[namespaceName];
-  const curSocketId = userSocketMap.get(wsData.payload.userId);
-  switch (wsData.eventType) {
-    case EVENT_NAMES.JOIN_ROOM:
-      disconnectPreviousSockets({
-        namespace: userNamespace,
-        namespaceName: "user",
-        wsData,
-        userSocketMap,
-      });
-      await socket.join(roomId);
-      userSocketMap.set(wsData.payload.userId, socket.id);
-      userNamespace.to(roomId).emit("user", wsData);
-      break;
-    case EVENT_NAMES.UNSYNC:
-      if (curSocketId) userNamespace.sockets.get(curSocketId)?.disconnect();
-      break;
-    default:
-      userNamespace.to(roomId).emit("user", wsData);
-      break;
-  }
+  const userRoomMap = userRoomMapByNamespace[namespaceName];
 
-  socket.on("disconnecting", () =>
-    disconnectController({
-      userNamespace,
-      instanceId: wsData.payload.instanceId,
-      userId: wsData.payload.userId,
-    })
-  );
+  socket.on(EVENT_NAMES.JOIN_ROOM, async (wsData: UserSocketData) => {
+    const roomId = wsData.payload.instanceId as string;
+    disconnectPreviousSockets({
+      namespace: userNamespace,
+      namespaceName: "user",
+      wsData,
+      userSocketMap,
+      userRoomMap,
+    });
+    await socket.join(roomId);
+    userSocketMap.set(wsData.payload.userId, socket.id);
+    userRoomMap.set(wsData.payload.userId, roomId);
 
-  //get instance data
-  const oldInstanceData = await Instance.findById(wsData.payload.instanceId);
-  if (!oldInstanceData) return;
-
-  //delete old data of current user from the guests array
-  const oldGuestData = oldInstanceData.guests.filter(
-    (guest) => guest.userId !== wsData.payload.userId
-  );
-  //persist data to database
-  await oldInstanceData?.updateOne({
-    oldInstanceData,
-    guests: [
-      ...oldGuestData,
-      {
-        status: wsData.payload.status,
-        userId: wsData.payload.userId,
-      },
-    ],
+    userNamespace.to(roomId).emit("user", wsData);
+    if (!guestsDataByRoomId[roomId]) guestsDataByRoomId[roomId] = [];
+    const guestsData = guestsDataByRoomId[roomId];
+    updateGuestsData({ guestsData, wsData });
+    console.log(guestsDataByRoomId);
   });
+
+  socket.on(EVENT_NAMES.UNSYNC, (wsData: UserSocketData) => {
+    const curSocketId = userSocketMap.get(wsData.payload.userId);
+    if (curSocketId) userNamespace.sockets.get(curSocketId)?.disconnect();
+  });
+
+  socket.on(EVENT_NAMES.USER_READY, (wsData: UserSocketData) => {
+    const roomId = wsData.payload.instanceId as string;
+    userNamespace.to(roomId).emit("user", wsData);
+  });
+
+  socket.on(EVENT_NAMES.USER_WAITING_FOR_DATA, (wsData: UserSocketData) => {
+    const roomId = wsData.payload.instanceId as string;
+    userNamespace.to(roomId).emit("user", wsData);
+  });
+
+  socket.on(EVENT_NAMES.USER_INITIAL_DATA, () => {
+    //NOTE:must be know roomId
+    // const roomId = userSocketMap.get()
+    // socket.emit(EVENT_NAMES.USER_INITIAL_DATA, guestsDataByRoomId[]);
+  });
+  // socket.on("disconnecting", async () => {
+  //   await disconnectController({
+  //     userNamespace,
+  //     instanceId: wsData.payload.instanceId,
+  //     userId: wsData.payload.userId,
+  //   });
+  // });
 }
-*/
