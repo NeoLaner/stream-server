@@ -156,13 +156,18 @@ export const loginInstance: ExpressMiddlewareFn<void> = catchAsync(
 );
 
 export const protect = catchAsync(async function (req, res, next) {
-  const token = req.headers.cookie?.split("jwt=")[1];
+  //get token from cookie
+  const token = req.headers.cookie
+    ?.split("; ")
+    .filter((el) => el.includes("jwt="))[0]
+    .split("jwt=")[1];
   //check token is exist
   if (!token)
     return next(
       new AppError("You are not logged in, please login to get access ", 401)
     );
   // verification token
+
   const decoded = await decodeToken(token);
 
   // check if user is exist
