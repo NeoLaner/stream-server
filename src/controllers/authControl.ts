@@ -146,7 +146,7 @@ export const loginInstance: ExpressMiddlewareFn<void> = catchAsync(
     }
 
     createAndSendTheToken(
-      "instanceJWT",
+      "instanceJwt",
       { instance: { instanceId } },
       200,
       false,
