@@ -3,10 +3,12 @@ import jwt from "jsonwebtoken";
 import { promisify } from "util";
 
 interface JwtPayload {
-  _id: mongoose.ObjectId;
-  userId: string;
-  photo: string;
-  name: string;
+  user: {
+    _id: mongoose.ObjectId;
+    userId: string;
+    photo: string;
+    name: string;
+  };
   iat: number;
   exp: number;
 }
@@ -18,6 +20,7 @@ async function decodeToken(token: string) {
   ) => Promise<JwtPayload>;
 
   const decoded = await verifyAsync(token, process.env.SECRET_KEY!);
+
   return decoded;
 }
 

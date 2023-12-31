@@ -22,7 +22,7 @@ export function disconnectPreviousSockets({
   const currentSocket = userSocketMap.get(userId);
   if (currentSocket) {
     //dc the previous socket of user if he had.
-    console.log("disconnect worked sucka bliat from", namespaceName);
+    console.log("disconnect worked sucka  bliat from", namespaceName);
     namespace.sockets.get(currentSocket)?.disconnect();
     userRoomMap.delete(userId);
   }

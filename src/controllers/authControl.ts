@@ -4,12 +4,9 @@ import bcrypt from "bcryptjs";
 import User from "../models/userModel";
 import catchAsync from "../utils/factory/catchAsync";
 import AppError from "../utils/classes/appError";
-import {
-  type ExpressMiddlewareFn,
-  type UserDataApi,
-  type UserDataRes,
-} from "../utils/@types";
+import { type ExpressMiddlewareFn } from "../utils/@types";
 import decodeToken from "../utils/factory/decodeToken";
+import Instance from "../models/instanceModel";
 
 function createToken(payload: object) {
   if (!process.env.SECRET_KEY) return;
@@ -20,16 +17,13 @@ function createToken(payload: object) {
 }
 
 function createAndSendTheToken(
-  user: UserDataApi,
+  jwtName: string,
+  jwtPayload: object,
   statusCode: number,
+  httpOnly: boolean,
   res: Response
 ) {
-  const token = createToken({
-    _id: user._id,
-    userId: user.userId,
-    name: user.name,
-    photo: user.photo,
-  });
+  const token = createToken(jwtPayload);
 
   const cookieOptions: CookieOptions = {
     expires: new Date(
@@ -42,26 +36,17 @@ function createAndSendTheToken(
         : "5.34.202.131",
     path: "/", //sub domain
     sameSite: "strict", // lax for 1st party cookies and none for 3rd party cookies
-    httpOnly: true, // can not manipulate the cookie from browser or read from client side
+    httpOnly: httpOnly, // can not manipulate the cookie from browser or read from client side
     //just send it over in https
     secure: false,
   };
 
-  const data = {
-    _id: user._id,
-    photo: user.photo,
-    name: user.name,
-    userId: user.userId,
-  };
-
-  const respond: UserDataRes = {
+  const respond = {
     status: "success",
-    data: {
-      user: data,
-    },
+    data: jwtPayload,
   };
 
-  res.cookie("jwt", token, cookieOptions);
+  res.cookie(jwtName, token, cookieOptions);
   res.status(statusCode).json(respond);
 }
 
@@ -83,7 +68,20 @@ export const signup: ExpressMiddlewareFn<void> = catchAsync(
 
     const user = await User.create(request);
 
-    createAndSendTheToken(user, 200, res);
+    createAndSendTheToken(
+      "jwt",
+      {
+        user: {
+          _id: user._id,
+          userId: user.userId,
+          name: user.name,
+          photo: user.photo,
+        },
+      },
+      200,
+      true,
+      res
+    );
   }
 );
 
@@ -101,16 +99,65 @@ export const login: ExpressMiddlewareFn<void> = catchAsync(
     if (!checkPassword)
       return next(new AppError("email or password is wrong", 401));
 
-    createAndSendTheToken(user, 200, res);
+    createAndSendTheToken(
+      "jwt",
+      {
+        user: {
+          _id: user._id,
+          userId: user.userId,
+          name: user.name,
+          photo: user.photo,
+        },
+      },
+      200,
+      true,
+      res
+    );
+  }
+);
+
+export const loginInstance: ExpressMiddlewareFn<void> = catchAsync(
+  //Task1-destructure and check the request body
+  async function (req, res, next) {
+    const { password } = req.body as {
+      password?: unknown;
+    };
+
+    //Task2-get instanceId from url
+    const { instanceId } = req.params;
+
+    //Task3-find instance
+    const instance = await Instance.findById(instanceId).select("+password");
+
+    if (!instance)
+      return next(
+        new AppError(`There is no instance with this id: ${instanceId}`, 404)
+      );
+    //Task4-Check the ban list
+
+    //Task5-Check password
+    if (instance.password) {
+      if (!password) return next(new AppError(`The room has password.`, 401));
+      const checkPassword = await bcrypt.compare(
+        String(password),
+        instance.password
+      );
+      if (!checkPassword) return next(new AppError("Password is wrong", 401));
+    }
+
+    createAndSendTheToken(
+      "instanceJWT",
+      { instance: { instanceId } },
+      200,
+      false,
+      res
+    );
   }
 );
 
 export const protect = catchAsync(async function (req, res, next) {
-  let token;
+  const token = req.headers.cookie?.split("jwt=")[1];
   //check token is exist
-  if (req.headers.cookie?.startsWith("jwt=")) {
-    token = req.headers.cookie?.split("jwt=")[1];
-  }
   if (!token)
     return next(
       new AppError("You are not logged in, please login to get access ", 401)
@@ -120,7 +167,7 @@ export const protect = catchAsync(async function (req, res, next) {
 
   // check if user is exist
 
-  const curUser = await User.findById(decoded._id);
+  const curUser = await User.findById(decoded.user._id);
 
   if (!curUser) return next(new AppError("The user no longer exists", 401));
 
