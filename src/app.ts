@@ -2,8 +2,14 @@ import bodyParser from "body-parser";
 import express from "express";
 import cors from "cors";
 import http from "http";
-import { Namespace, Server } from "socket.io";
-import { MediaEvents, MediaSocketData } from "./utils/@types";
+import { Namespace, Server, Socket } from "socket.io";
+import {
+  InstanceData,
+  JwtPayloadInstance,
+  MediaEvents,
+  MediaSocketData,
+  UserDataApi,
+} from "./utils/@types";
 import { EVENT_NAMES } from "./utils/constants";
 import userRouter from "./routes/userRouter";
 import AppError from "./utils/classes/appError";
@@ -14,6 +20,9 @@ import instanceRouter from "./routes/instanceRouter";
 import { mediaSocketControl } from "./controllers/mediaSocketControl";
 import { disconnectPreviousSockets } from "./controllers/disconnectControl";
 import { socketControl } from "./controllers/userSocketControl";
+import decodeToken from "./utils/factory/decodeToken";
+import User from "./models/userModel";
+import Instance from "./models/instanceModel";
 
 const app = express();
 
@@ -61,15 +70,17 @@ app.use(globalErrorControl);
 const expressServer = http.createServer(app);
 
 interface AuthData {
-  userId: unknown;
+  instanceJwt: unknown;
   // other authentication properties
 }
-interface SocketData {
-  user: AuthData;
-}
+
 type ClientToServerEvents = object;
 type ServerToClintEvents = object;
 type NamespaceSpecificInterServerEvents = object;
+interface SocketData {
+  user: UserDataApi;
+  instance: InstanceData;
+}
 //Socket.io
 const ioServer = new Server<
   ClientToServerEvents,
@@ -85,16 +96,47 @@ const ioServer = new Server<
   },
 });
 
-ioServer.use(function (socket, next) {
-  const auth = socket.handshake.auth as AuthData;
-  socket.data.user = { userId: String(auth.userId) };
-  next();
-});
+function authMiddleware(socket: Socket, next: (err?: Error) => void) {
+  void (async () => {
+    // Immediately-invoked async arrow function
+    try {
+      const auth = socket.handshake.auth as AuthData;
+
+      if (typeof auth.instanceJwt !== "string") {
+        // Emit an error with next if there's no instanceJwt
+        return next(new Error("No instanceJwt provided."));
+      }
+      const decoded = await decodeToken<
+        Record<
+          Extract<keyof JwtPayloadInstance, "instance">,
+          JwtPayloadInstance["instance"]
+        >
+      >(auth.instanceJwt);
+
+      const user = await User.findById(decoded.instance.user_id);
+      const instance = await Instance.findById(decoded.instance.instanceId);
+
+      if (!user || !instance)
+        return next(new AppError("No user or instance found.", 400));
+
+      socket.data = { user, instance };
+
+      next();
+    } catch (error) {
+      // Pass any errors to next, and Socket.IO will handle them
+      next(new AppError("Error ", 400));
+    }
+  })();
+}
+
+// ioServer.use(authMiddleware);
 
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
 const userRoomMapByNamespace: Record<string, Map<string, string>> = {};
 
 const userNamespace = ioServer.of("/user");
+userNamespace.use(authMiddleware);
+
 userNamespace.on("connection", (socket) => {
   socketControl({
     socket,
@@ -118,6 +160,7 @@ const mediaNamespace: Namespace<
   MediaClientToServerEvents,
   MediaServerToClientEvents
 > = ioServer.of("/media");
+mediaNamespace.use(authMiddleware);
 
 mediaNamespace.on("connection", (socket) => {
   // Initialize the user-room map for the namespace if not exists

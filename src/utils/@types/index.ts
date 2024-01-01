@@ -100,9 +100,15 @@ export type InstanceRes = {
 };
 
 export type InstanceLoginData = {
-  instanceId: mongoose.ObjectId;
-  userId: string;
+  instanceId: mongoose.Types.ObjectId;
+  user_id: mongoose.Types.ObjectId;
 };
+
+export interface JwtPayloadInstance {
+  instance: InstanceLoginData;
+  iat?: number;
+  exp?: number;
+}
 
 //SOCKET
 export type MessageDataApi = {

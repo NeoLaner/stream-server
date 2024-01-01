@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 import User from "../models/userModel";
 import catchAsync from "../utils/factory/catchAsync";
 import AppError from "../utils/classes/appError";
-import { InstanceLoginData, type ExpressMiddlewareFn } from "../utils/@types";
+import { type ExpressMiddlewareFn, JwtPayloadInstance } from "../utils/@types";
 import decodeToken from "../utils/factory/decodeToken";
 import Instance from "../models/instanceModel";
 
@@ -129,12 +129,6 @@ interface JwtPayloadUser {
   exp: number;
 }
 
-interface JwtPayloadInstance {
-  instance: InstanceLoginData;
-  iat?: number;
-  exp?: number;
-}
-
 export const loginInstance: ExpressMiddlewareFn<void> = catchAsync(
   //Task1-destructure and check the request body
   async function (req, res, next) {
@@ -143,7 +137,16 @@ export const loginInstance: ExpressMiddlewareFn<void> = catchAsync(
     };
 
     //Task2-get instanceId from url
-    const instanceId = req.params.instanceId as unknown as mongoose.ObjectId;
+    const instanceIdStr: string = req.params.instanceId;
+
+    // Validate instanceId string format
+    if (!mongoose.Types.ObjectId.isValid(instanceIdStr))
+      next(new AppError("invalid instance id", 400));
+
+    // Convert to ObjectId
+    const instanceId: mongoose.Types.ObjectId = new mongoose.Types.ObjectId(
+      instanceIdStr
+    );
 
     //Task3-find instance
     const instance = await Instance.findById(instanceId).select("+password");
@@ -171,7 +174,7 @@ export const loginInstance: ExpressMiddlewareFn<void> = catchAsync(
     if (!req.user) return next(new AppError("No user found.", 401));
 
     const jwtPayloadInstance: JwtPayloadInstance = {
-      instance: { instanceId, userId: req.user.userId },
+      instance: { instanceId, user_id: req.user._id },
     };
 
     createAndSendTheToken("instanceJwt", jwtPayloadInstance, 200, false, res);
@@ -211,7 +214,6 @@ export const protect = catchAsync(async function (req, res, next) {
 
 export const protectInstance = catchAsync(async function (req, res, next) {
   //get token from cookie
-  console.log(1);
 
   const token = req.headers.cookie
     ?.split("; ")

@@ -68,7 +68,7 @@ export function socketControl({
     if (!guestsDataByRoomId[roomId]) guestsDataByRoomId[roomId] = [];
     const guestsData = guestsDataByRoomId[roomId];
     updateGuestsData({ guestsData, wsData });
-    console.log(guestsDataByRoomId);
+    // console.log(guestsDataByRoomId);
   });
 
   socket.on(EVENT_NAMES.UNSYNC, (wsData: UserSocketData) => {
