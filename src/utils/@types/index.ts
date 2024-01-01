@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { EVENT_NAMES } from "../constants";
 
 type Status = "success" | "fail" | "error";
@@ -97,6 +97,11 @@ export type InstanceRes = {
   };
   //guests
   //messages
+};
+
+export type InstanceLoginData = {
+  instanceId: mongoose.ObjectId;
+  userId: string;
 };
 
 //SOCKET
