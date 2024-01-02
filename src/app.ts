@@ -9,6 +9,8 @@ import {
   MediaEvents,
   MediaSocketData,
   UserDataApi,
+  UserEvents,
+  UserSocketData,
 } from "./utils/@types";
 import { EVENT_NAMES } from "./utils/constants";
 import userRouter from "./routes/userRouter";
@@ -129,15 +131,45 @@ function authMiddleware(socket: Socket, next: (err?: Error) => void) {
   })();
 }
 
-// ioServer.use(authMiddleware);
+//User Namespace
 
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
 const userRoomMapByNamespace: Record<string, Map<string, string>> = {};
 
-const userNamespace = ioServer.of("/user");
+type UserClientToServerEvents = Record<
+  UserEvents,
+  (wsData: UserSocketData) => void
+>;
+
+type UserServerToClientEvents = Record<
+  "user",
+  (wsData: UserSocketData) => void
+>;
+
+interface SocketData {
+  user: UserDataApi;
+  instance: InstanceData;
+}
+
+const userNamespace: Namespace<
+  UserClientToServerEvents,
+  UserServerToClientEvents,
+  NamespaceSpecificInterServerEvents,
+  SocketData
+> = ioServer.of("/user");
 userNamespace.use(authMiddleware);
 
 userNamespace.on("connection", (socket) => {
+  socket.use((event, next) => {
+    //The payload must have userId when emit to the client side.
+    const args = event[1] as
+      | UserSocketData
+      | { payload: { userId: string | undefined } };
+
+    args.payload = { ...args.payload, userId: socket.data.user.userId };
+
+    next();
+  });
   socketControl({
     socket,
     userNamespace,

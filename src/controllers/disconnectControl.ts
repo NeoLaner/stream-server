@@ -6,7 +6,7 @@ import Instance from "../models/instanceModel";
 type DisconnectPreviousSockets = {
   namespace: Namespace;
   namespaceName: string;
-  wsData: UserSocketData | MediaSocketData;
+  wsData: (UserSocketData & { payload: { userId: string } }) | MediaSocketData;
   userSocketMap: Map<string, string>;
   userRoomMap: Map<string, string>;
 };
@@ -42,11 +42,10 @@ export async function disconnectController({
   const documentId = instanceId; // Replace with the actual document ID
   const guestId = userId; // Replace with the actual guest ID to delete
 
-  const dcWsData: UserSocketData = {
+  const dcWsData: UserSocketData & { payload: { userId: string } } = {
     payload: {
       userId: userId,
       status: "disconnected",
-      instanceId: instanceId,
     },
   };
   userNamespace.to(instanceId).emit(EVENT_NAMES.USER_DISCONNECTED, dcWsData);

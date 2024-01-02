@@ -136,13 +136,14 @@ export type DefaultEvents = "set_id" | "join_room" | "kick";
 // eventType: `user_${string}` | "set_id" | "join_room" | "unsync";
 export type UserSocketData = {
   payload: {
-    userId: string;
     status: UserStatus;
-    instanceId: string | string[];
   };
 };
 
-export type UserEvents = Extract<EventNames, `user_${string}`> | DefaultEvents;
+export type UserEvents =
+  | Extract<EventNames, `user_${string}`>
+  | DefaultEvents
+  | "unsync";
 export type MediaEvents =
   | Extract<EventNames, `media_${string}`>
   | DefaultEvents;
