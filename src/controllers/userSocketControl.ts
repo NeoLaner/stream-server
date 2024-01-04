@@ -9,6 +9,19 @@ import { disconnectPreviousSockets } from "./disconnectControl";
 import { UserWsDataClientToServerEvents } from "../utils/@types/userTypes";
 
 type GuestsData = Array<UserWsDataClientToServerEvents["payload"]>;
+type UserSocket = Socket<
+  UserClientToServerEvents,
+  UserServerToClientEvents,
+  NamespaceSpecificInterServerEvents,
+  SocketData
+>;
+
+type UserNamespace = Namespace<
+  UserClientToServerEvents,
+  UserServerToClientEvents,
+  NamespaceSpecificInterServerEvents,
+  SocketData
+>;
 
 const guestsDataByRoomId: Record<string, GuestsData> = {};
 
@@ -19,12 +32,7 @@ function updateGuestsData({
 }: {
   guestsData: GuestsData;
   wsData: UserWsDataClientToServerEvents;
-  socket: Socket<
-    UserClientToServerEvents,
-    UserServerToClientEvents,
-    NamespaceSpecificInterServerEvents,
-    SocketData
-  >;
+  socket: UserSocket;
 }) {
   const foundIndex = guestsData.findIndex(
     (guest) => guest.userId === socket.data.user.userId
@@ -42,18 +50,8 @@ export function socketControl({
   userSocketMapByNamespace,
   userRoomMapByNamespace,
 }: {
-  socket: Socket<
-    UserClientToServerEvents,
-    UserServerToClientEvents,
-    NamespaceSpecificInterServerEvents,
-    SocketData
-  >;
-  userNamespace: Namespace<
-    UserClientToServerEvents,
-    UserServerToClientEvents,
-    NamespaceSpecificInterServerEvents,
-    SocketData
-  >;
+  socket: UserSocket;
+  userNamespace: UserNamespace;
   userSocketMapByNamespace: Record<string, Map<string, string>>;
   userRoomMapByNamespace: Record<string, Map<string, string>>;
 }) {
