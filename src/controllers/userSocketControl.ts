@@ -5,10 +5,15 @@ import {
   UserServerToClientEvents,
 } from "../utils/@types";
 import { EVENT_NAMES } from "../utils/constants";
-import { disconnectPreviousSockets } from "./disconnectControl";
-import { UserWsDataClientToServerEvents } from "../utils/@types/userTypes";
+import {
+  disconnectController,
+  disconnectPreviousSockets,
+} from "./disconnectControl";
+import {
+  GuestsData,
+  UserWsDataClientToServerEvents,
+} from "../utils/@types/userTypes";
 
-type GuestsData = Array<UserWsDataClientToServerEvents["payload"]>;
 type UserSocket = Socket<
   UserClientToServerEvents,
   UserServerToClientEvents,
@@ -102,14 +107,15 @@ export function socketControl({
 
   socket.on(EVENT_NAMES.USER_INITIAL_DATA, () => {
     //NOTE:must be know roomId
-    // const roomId = userSocketMap.get()
-    // socket.emit(EVENT_NAMES.USER_INITIAL_DATA, guestsDataByRoomId[]);
+    const roomId = socket.data.instance._id.toString();
+    socket.emit(EVENT_NAMES.USER_INITIAL_DATA, guestsDataByRoomId[roomId]);
   });
-  // socket.on("disconnecting", async () => {
-  //   await disconnectController({
-  //     userNamespace,
-  //     instanceId: wsData.payload.instanceId,
-  //     userId: socket.data.user.userId,
-  //   });
-  // });
+
+  socket.on("disconnecting", () => {
+    disconnectController({
+      userNamespace,
+      instanceId: socket.data.instance._id.toString(),
+      userId: socket.data.user.userId,
+    });
+  });
 }

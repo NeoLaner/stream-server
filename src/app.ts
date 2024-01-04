@@ -146,6 +146,7 @@ userNamespace.on("connection", (socket) => {
   socket.use((event, next) => {
     //The payload must have userId when emit to the client side.
     //but the client side should not send the user id in the payload.
+    if (!event[1]) return next();
     const args = event[1] as UserClientToServerEventsWithoutUserId & {
       payload: { userId: string | undefined };
     };

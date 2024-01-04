@@ -60,7 +60,9 @@ export type UserWsDataServerToClientEvents = UserSocketData & {
   payload: { userId: string };
 };
 
+export type GuestsData = Array<UserWsDataClientToServerEvents["payload"]>;
+
 export type UserServerToClientEvents = Record<
   "user",
   (wsData: UserWsDataServerToClientEvents) => void
->;
+> & { user_initial_data: (wsData: GuestsData) => void };

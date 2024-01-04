@@ -1,7 +1,5 @@
 import { Namespace } from "socket.io";
 import { MediaSocketData } from "../utils/@types";
-import { EVENT_NAMES } from "../utils/constants";
-import Instance from "../models/instanceModel";
 import { UserWsDataClientToServerEvents } from "../utils/@types/userTypes";
 
 type DisconnectPreviousSockets = {
@@ -35,28 +33,16 @@ type DisconnectController = {
   userId: string;
 };
 
-export async function disconnectController({
+export function disconnectController({
   userNamespace,
   instanceId,
   userId,
 }: DisconnectController) {
-  const documentId = instanceId; // Replace with the actual document ID
-  const guestId = userId; // Replace with the actual guest ID to delete
-
   const dcWsData: UserWsDataClientToServerEvents = {
     payload: {
       userId: userId,
       status: "disconnected",
     },
   };
-  userNamespace.to(instanceId).emit(EVENT_NAMES.USER_DISCONNECTED, dcWsData);
-  await Instance.updateOne(
-    { _id: documentId, "guests.userId": guestId },
-    {
-      $set: {
-        "guests.$.status": "disconnected", // Replace with the new status value
-        // Add other fields to update as needed
-      },
-    }
-  );
+  userNamespace.to(instanceId).emit("user", dcWsData);
 }
