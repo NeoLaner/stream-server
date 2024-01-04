@@ -1,12 +1,13 @@
 import { Namespace } from "socket.io";
-import { MediaSocketData, UserSocketData } from "../utils/@types";
+import { MediaSocketData } from "../utils/@types";
 import { EVENT_NAMES } from "../utils/constants";
 import Instance from "../models/instanceModel";
+import { UserWsDataClientToServerEvents } from "../utils/@types/userTypes";
 
 type DisconnectPreviousSockets = {
   namespace: Namespace;
   namespaceName: string;
-  wsData: (UserSocketData & { payload: { userId: string } }) | MediaSocketData;
+  wsData: UserWsDataClientToServerEvents | MediaSocketData;
   userSocketMap: Map<string, string>;
   userRoomMap: Map<string, string>;
 };
@@ -42,7 +43,7 @@ export async function disconnectController({
   const documentId = instanceId; // Replace with the actual document ID
   const guestId = userId; // Replace with the actual guest ID to delete
 
-  const dcWsData: UserSocketData & { payload: { userId: string } } = {
+  const dcWsData: UserWsDataClientToServerEvents = {
     payload: {
       userId: userId,
       status: "disconnected",

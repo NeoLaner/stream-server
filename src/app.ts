@@ -4,13 +4,10 @@ import cors from "cors";
 import http from "http";
 import { Namespace, Server, Socket } from "socket.io";
 import {
-  InstanceData,
   JwtPayloadInstance,
   MediaEvents,
   MediaSocketData,
-  UserDataApi,
-  UserEvents,
-  UserSocketData,
+  SocketData,
 } from "./utils/@types";
 import { EVENT_NAMES } from "./utils/constants";
 import userRouter from "./routes/userRouter";
@@ -25,6 +22,10 @@ import { socketControl } from "./controllers/userSocketControl";
 import decodeToken from "./utils/factory/decodeToken";
 import User from "./models/userModel";
 import Instance from "./models/instanceModel";
+import {
+  UserClientToServerEventsWithoutUserId,
+  UserServerToClientEvents,
+} from "./utils/@types/userTypes";
 
 const app = express();
 
@@ -79,10 +80,7 @@ interface AuthData {
 type ClientToServerEvents = object;
 type ServerToClintEvents = object;
 type NamespaceSpecificInterServerEvents = object;
-interface SocketData {
-  user: UserDataApi;
-  instance: InstanceData;
-}
+
 //Socket.io
 const ioServer = new Server<
   ClientToServerEvents,
@@ -136,23 +134,8 @@ function authMiddleware(socket: Socket, next: (err?: Error) => void) {
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
 const userRoomMapByNamespace: Record<string, Map<string, string>> = {};
 
-type UserClientToServerEvents = Record<
-  UserEvents,
-  (wsData: UserSocketData) => void
->;
-
-type UserServerToClientEvents = Record<
-  "user",
-  (wsData: UserSocketData) => void
->;
-
-interface SocketData {
-  user: UserDataApi;
-  instance: InstanceData;
-}
-
 const userNamespace: Namespace<
-  UserClientToServerEvents,
+  UserClientToServerEventsWithoutUserId,
   UserServerToClientEvents,
   NamespaceSpecificInterServerEvents,
   SocketData
@@ -162,9 +145,10 @@ userNamespace.use(authMiddleware);
 userNamespace.on("connection", (socket) => {
   socket.use((event, next) => {
     //The payload must have userId when emit to the client side.
-    const args = event[1] as
-      | UserSocketData
-      | { payload: { userId: string | undefined } };
+    //but the client side should not send the user id in the payload.
+    const args = event[1] as UserClientToServerEventsWithoutUserId & {
+      payload: { userId: string | undefined };
+    };
 
     args.payload = { ...args.payload, userId: socket.data.user.userId };
 

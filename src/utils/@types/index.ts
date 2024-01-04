@@ -1,6 +1,16 @@
 import type { NextFunction, Request, Response } from "express";
 import mongoose, { Types } from "mongoose";
 import { EVENT_NAMES } from "../constants";
+import {
+  type UserSocketData,
+  type UserDataApi,
+  type UserDataRes,
+  type UserEvents,
+  type UserClientToServerEvents,
+  type UserWsDataClientToServerEventsWithoutUserId,
+  type UserServerToClientEvents,
+  UserWsDataServerToClientEvents,
+} from "./userTypes";
 
 type Status = "success" | "fail" | "error";
 
@@ -9,27 +19,15 @@ export type SignInApiParams = {
   password: "string";
 };
 
-export type UserDataApi = {
-  _id: Types.ObjectId;
-  name: string;
-  email: string;
-  userId: string;
-  role: "user" | "admin";
-  createdAt: number;
-  password: string;
-  photo?: string;
-  active: boolean;
-  passwordChangedAt?: Date;
-  passwordResetToken?: string;
-  passwordResetExpires?: Date;
-  birthday?: string;
-  phone?: number;
-  location?: string;
-};
-
-export type UserDataRes = {
-  status: Status;
-  data: { user: Pick<UserDataApi, "_id" | "photo" | "name" | "userId"> };
+//User
+export {
+  UserDataApi,
+  UserDataRes,
+  UserSocketData,
+  UserEvents,
+  UserClientToServerEvents,
+  UserWsDataClientToServerEventsWithoutUserId,
+  UserServerToClientEvents,
 };
 
 export type MongooseObjectId = Types.ObjectId;
@@ -134,16 +132,7 @@ export type MediaStatus = "played" | "paused";
 
 export type DefaultEvents = "set_id" | "join_room" | "kick";
 // eventType: `user_${string}` | "set_id" | "join_room" | "unsync";
-export type UserSocketData = {
-  payload: {
-    status: UserStatus;
-  };
-};
 
-export type UserEvents =
-  | Extract<EventNames, `user_${string}`>
-  | DefaultEvents
-  | "unsync";
 export type MediaEvents =
   | Extract<EventNames, `media_${string}`>
   | DefaultEvents;
@@ -171,15 +160,15 @@ export type KickSocketData = {
 export type EventNames = (typeof EVENT_NAMES)[keyof typeof EVENT_NAMES];
 
 export type EventData<EventType extends EventNames> = {
-  user_waiting_for_data: UserSocketData;
-  user_ready: UserSocketData;
-  user_disconnected: UserSocketData;
+  user_waiting_for_data: UserWsDataServerToClientEvents;
+  user_ready: UserWsDataServerToClientEvents;
+  user_disconnected: UserWsDataServerToClientEvents;
+  user_initial_data: UserWsDataServerToClientEvents;
   media_paused: MediaSocketData;
   media_played: MediaSocketData;
   media_seeked: MediaSocketData;
   set_id: UserSocketData;
   join_room: UserSocketData;
-  user_initial_data: UserSocketData;
   kick: KickSocketData;
   unsync: KickSocketData;
   GET_USER: UserSocketData;
@@ -217,3 +206,8 @@ export type ExpressErrorMiddlewareFn<ReturnType> = (
   next: NextFunction,
   err: AppErrorType
 ) => ReturnType;
+
+export interface SocketData {
+  user: UserDataApi;
+  instance: InstanceData;
+}

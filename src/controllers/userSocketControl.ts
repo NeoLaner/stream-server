@@ -1,14 +1,14 @@
 import { Namespace, Socket } from "socket.io";
 import {
-  InstanceData,
-  UserDataApi,
-  UserEvents,
-  UserSocketData,
+  SocketData,
+  UserClientToServerEvents,
+  UserServerToClientEvents,
 } from "../utils/@types";
 import { EVENT_NAMES } from "../utils/constants";
 import { disconnectPreviousSockets } from "./disconnectControl";
+import { UserWsDataClientToServerEvents } from "../utils/@types/userTypes";
 
-type GuestsData = Array<UserSocketData["payload"] & { userId: string }>;
+type GuestsData = Array<UserWsDataClientToServerEvents["payload"]>;
 
 const guestsDataByRoomId: Record<string, GuestsData> = {};
 
@@ -18,7 +18,7 @@ function updateGuestsData({
   socket,
 }: {
   guestsData: GuestsData;
-  wsData: UserSocketData & { payload: { userId: string } };
+  wsData: UserWsDataClientToServerEvents;
   socket: Socket<
     UserClientToServerEvents,
     UserServerToClientEvents,
@@ -34,21 +34,7 @@ function updateGuestsData({
   else guestsData[guestsData.length] = wsData.payload;
 }
 
-type UserClientToServerEvents = Record<
-  UserEvents,
-  (wsData: UserSocketData & { payload: { userId: string } }) => void
->;
-
-type UserServerToClientEvents = Record<
-  "user",
-  (wsData: UserSocketData & { payload: { userId: string } }) => void
->;
 type NamespaceSpecificInterServerEvents = object;
-
-interface SocketData {
-  user: UserDataApi;
-  instance: InstanceData;
-}
 
 export function socketControl({
   socket,
@@ -108,8 +94,6 @@ export function socketControl({
 
   socket.on(EVENT_NAMES.USER_READY, (wsData) => {
     const roomId = socket.data.instance._id.toString();
-    console.log(wsData);
-
     userNamespace.to(roomId).emit("user", wsData);
   });
 
