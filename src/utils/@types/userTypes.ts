@@ -1,6 +1,6 @@
 import { Namespace, Socket } from "socket.io";
 import { EVENT_NAMES } from "../constants";
-import { SocketData, UserDataApi } from "./globalTypes";
+import { type SocketData, type UserDataApi } from "./globalTypes";
 
 type Status = "success" | "fail" | "error";
 

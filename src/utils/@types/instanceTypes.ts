@@ -1,5 +1,5 @@
 import mongoose, { Types } from "mongoose";
-import { InstanceData, RoomData, Status } from "./globalTypes";
+import { type InstanceData, type RoomData, type Status } from "./globalTypes";
 
 export type InstanceReq = {
   password?: string;

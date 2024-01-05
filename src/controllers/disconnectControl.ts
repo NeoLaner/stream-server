@@ -48,7 +48,6 @@ function deleteUserFromGuests({
   guestsDataByRoomId[roomId] = guestsDataByRoomId[roomId].filter(
     (guest) => guest.userId !== socket.data.user.userId
   );
-  console.log(guestsDataByRoomId[roomId]);
 }
 
 export function disconnectController({
