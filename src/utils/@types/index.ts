@@ -1,18 +1,37 @@
+import { Types } from "mongoose";
 import type { NextFunction, Request, Response } from "express";
-import mongoose, { Types } from "mongoose";
 import { EVENT_NAMES } from "../constants";
 import {
   type UserSocketData,
-  type UserDataApi,
   type UserDataRes,
   type UserEvents,
   type UserClientToServerEvents,
   type UserWsDataClientToServerEventsWithoutUserId,
   type UserServerToClientEvents,
-  UserWsDataServerToClientEvents,
+  type UserWsDataServerToClientEvents,
+  type GuestsData,
+  type UserClientToServerEventsWithoutUserId,
+  type UserNamespace,
+  type UserSocket,
+  type UserWsDataClientToServerEvents,
 } from "./userTypes";
+import {
+  type InstanceLoginData,
+  type InstanceRes,
+  type InstanceReq,
+  type JwtPayloadInstance,
+} from "./instanceTypes";
 
-type Status = "success" | "fail" | "error";
+import {
+  type UserDataApi,
+  type Status,
+  type RoomData,
+  type InstanceData,
+  type SocketData,
+  type UserStatus,
+} from "./globalTypes";
+
+export { type Status, type RoomData, type SocketData, type UserStatus };
 
 export type SignInApiParams = {
   email: "string";
@@ -21,30 +40,21 @@ export type SignInApiParams = {
 
 //User
 export {
-  UserDataApi,
-  UserDataRes,
-  UserSocketData,
-  UserEvents,
-  UserClientToServerEvents,
-  UserWsDataClientToServerEventsWithoutUserId,
-  UserServerToClientEvents,
+  type UserDataApi,
+  type UserDataRes,
+  type UserSocketData,
+  type UserEvents,
+  type UserClientToServerEvents,
+  type UserWsDataClientToServerEventsWithoutUserId,
+  type UserServerToClientEvents,
+  type GuestsData,
+  type UserClientToServerEventsWithoutUserId,
+  type UserNamespace,
+  type UserSocket,
+  type UserWsDataClientToServerEvents,
 };
 
 export type MongooseObjectId = Types.ObjectId;
-
-export type RoomData = {
-  _id: Types.ObjectId;
-  roomAuthor: Types.ObjectId;
-  roomName: string;
-  cover: string;
-  isActive: boolean;
-  isPrivate: boolean;
-  videoLink: string;
-  hasHardSubtitle: boolean;
-  hasSoftSubtitle: boolean;
-  subtitles: Array<string>;
-  crossorigin: boolean;
-};
 
 export type RoomDataRes = {
   status: Status;
@@ -55,58 +65,13 @@ export type RoomDataRes = {
 
 export type RoomDataReq = Omit<RoomData, "_id" | "isActive">;
 
-export type InstanceData = {
-  _id: Types.ObjectId;
-  rootRoom: Types.ObjectId;
-  hostId: Types.ObjectId;
-  password?: string;
-  guests: {
-    _id: string;
-    userId: string;
-    status: UserStatus;
-  }[];
-  // media: object;
-  // messages
+export {
+  type InstanceLoginData,
+  type InstanceRes,
+  type InstanceReq,
+  type JwtPayloadInstance,
+  type InstanceData,
 };
-
-export type InstanceReq = {
-  password?: string;
-  rootRoomId: string;
-};
-
-export type InstanceRes = {
-  status: Status;
-  data: {
-    instance: {
-      _id: Types.ObjectId;
-      hostId: Types.ObjectId;
-      guests: InstanceData["guests"];
-      rootRoom: Pick<
-        RoomData,
-        | "_id"
-        | "cover"
-        | "crossorigin"
-        | "roomAuthor"
-        | "roomName"
-        | "subtitles"
-        | "videoLink"
-      >;
-    };
-  };
-  //guests
-  //messages
-};
-
-export type InstanceLoginData = {
-  instanceId: mongoose.Types.ObjectId;
-  user_id: mongoose.Types.ObjectId;
-};
-
-export interface JwtPayloadInstance {
-  instance: InstanceLoginData;
-  iat?: number;
-  exp?: number;
-}
 
 //SOCKET
 export type MessageDataApi = {
@@ -121,12 +86,6 @@ export type MessageDataApi = {
 export type PauseVideoDataApi = {
   isPlaying: false;
 };
-
-export type UserStatus =
-  | "notReady"
-  | "ready"
-  | "waitingForData"
-  | "disconnected";
 
 export type MediaStatus = "played" | "paused";
 
@@ -206,8 +165,3 @@ export type ExpressErrorMiddlewareFn<ReturnType> = (
   next: NextFunction,
   err: AppErrorType
 ) => ReturnType;
-
-export interface SocketData {
-  user: UserDataApi;
-  instance: InstanceData;
-}

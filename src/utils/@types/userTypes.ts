@@ -1,23 +1,6 @@
-import { Types } from "mongoose";
+import { Namespace, Socket } from "socket.io";
 import { EVENT_NAMES } from "../constants";
-
-export type UserDataApi = {
-  _id: Types.ObjectId;
-  name: string;
-  email: string;
-  userId: string;
-  role: "user" | "admin";
-  createdAt: number;
-  password: string;
-  photo?: string;
-  active: boolean;
-  passwordChangedAt?: Date;
-  passwordResetToken?: string;
-  passwordResetExpires?: Date;
-  birthday?: string;
-  phone?: number;
-  location?: string;
-};
+import { SocketData, UserDataApi } from "./globalTypes";
 
 type Status = "success" | "fail" | "error";
 
@@ -66,3 +49,19 @@ export type UserServerToClientEvents = Record<
   "user",
   (wsData: UserWsDataServerToClientEvents) => void
 > & { user_initial_data: (wsData: GuestsData) => void };
+
+type NamespaceSpecificInterServerEvents = object;
+
+export type UserSocket = Socket<
+  UserClientToServerEvents,
+  UserServerToClientEvents,
+  NamespaceSpecificInterServerEvents,
+  SocketData
+>;
+
+export type UserNamespace = Namespace<
+  UserClientToServerEvents,
+  UserServerToClientEvents,
+  NamespaceSpecificInterServerEvents,
+  SocketData
+>;

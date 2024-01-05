@@ -1,9 +1,3 @@
-import { Namespace, Socket } from "socket.io";
-import {
-  SocketData,
-  UserClientToServerEvents,
-  UserServerToClientEvents,
-} from "../utils/@types";
 import { EVENT_NAMES } from "../utils/constants";
 import {
   disconnectController,
@@ -11,22 +5,10 @@ import {
 } from "./disconnectControl";
 import {
   GuestsData,
+  UserNamespace,
+  UserSocket,
   UserWsDataClientToServerEvents,
 } from "../utils/@types/userTypes";
-
-type UserSocket = Socket<
-  UserClientToServerEvents,
-  UserServerToClientEvents,
-  NamespaceSpecificInterServerEvents,
-  SocketData
->;
-
-type UserNamespace = Namespace<
-  UserClientToServerEvents,
-  UserServerToClientEvents,
-  NamespaceSpecificInterServerEvents,
-  SocketData
->;
 
 const guestsDataByRoomId: Record<string, GuestsData> = {};
 
@@ -46,8 +28,6 @@ function updateGuestsData({
     guestsData[foundIndex] = wsData.payload; // Update the data
   else guestsData[guestsData.length] = wsData.payload;
 }
-
-type NamespaceSpecificInterServerEvents = object;
 
 export function socketControl({
   socket,
@@ -106,7 +86,6 @@ export function socketControl({
   });
 
   socket.on(EVENT_NAMES.USER_INITIAL_DATA, () => {
-    //NOTE:must be know roomId
     const roomId = socket.data.instance._id.toString();
     socket.emit(EVENT_NAMES.USER_INITIAL_DATA, guestsDataByRoomId[roomId]);
   });
@@ -114,8 +93,8 @@ export function socketControl({
   socket.on("disconnecting", () => {
     disconnectController({
       userNamespace,
-      instanceId: socket.data.instance._id.toString(),
-      userId: socket.data.user.userId,
+      socket,
+      guestsDataByRoomId,
     });
   });
 }

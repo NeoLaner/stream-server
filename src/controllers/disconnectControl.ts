@@ -1,6 +1,10 @@
 import { Namespace } from "socket.io";
 import { MediaSocketData } from "../utils/@types";
-import { UserWsDataClientToServerEvents } from "../utils/@types/userTypes";
+import {
+  GuestsData,
+  UserSocket,
+  UserWsDataClientToServerEvents,
+} from "../utils/@types/userTypes";
 
 type DisconnectPreviousSockets = {
   namespace: Namespace;
@@ -29,20 +33,37 @@ export function disconnectPreviousSockets({
 
 type DisconnectController = {
   userNamespace: Namespace;
-  instanceId: string | string[];
-  userId: string;
+  socket: UserSocket;
+  guestsDataByRoomId: Record<string, GuestsData>;
 };
+
+function deleteUserFromGuests({
+  guestsDataByRoomId,
+  socket,
+}: {
+  guestsDataByRoomId: Record<string, GuestsData>;
+  socket: UserSocket;
+}) {
+  const roomId = socket.data.instance._id.toString();
+  guestsDataByRoomId[roomId] = guestsDataByRoomId[roomId].filter(
+    (guest) => guest.userId !== socket.data.user.userId
+  );
+  console.log(guestsDataByRoomId[roomId]);
+}
 
 export function disconnectController({
   userNamespace,
-  instanceId,
-  userId,
+  socket,
+  guestsDataByRoomId,
 }: DisconnectController) {
+  const { userId } = socket.data.user;
+  const instanceId = socket.data.instance._id.toString();
   const dcWsData: UserWsDataClientToServerEvents = {
     payload: {
       userId: userId,
       status: "disconnected",
     },
   };
+  deleteUserFromGuests({ guestsDataByRoomId, socket });
   userNamespace.to(instanceId).emit("user", dcWsData);
 }
