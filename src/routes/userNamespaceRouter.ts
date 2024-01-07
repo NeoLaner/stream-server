@@ -1,35 +1,11 @@
-import { Event } from "socket.io";
 import { EVENT_NAMES } from "../utils/constants";
-import {
-  UserClientToServerEventsWithoutUserId,
-  UserNamespace,
-  UserSocket,
-} from "../utils/@types/userTypes";
+import { UserNamespace, UserSocket } from "../utils/@types/userTypes";
 import { authMiddleware } from "../controllers/authSocketControl";
 import {
+  addUserIdToPayload,
   updateGuestsData,
   usersSocketControl,
 } from "../controllers/usersSocketControl";
-
-function addUserIdToPayload(
-  this: UserSocket,
-  event: Event,
-  next: (err?: Error) => void
-) {
-  //The payload must have userId when emit to the client side.
-  //but the client side should not send the user id in the payload.
-  const socket = this;
-
-  //event[1] is wsData which come from client server
-  if (!event[1]) event[1] = { payload: { userId: socket.data.user.userId } };
-  const args = event[1] as UserClientToServerEventsWithoutUserId & {
-    payload: { userId: string | undefined };
-  };
-
-  args.payload = { ...args.payload, userId: socket.data.user.userId };
-
-  next();
-}
 
 export function userNamespaceRouter(userNamespace: UserNamespace) {
   const {

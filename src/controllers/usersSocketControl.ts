@@ -1,6 +1,7 @@
 import { Event } from "socket.io";
 import {
   GuestsData,
+  UserClientToServerEventsWithoutUserId,
   UserNamespace,
   UserSocket,
   UserWsDataClientToServerEvents,
@@ -14,6 +15,26 @@ import {
 const guestsDataByRoomId: Record<string, GuestsData> = {};
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
 const userRoomMapByNamespace: Record<string, Map<string, string>> = {};
+
+export function addUserIdToPayload(
+  this: UserSocket,
+  event: Event,
+  next: (err?: Error) => void
+) {
+  //The payload must have userId when emit to the client side.
+  //but the client side should not send the user id in the payload.
+  const socket = this;
+
+  //event[1] is wsData which come from client server
+  if (!event[1]) event[1] = { payload: { userId: socket.data.user.userId } };
+  const args = event[1] as UserClientToServerEventsWithoutUserId & {
+    payload: { userId: string | undefined };
+  };
+
+  args.payload = { ...args.payload, userId: socket.data.user.userId };
+
+  next();
+}
 
 export function updateGuestsData(
   this: UserSocket,
