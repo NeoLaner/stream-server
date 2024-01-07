@@ -36,6 +36,7 @@
         "tryExtensions": [".ts", ".js", ".json", ".node"]
       }
     ],
+    "@typescript-eslint/no-this-alias": "off",
     "@typescript-eslint/no-unsafe-argument": "error",
     "@typescript-eslint/no-explicit-any": "error",
     "@typescript-eslint/quotes": "off",

@@ -13,7 +13,7 @@ import roomRouter from "./routes/roomRouter";
 import instanceRouter from "./routes/instanceRouter";
 import { mediaSocketControl } from "./controllers/mediaSocketControl";
 import { disconnectPreviousSockets } from "./controllers/disconnectControl";
-import { userNamespaceFn } from "./controllers/userSocketControl";
+import { userNamespaceRouter } from "./routes/userNamespaceRouter";
 import {
   UserClientToServerEventsWithoutUserId,
   UserNamespace,
@@ -90,7 +90,7 @@ const userRoomMapByNamespace: Record<string, Map<string, string>> = {};
 
 //User Namespace
 const userNamespace: UserNamespace = ioServer.of("/user");
-const { socketControl } = userNamespaceFn(userNamespace);
+const { socketRouter } = userNamespaceRouter(userNamespace);
 userNamespace.on("connection", (socket: UserSocket) => {
   socket.use((event, next) => {
     //The payload must have userId when emit to the client side.
@@ -104,9 +104,7 @@ userNamespace.on("connection", (socket: UserSocket) => {
 
     next();
   });
-  socketControl({
-    socket,
-  });
+  socketRouter(socket);
 });
 
 //Media namespace
