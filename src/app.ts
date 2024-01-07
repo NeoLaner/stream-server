@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import http from "http";
 import { Namespace, Server } from "socket.io";
-import { MediaEvents, MediaSocketData, SocketData } from "./utils/@types";
+
 import { EVENT_NAMES } from "./utils/constants";
 import userRouter from "./routes/userRouter";
 import AppError from "./utils/classes/appError";
@@ -14,12 +14,9 @@ import instanceRouter from "./routes/instanceRouter";
 import { mediaSocketControl } from "./controllers/mediaSocketControl";
 import { disconnectPreviousSockets } from "./controllers/disconnectControl";
 import { userNamespaceRouter } from "./routes/userNamespaceRouter";
-import {
-  UserClientToServerEventsWithoutUserId,
-  UserNamespace,
-  UserSocket,
-} from "./utils/@types/userTypes";
 import { authMiddleware } from "./controllers/authSocketControl";
+import type { UserNamespace, UserSocket } from "./utils/@types/userTypes";
+import type { MediaEvents, MediaSocketData, SocketData } from "./utils/@types";
 
 const app = express();
 
@@ -91,19 +88,8 @@ const userRoomMapByNamespace: Record<string, Map<string, string>> = {};
 //User Namespace
 const userNamespace: UserNamespace = ioServer.of("/user");
 const { socketRouter } = userNamespaceRouter(userNamespace);
+
 userNamespace.on("connection", (socket: UserSocket) => {
-  socket.use((event, next) => {
-    //The payload must have userId when emit to the client side.
-    //but the client side should not send the user id in the payload.
-    if (!event[1]) return next();
-    const args = event[1] as UserClientToServerEventsWithoutUserId & {
-      payload: { userId: string | undefined };
-    };
-
-    args.payload = { ...args.payload, userId: socket.data.user.userId };
-
-    next();
-  });
   socketRouter(socket);
 });
 

@@ -1,3 +1,4 @@
+import { Event } from "socket.io";
 import {
   GuestsData,
   UserNamespace,
@@ -10,26 +11,29 @@ import {
   disconnectPreviousSockets,
 } from "./disconnectControl";
 
-function updateGuestsData({
-  guestsData,
-  wsData,
-  socket,
-}: {
-  guestsData: GuestsData;
-  wsData: UserWsDataClientToServerEvents;
-  socket: UserSocket;
-}) {
+const guestsDataByRoomId: Record<string, GuestsData> = {};
+const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
+const userRoomMapByNamespace: Record<string, Map<string, string>> = {};
+
+export function updateGuestsData(
+  this: UserSocket,
+  event: Event,
+  next: (err?: Error) => void
+) {
+  const socket = this;
+  const roomId = socket.data.instance._id.toString();
+  const wsData = event[1] as UserWsDataClientToServerEvents;
+
+  if (!guestsDataByRoomId[roomId]) guestsDataByRoomId[roomId] = [];
+  const guestsData = guestsDataByRoomId[roomId];
   const foundIndex = guestsData.findIndex(
     (guest) => guest.userId === socket.data.user.userId
   );
   if (foundIndex !== -1)
     guestsData[foundIndex] = wsData.payload; // Update the data
   else guestsData[guestsData.length] = wsData.payload;
+  next();
 }
-
-const guestsDataByRoomId: Record<string, GuestsData> = {};
-const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
-const userRoomMapByNamespace: Record<string, Map<string, string>> = {};
 
 export function usersSocketControl(userNamespace: UserNamespace) {
   const namespaceName = "user";
@@ -61,9 +65,8 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     userRoomMap.set(socket.data.user.userId, roomId);
 
     userNamespace.to(roomId).emit("user", wsData);
-    if (!guestsDataByRoomId[roomId]) guestsDataByRoomId[roomId] = [];
-    const guestsData = guestsDataByRoomId[roomId];
-    updateGuestsData({ guestsData, wsData, socket });
+
+    // updateGuestsData.bind(socket)(wsData, socket);
     // console.log(guestsDataByRoomId);
   }
 
