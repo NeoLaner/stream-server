@@ -1,4 +1,4 @@
-import { Namespace } from "socket.io";
+import { Namespace, Socket } from "socket.io";
 import { EventNames, SocketData } from "./globalTypes";
 
 export type MediaStatus = "played" | "paused";
@@ -35,6 +35,13 @@ export type MediaServerToClientEvents = Record<
 type NamespaceSpecificInterServerEvents = object;
 
 export type MediaNamespace = Namespace<
+  MediaClientToServerEvents,
+  MediaServerToClientEvents,
+  NamespaceSpecificInterServerEvents,
+  SocketData
+>;
+
+export type MediaSocket = Socket<
   MediaClientToServerEvents,
   MediaServerToClientEvents,
   NamespaceSpecificInterServerEvents,
