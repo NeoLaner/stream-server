@@ -1,4 +1,5 @@
 import { Types } from "mongoose";
+import { EVENT_NAMES } from "../constants";
 
 export type Status = "success" | "fail" | "error";
 
@@ -58,3 +59,5 @@ export interface SocketData {
   user: UserDataApi;
   instance: InstanceData;
 }
+
+export type EventNames = (typeof EVENT_NAMES)[keyof typeof EVENT_NAMES];

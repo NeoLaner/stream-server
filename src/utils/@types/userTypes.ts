@@ -1,6 +1,5 @@
 import { Namespace, Socket } from "socket.io";
-import { EVENT_NAMES } from "../constants";
-import { type SocketData, type UserDataApi } from "./globalTypes";
+import { EventNames, type SocketData, type UserDataApi } from "./globalTypes";
 
 type Status = "success" | "fail" | "error";
 
@@ -17,8 +16,6 @@ export type UserSocketData = {
     status: UserStatus;
   };
 };
-
-type EventNames = (typeof EVENT_NAMES)[keyof typeof EVENT_NAMES];
 
 export type UserEvents =
   | Extract<EventNames, `user_${string}`>

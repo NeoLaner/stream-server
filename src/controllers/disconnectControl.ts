@@ -1,10 +1,10 @@
 import { Namespace } from "socket.io";
-import { MediaSocketData } from "../utils/@types";
 import {
   GuestsData,
   UserSocket,
   UserWsDataClientToServerEvents,
 } from "../utils/@types/userTypes";
+import { MediaSocketData } from "../utils/@types/mediaTypes";
 
 type DisconnectPreviousSockets = {
   namespace: Namespace;

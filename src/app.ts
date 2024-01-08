@@ -2,7 +2,7 @@ import bodyParser from "body-parser";
 import express from "express";
 import cors from "cors";
 import http from "http";
-import { Namespace, Server } from "socket.io";
+import { Server } from "socket.io";
 
 import { EVENT_NAMES } from "./utils/constants";
 import userRouter from "./routes/userRouter";
@@ -11,12 +11,12 @@ import globalErrorControl from "./controllers/errorControl";
 import videoRouter from "./routes/videoRouter";
 import roomRouter from "./routes/roomRouter";
 import instanceRouter from "./routes/instanceRouter";
-import { mediaSocketControl } from "./controllers/mediaSocketControl";
 import { disconnectPreviousSockets } from "./controllers/disconnectControl";
 import { userNamespaceRouter } from "./routes/userNamespaceRouter";
 import { authMiddleware } from "./controllers/authSocketControl";
 import type { UserNamespace, UserSocket } from "./utils/@types/userTypes";
-import type { MediaEvents, MediaSocketData, SocketData } from "./utils/@types";
+import { MediaNamespace, SocketData } from "./utils/@types";
+import { MediaSocketData } from "./utils/@types/mediaTypes";
 
 const app = express();
 
@@ -94,20 +94,9 @@ userNamespace.on("connection", (socket: UserSocket) => {
 });
 
 //Media namespace
-type MediaClientToServerEvents = Record<
-  MediaEvents | "media",
-  (wsData: MediaSocketData) => void
->;
 
-type MediaServerToClientEvents = Record<
-  "media",
-  (wsData: MediaSocketData) => void
->;
+const mediaNamespace: MediaNamespace = ioServer.of("/media");
 
-const mediaNamespace: Namespace<
-  MediaClientToServerEvents,
-  MediaServerToClientEvents
-> = ioServer.of("/media");
 mediaNamespace.use(authMiddleware);
 
 mediaNamespace.on("connection", (socket) => {
@@ -123,7 +112,7 @@ mediaNamespace.on("connection", (socket) => {
   const userRoomMap = userRoomMapByNamespace[namespaceName];
 
   socket.on(EVENT_NAMES.JOIN_ROOM, async (wsData: MediaSocketData) => {
-    const roomId = wsData.payload.instanceId as string;
+    const roomId = socket.data.instance._id.toString();
 
     disconnectPreviousSockets({
       namespace: mediaNamespace,
@@ -136,14 +125,21 @@ mediaNamespace.on("connection", (socket) => {
     userSocketMap.set(wsData.payload.userId, socket.id);
     mediaNamespace.to(roomId).emit("media", wsData);
   });
-  socket.on("media", (wsData: MediaSocketData) =>
-    mediaSocketControl({
-      mediaNamespace,
-      socket,
-      wsData,
-      userSocketMapByNamespace,
-    })
-  );
+
+  socket.on("kick", (wsData) => {
+    const curSocketId = userSocketMap.get(wsData.payload.userId);
+    if (curSocketId) mediaNamespace.sockets.get(curSocketId)?.disconnect();
+  });
+
+  socket.on("media_played", (wsData) => {
+    socket.to(wsData.payload.instanceId).emit("media", wsData);
+  });
+  socket.on("media_paused", (wsData) => {
+    socket.to(wsData.payload.instanceId).emit("media", wsData);
+  });
+  socket.on("media_seeked", (wsData) => {
+    socket.to(wsData.payload.instanceId).emit("media", wsData);
+  });
 });
 
 ioServer.on("connection", (socket) => {
