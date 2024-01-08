@@ -11,9 +11,8 @@ import videoRouter from "./routes/videoRouter";
 import roomRouter from "./routes/roomRouter";
 import instanceRouter from "./routes/instanceRouter";
 import { userNamespaceRouter } from "./routes/userNamespaceRouter";
-import type { UserNamespace } from "./utils/@types/userTypes";
-import { MediaNamespace, SocketData } from "./utils/@types";
 import { mediaNamespaceRouter } from "./routes/mediaNamespaceRouter";
+import type { MediaNamespace, SocketData, UserNamespace } from "./utils/@types";
 
 const app = express();
 
@@ -91,6 +90,7 @@ const { mediaSocketRouter } = mediaNamespaceRouter(mediaNamespace);
 
 mediaNamespace.on("connection", mediaSocketRouter);
 
+//Default namespace
 ioServer.on("connection", (socket) => {
   console.log("client connected", socket.id);
 
