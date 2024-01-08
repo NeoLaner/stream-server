@@ -9,7 +9,8 @@ export type UserDataRes = {
 };
 
 type DefaultEvents = "set_id" | "join_room" | "kick";
-type UserStatus = "notReady" | "ready" | "waitingForData" | "disconnected";
+type RemoveUserPrefix<T extends string> = T extends `user_${infer U}` ? U : T;
+type UserStatus = RemoveUserPrefix<Extract<EventNames, `user_${string}`>>;
 
 export type UserSocketData = {
   payload: {
@@ -36,9 +37,7 @@ export type UserClientToServerEvents = Record<
   (wsData: UserWsDataClientToServerEvents) => void
 >;
 
-export type UserWsDataServerToClientEvents = UserSocketData & {
-  payload: { userId: string };
-};
+export type UserWsDataServerToClientEvents = GuestsData;
 
 export type GuestsData = Array<UserWsDataClientToServerEvents["payload"]>;
 

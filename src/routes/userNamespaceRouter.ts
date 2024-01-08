@@ -2,6 +2,7 @@ import { EVENT_NAMES } from "../utils/constants";
 import { UserNamespace, UserSocket } from "../utils/@types/userTypes";
 import { authMiddleware } from "../controllers/authSocketControl";
 import {
+  addStatusToPayload,
   addUserIdToPayload,
   updateGuestsData,
   usersSocketControl,
@@ -21,6 +22,7 @@ export function userNamespaceRouter(userNamespace: UserNamespace) {
 
   function socketRouter(socket: UserSocket) {
     socket.use(addUserIdToPayload.bind(socket));
+    socket.use(addStatusToPayload.bind(socket));
     socket.on("disconnecting", disconnectHandler);
     socket.use(updateGuestsData.bind(socket));
     socket.on(EVENT_NAMES.JOIN_ROOM, joinRoomHandler);

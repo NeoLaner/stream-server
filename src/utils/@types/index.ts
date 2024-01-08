@@ -112,8 +112,9 @@ export type KickSocketData = {
 };
 
 export type EventData<EventType extends EventNames> = {
-  user_waiting_for_data: UserWsDataServerToClientEvents;
+  user_waitingForData: UserWsDataServerToClientEvents;
   user_ready: UserWsDataServerToClientEvents;
+  user_notReady: UserWsDataServerToClientEvents;
   user_disconnected: UserWsDataServerToClientEvents;
   user_initial_data: UserWsDataServerToClientEvents;
   media_paused: MediaSocketData;

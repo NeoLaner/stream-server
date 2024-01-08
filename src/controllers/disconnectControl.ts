@@ -14,6 +14,14 @@ type DisconnectPreviousSockets = {
   userRoomMap: Map<string, string>;
 };
 
+type UserDisconnectPreviousSockets = {
+  namespace: Namespace;
+  namespaceName: string;
+  socket: UserSocket;
+  userSocketMap: Map<string, string>;
+  userRoomMap: Map<string, string>;
+};
+
 export function disconnectPreviousSockets({
   namespace,
   namespaceName,
@@ -22,6 +30,23 @@ export function disconnectPreviousSockets({
   userRoomMap,
 }: DisconnectPreviousSockets) {
   const { userId } = wsData.payload;
+  const currentSocket = userSocketMap.get(userId);
+  if (currentSocket) {
+    //dc the previous socket of user if he had.
+    console.log("disconnect worked sucka  bliat from", namespaceName);
+    namespace.sockets.get(currentSocket)?.disconnect();
+    userRoomMap.delete(userId);
+  }
+}
+
+export function userDisconnectPreviousSockets({
+  namespace,
+  namespaceName,
+  socket,
+  userSocketMap,
+  userRoomMap,
+}: UserDisconnectPreviousSockets) {
+  const { userId } = socket.data.user;
   const currentSocket = userSocketMap.get(userId);
   if (currentSocket) {
     //dc the previous socket of user if he had.
@@ -65,4 +90,14 @@ export function disconnectController({
   };
   deleteUserFromGuests({ guestsDataByRoomId, socket });
   userNamespace.to(instanceId).emit("user", dcWsData);
+}
+
+export function userDisconnectController({
+  userNamespace,
+  socket,
+  guestsDataByRoomId,
+}: DisconnectController) {
+  const instanceId = socket.data.instance._id.toString();
+  deleteUserFromGuests({ guestsDataByRoomId, socket });
+  userNamespace.to(instanceId).emit("user", guestsDataByRoomId[instanceId]);
 }

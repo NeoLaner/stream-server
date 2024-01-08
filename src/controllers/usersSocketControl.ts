@@ -2,14 +2,16 @@ import { Event } from "socket.io";
 import {
   GuestsData,
   UserClientToServerEventsWithoutUserId,
+  UserEvents,
   UserNamespace,
   UserSocket,
+  UserStatus,
   UserWsDataClientToServerEvents,
 } from "../utils/@types";
 import { EVENT_NAMES } from "../utils/constants";
 import {
-  disconnectController,
-  disconnectPreviousSockets,
+  userDisconnectController,
+  userDisconnectPreviousSockets,
 } from "./disconnectControl";
 
 const guestsDataByRoomId: Record<string, GuestsData> = {};
@@ -28,16 +30,13 @@ export function usersSocketControl(userNamespace: UserNamespace) {
   const userRoomMap = userRoomMapByNamespace[namespaceName];
 
   //Handlers
-  async function joinRoomHandler(
-    this: UserSocket,
-    wsData: UserWsDataClientToServerEvents
-  ) {
+  async function joinRoomHandler(this: UserSocket) {
     const socket = this;
     const roomId = socket.data.instance._id.toString();
-    disconnectPreviousSockets({
+    userDisconnectPreviousSockets({
       namespace: userNamespace,
       namespaceName: "user",
-      wsData,
+      socket,
       userSocketMap,
       userRoomMap,
     });
@@ -45,7 +44,7 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     userSocketMap.set(socket.data.user.userId, socket.id);
     userRoomMap.set(socket.data.user.userId, roomId);
 
-    userNamespace.to(roomId).emit("user", wsData);
+    userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
 
     // updateGuestsData.bind(socket)(wsData, socket);
     // console.log(guestsDataByRoomId);
@@ -57,22 +56,17 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     if (curSocketId) userNamespace.sockets.get(curSocketId)?.disconnect();
   }
 
-  function readyHandler(
-    this: UserSocket,
-    wsData: UserWsDataClientToServerEvents
-  ) {
+  function readyHandler(this: UserSocket) {
     const socket = this;
     const roomId = socket.data.instance._id.toString();
-    userNamespace.to(roomId).emit("user", wsData);
+
+    userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
   }
 
-  function waitingForDataHandler(
-    this: UserSocket,
-    wsData: UserWsDataClientToServerEvents
-  ) {
+  function waitingForDataHandler(this: UserSocket) {
     const socket = this;
     const roomId = socket.data.instance._id.toString();
-    userNamespace.to(roomId).emit("user", wsData);
+    userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
   }
 
   function initialDataHandler(this: UserSocket) {
@@ -83,7 +77,7 @@ export function usersSocketControl(userNamespace: UserNamespace) {
 
   function disconnectHandler(this: UserSocket) {
     const socket = this;
-    disconnectController({
+    userDisconnectController({
       userNamespace,
       socket,
       guestsDataByRoomId,
@@ -106,8 +100,8 @@ export function addUserIdToPayload(
   event: Event,
   next: (err?: Error) => void
 ) {
-  //The payload must have userId when emit to the client side.
-  //but the client side should not send the user id in the payload.
+  //The payload must have userId and status when emit to the client side.
+  //but the client side send nothing
   const socket = this;
 
   //event[1] is wsData which come from client server
@@ -116,7 +110,34 @@ export function addUserIdToPayload(
     payload: { userId: string | undefined };
   };
 
-  args.payload = { ...args.payload, userId: socket.data.user.userId };
+  args.payload = { userId: socket.data.user.userId };
+
+  next();
+}
+
+export function addStatusToPayload(
+  this: UserSocket,
+  event: Event,
+  next: (err?: Error) => void
+) {
+  //The payload must have userId and status when emit to the client side.
+  //but the client side send nothing
+  const socket = this;
+
+  //
+  if (!event[1]) event[1] = { payload: { userId: socket.data.user.userId } };
+  const args = event[1] as UserWsDataClientToServerEvents;
+
+  //for joinRoom
+  let status: UserStatus = "notReady";
+
+  //for another events
+  const eventName = event[0] as UserEvents;
+  const statusFromEvent = eventName.split("user_")[1] as UserStatus;
+  if (statusFromEvent) status = statusFromEvent;
+
+  //assign the status
+  args.payload = { ...args.payload, status };
 
   next();
 }
