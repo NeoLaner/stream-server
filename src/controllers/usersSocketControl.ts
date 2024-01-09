@@ -147,41 +147,43 @@ export function addStatusToPayload(
   //for joinRoom
   let status: UserStatus = "notReady";
 
-  switch (eventName) {
-    case "initial_data":
-      status = "notReady";
-      break;
-    case "join_room":
-      status = "notReady";
-      break;
-    case "kick":
-      break;
-    case "unsync":
-      break;
-    case "user_disconnected":
-      status = "disconnected";
-      break;
-    case "user_notReady":
-      status = "notReady";
-      break;
-    case "user_ready":
-      status = "ready";
-      break;
-    case "user_waitingForData":
-      status = "waitingForData";
-      break;
-    default:
-      break;
-  }
+  // switch (eventName) {
+  //   case "initial_data":
+  //     status = "notReady";
+  //     break;
+  //   case "join_room":
+  //     status = "notReady";
+  //     break;
+  //   case "kick":
+  //     break;
+  //   case "unsync":
+  //     status = guestsDataByRoomId[socket.data.instance._id.toString()]?.filter(
+  //       (guest) => guest.userId === socket.data.user.userId
+  //     )[0]?.status;
+  //     break;
+  //   case "user_disconnected":
+  //     status = "disconnected";
+  //     break;
+  //   case "user_notReady":
+  //     status = "notReady";
+  //     break;
+  //   case "user_ready":
+  //     status = "ready";
+  //     break;
+  //   case "user_waitingForData":
+  //     status = "waitingForData";
+  //     break;
+  //   default:
+  //     break;
+  // }
   //for another events
-  // const statusFromEvent = eventName.split("user_")[1] as UserStatus;
-
+  const statusFromEvent = eventName.split("user_")[1] as UserStatus;
+  const previousStatus = guestsDataByRoomId[
+    socket.data.instance._id.toString()
+  ]?.filter((guest) => guest.userId === socket.data.user.userId)[0]?.status;
   // console.log(statusFromEvent);
-  // if (!statusFromEvent)
-  //   status = guestsDataByRoomId[socket.data.instance._id.toString()]?.filter(
-  //     (guest) => guest.userId === socket.data.user.userId
-  //   )[0]?.status;
-  // if (statusFromEvent) status = statusFromEvent;
+  if (statusFromEvent) status = statusFromEvent;
+  if (!statusFromEvent && previousStatus) status = previousStatus;
 
   //assign the status
   args.payload = { ...args.payload, status };
