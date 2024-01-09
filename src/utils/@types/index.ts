@@ -116,7 +116,7 @@ export type EventData<EventType extends EventNames> = {
   user_ready: UserWsDataServerToClientEvents;
   user_notReady: UserWsDataServerToClientEvents;
   user_disconnected: UserWsDataServerToClientEvents;
-  user_initial_data: UserWsDataServerToClientEvents;
+  initial_data: UserWsDataServerToClientEvents;
   media_paused: MediaSocketData;
   media_played: MediaSocketData;
   media_seeked: MediaSocketData;

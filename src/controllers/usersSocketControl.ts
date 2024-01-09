@@ -50,10 +50,25 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     // console.log(guestsDataByRoomId);
   }
 
-  function unsyncHandler(this: UserSocket) {
+  function unsyncHandler(
+    this: UserSocket,
+    wsData: UserWsDataClientToServerEvents & { payload: { targetId: string } }
+  ) {
     const socket = this;
-    const curSocketId = userSocketMap.get(socket.data.user.userId);
+    const roomId = socket.data.instance._id.toString();
+    const isHost =
+      socket.data.instance.hostId.toString() ===
+      socket.data.user._id.toString();
+    console.log(socket.data.instance.hostId, socket.data.user._id);
+
+    if (!isHost) return;
+    const curSocketId = userSocketMap.get(wsData.payload.targetId);
+    guestsDataByRoomId[roomId] = guestsDataByRoomId[roomId].filter(
+      (guest) => guest.userId !== wsData.payload.targetId
+    );
+    userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
     if (curSocketId) userNamespace.sockets.get(curSocketId)?.disconnect();
+    console.log(guestsDataByRoomId[roomId]);
   }
 
   function readyHandler(this: UserSocket) {
@@ -72,7 +87,7 @@ export function usersSocketControl(userNamespace: UserNamespace) {
   function initialDataHandler(this: UserSocket) {
     const socket = this;
     const roomId = socket.data.instance._id.toString();
-    socket.emit(EVENT_NAMES.USER_INITIAL_DATA, guestsDataByRoomId[roomId]);
+    socket.emit(EVENT_NAMES.INITIAL_DATA, guestsDataByRoomId[roomId]);
   }
 
   function disconnectHandler(this: UserSocket) {
@@ -110,7 +125,7 @@ export function addUserIdToPayload(
     payload: { userId: string | undefined };
   };
 
-  args.payload = { userId: socket.data.user.userId };
+  args.payload = { ...args.payload, userId: socket.data.user.userId };
 
   next();
 }
@@ -127,14 +142,46 @@ export function addStatusToPayload(
   //
   if (!event[1]) event[1] = { payload: { userId: socket.data.user.userId } };
   const args = event[1] as UserWsDataClientToServerEvents;
+  const eventName = event[0] as UserEvents;
 
   //for joinRoom
   let status: UserStatus = "notReady";
 
+  switch (eventName) {
+    case "initial_data":
+      status = "notReady";
+      break;
+    case "join_room":
+      status = "notReady";
+      break;
+    case "kick":
+      break;
+    case "unsync":
+      break;
+    case "user_disconnected":
+      status = "disconnected";
+      break;
+    case "user_notReady":
+      status = "notReady";
+      break;
+    case "user_ready":
+      status = "ready";
+      break;
+    case "user_waitingForData":
+      status = "waitingForData";
+      break;
+    default:
+      break;
+  }
   //for another events
-  const eventName = event[0] as UserEvents;
-  const statusFromEvent = eventName.split("user_")[1] as UserStatus;
-  if (statusFromEvent) status = statusFromEvent;
+  // const statusFromEvent = eventName.split("user_")[1] as UserStatus;
+
+  // console.log(statusFromEvent);
+  // if (!statusFromEvent)
+  //   status = guestsDataByRoomId[socket.data.instance._id.toString()]?.filter(
+  //     (guest) => guest.userId === socket.data.user.userId
+  //   )[0]?.status;
+  // if (statusFromEvent) status = statusFromEvent;
 
   //assign the status
   args.payload = { ...args.payload, status };

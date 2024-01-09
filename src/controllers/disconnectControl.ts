@@ -70,7 +70,7 @@ function deleteUserFromGuests({
   socket: UserSocket;
 }) {
   const roomId = socket.data.instance._id.toString();
-  guestsDataByRoomId[roomId] = guestsDataByRoomId[roomId].filter(
+  guestsDataByRoomId[roomId] = guestsDataByRoomId[roomId]?.filter(
     (guest) => guest.userId !== socket.data.user.userId
   );
 }

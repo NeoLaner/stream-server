@@ -29,7 +29,7 @@ export function userNamespaceRouter(userNamespace: UserNamespace) {
     socket.on(EVENT_NAMES.UNSYNC, unsyncHandler);
     socket.on(EVENT_NAMES.USER_READY, readyHandler);
     socket.on(EVENT_NAMES.USER_WAITING_FOR_DATA, waitingForDataHandler);
-    socket.on(EVENT_NAMES.USER_INITIAL_DATA, initialDataHandler);
+    socket.on(EVENT_NAMES.INITIAL_DATA, initialDataHandler);
   }
 
   return { socketRouter };
