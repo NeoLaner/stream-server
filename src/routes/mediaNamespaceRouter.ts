@@ -15,10 +15,10 @@ export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
   mediaNamespace.use(authMiddleware);
   function mediaSocketRouter(socket: MediaSocket) {
     socket.on(EVENT_NAMES.JOIN_ROOM, joinRoomHandler);
-    socket.on("kick", kickHandler);
-    socket.on("media_played", playHandler);
-    socket.on("media_paused", pauseHandler);
-    socket.on("media_seeked", seekHandler);
+    socket.on(EVENT_NAMES.KICK, kickHandler);
+    socket.on(EVENT_NAMES.MEDIA_PLAYED, playHandler);
+    socket.on(EVENT_NAMES.MEDIA_PAUSED, pauseHandler);
+    socket.on(EVENT_NAMES.MEDIA_SEEKED, seekHandler);
   }
   return { mediaSocketRouter };
 }

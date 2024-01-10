@@ -15,24 +15,29 @@ import {
 export function userNamespaceRouter(userNamespace: UserNamespace) {
   const {
     joinRoomHandler,
-    disconnectHandler,
     initialDataHandler,
     readyHandler,
     unsyncHandler,
     waitingForDataHandler,
+    disconnectHandler,
+    disconnectPreviousSockets,
   } = usersSocketControl(userNamespace);
   userNamespace.use(authMiddleware);
 
   function socketRouter(socket: UserSocket) {
-    const updateGuestsDataHandler = updateGuestsData.bind(socket);
     const addUserIdToPayloadHandler = addUserIdToPayload.bind(socket);
     const addStatusToPayloadHandler = addStatusToPayload.bind(socket);
+    const updateGuestsDataHandler = updateGuestsData.bind(socket);
+    const disconnectPreviousSocketsHandler =
+      disconnectPreviousSockets.bind(socket);
+
     socket.use(addUserIdToPayloadHandler);
     socket.use(addStatusToPayloadHandler);
+    //prevent user from connect to this namespace twice.
+    socket.use(disconnectPreviousSocketsHandler);
 
     const socketAfterMiddlewares = socket as UserSocketAfterMiddlewares;
 
-    socketAfterMiddlewares.on("disconnecting", disconnectHandler);
     socketAfterMiddlewares.use(updateGuestsDataHandler);
     socketAfterMiddlewares.on(EVENT_NAMES.JOIN_ROOM, joinRoomHandler);
     socketAfterMiddlewares.on(EVENT_NAMES.UNSYNC, unsyncHandler);
@@ -42,6 +47,7 @@ export function userNamespaceRouter(userNamespace: UserNamespace) {
       waitingForDataHandler
     );
     socketAfterMiddlewares.on(EVENT_NAMES.INITIAL_DATA, initialDataHandler);
+    socketAfterMiddlewares.on("disconnecting", disconnectHandler);
   }
 
   return { socketRouter };

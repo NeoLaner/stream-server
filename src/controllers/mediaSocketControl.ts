@@ -21,23 +21,19 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
   const userRoomMap = userRoomMapByNamespace[namespaceName];
 
   //Handlers
-  async function joinRoomHandler(
-    this: MediaSocket,
-    wsData: MediaWsDataClientToServerEventsWithoutUserId
-  ) {
+  async function joinRoomHandler(this: MediaSocket) {
     const socket = this;
     const roomId = socket.data.instance._id.toString();
-
     disconnectPreviousSockets({
       namespace: mediaNamespace,
       namespaceName: "media",
-      wsData,
+      socket,
       userSocketMap,
       userRoomMap,
     });
     await socket.join(roomId);
-    userSocketMap.set(wsData.payload.userId, socket.id);
-    mediaNamespace.to(roomId).emit("media", wsData);
+    userSocketMap.set(socket.data.user.userId, socket.id);
+    userRoomMap.set(socket.data.user.userId, roomId);
   }
 
   function kickHandler(
