@@ -24,6 +24,7 @@ export function userNamespaceRouter(userNamespace: UserNamespace) {
   userNamespace.use(authMiddleware);
 
   function socketRouter(socket: UserSocket) {
+    const updateGuestsDataHandler = updateGuestsData.bind(socket);
     const addUserIdToPayloadHandler = addUserIdToPayload.bind(socket);
     const addStatusToPayloadHandler = addStatusToPayload.bind(socket);
     socket.use(addUserIdToPayloadHandler);
@@ -32,7 +33,7 @@ export function userNamespaceRouter(userNamespace: UserNamespace) {
     const socketAfterMiddlewares = socket as UserSocketAfterMiddlewares;
 
     socketAfterMiddlewares.on("disconnecting", disconnectHandler);
-    socketAfterMiddlewares.use(updateGuestsData.bind(socket));
+    socketAfterMiddlewares.use(updateGuestsDataHandler);
     socketAfterMiddlewares.on(EVENT_NAMES.JOIN_ROOM, joinRoomHandler);
     socketAfterMiddlewares.on(EVENT_NAMES.UNSYNC, unsyncHandler);
     socketAfterMiddlewares.on(EVENT_NAMES.USER_READY, readyHandler);
