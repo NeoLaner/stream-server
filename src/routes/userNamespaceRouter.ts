@@ -1,5 +1,9 @@
 import { EVENT_NAMES } from "../utils/constants";
-import { UserNamespace, UserSocket } from "../utils/@types/userTypes";
+import {
+  UserNamespace,
+  UserSocket,
+  UserSocketAfterMiddlewares,
+} from "../utils/@types/userTypes";
 import { authMiddleware } from "../controllers/authSocketControl";
 import {
   addStatusToPayload,
@@ -17,19 +21,26 @@ export function userNamespaceRouter(userNamespace: UserNamespace) {
     unsyncHandler,
     waitingForDataHandler,
   } = usersSocketControl(userNamespace);
-
   userNamespace.use(authMiddleware);
 
   function socketRouter(socket: UserSocket) {
-    socket.use(addUserIdToPayload.bind(socket));
-    socket.use(addStatusToPayload.bind(socket));
-    socket.on("disconnecting", disconnectHandler);
-    socket.use(updateGuestsData.bind(socket));
-    socket.on(EVENT_NAMES.JOIN_ROOM, joinRoomHandler);
-    socket.on(EVENT_NAMES.UNSYNC, unsyncHandler);
-    socket.on(EVENT_NAMES.USER_READY, readyHandler);
-    socket.on(EVENT_NAMES.USER_WAITING_FOR_DATA, waitingForDataHandler);
-    socket.on(EVENT_NAMES.INITIAL_DATA, initialDataHandler);
+    const addUserIdToPayloadHandler = addUserIdToPayload.bind(socket);
+    const addStatusToPayloadHandler = addStatusToPayload.bind(socket);
+    socket.use(addUserIdToPayloadHandler);
+    socket.use(addStatusToPayloadHandler);
+
+    const socketAfterMiddlewares = socket as UserSocketAfterMiddlewares;
+
+    socketAfterMiddlewares.on("disconnecting", disconnectHandler);
+    socketAfterMiddlewares.use(updateGuestsData.bind(socket));
+    socketAfterMiddlewares.on(EVENT_NAMES.JOIN_ROOM, joinRoomHandler);
+    socketAfterMiddlewares.on(EVENT_NAMES.UNSYNC, unsyncHandler);
+    socketAfterMiddlewares.on(EVENT_NAMES.USER_READY, readyHandler);
+    socketAfterMiddlewares.on(
+      EVENT_NAMES.USER_WAITING_FOR_DATA,
+      waitingForDataHandler
+    );
+    socketAfterMiddlewares.on(EVENT_NAMES.INITIAL_DATA, initialDataHandler);
   }
 
   return { socketRouter };

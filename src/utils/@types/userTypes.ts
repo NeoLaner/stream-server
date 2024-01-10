@@ -1,5 +1,5 @@
 import { Namespace, Socket } from "socket.io";
-import { EventNames, type SocketData, type UserDataApi } from "./globalTypes";
+import type { EventNames, SocketData, UserDataApi } from "./globalTypes";
 
 type Status = "success" | "fail" | "error";
 
@@ -12,47 +12,41 @@ type DefaultEvents = "join_room" | "kick" | "initial_data" | "unsync";
 type RemoveUserPrefix<T extends string> = T extends `user_${infer U}` ? U : T;
 type UserStatus = RemoveUserPrefix<Extract<EventNames, `user_${string}`>>;
 
-export type UserSocketData = {
-  payload: {
-    status: UserStatus;
-  };
-};
-
 export type UserEvents =
   | Extract<EventNames, `user_${string}`>
   | DefaultEvents
   | "unsync";
 
-export type UserWsDataClientToServerEventsWithoutUserId = UserSocketData;
-export type UserClientToServerEventsWithoutUserId = Record<
-  UserEvents,
-  (wsData: UserWsDataClientToServerEvents) => void
->;
+export type UserWsDataClientToServer =
+  | { payload?: { targetId?: string } }
+  | undefined;
 
-export type UserWsDataClientToServerEvents = UserSocketData & {
-  payload: { userId: string };
+export type UserWsDataAfterMiddlewares = {
+  payload: {
+    status: UserStatus;
+    userId: string;
+    targetId?: string;
+  };
 };
 
-type RemoveUnsyncEvent<T extends string> = T extends "unsync" ? never : T;
 export type UserClientToServerEvents = Record<
-  RemoveUnsyncEvent<UserEvents>,
-  (wsData: UserWsDataClientToServerEvents) => void
-> &
-  Record<
-    "unsync",
-    (
-      wsData: UserWsDataClientToServerEvents & { payload: { targetId: string } }
-    ) => void
-  >;
+  UserEvents,
+  (wsData: UserWsDataClientToServer) => void
+>;
 
-export type UserWsDataServerToClientEvents = GuestsData;
+export type UserClientToServerEventsAfterMiddlewares = Record<
+  UserEvents,
+  (wsData: UserWsDataAfterMiddlewares) => void
+>;
 
-export type GuestsData = Array<UserWsDataClientToServerEvents["payload"]>;
+export type GuestsData = Array<UserWsDataAfterMiddlewares["payload"]>;
+
+export type UserWsDataServerToClient = GuestsData;
 
 export type UserServerToClientEvents = Record<
   "user",
-  (wsData: UserWsDataServerToClientEvents) => void
-> & { initial_data: (wsData: GuestsData) => void };
+  (wsData: UserWsDataServerToClient) => void
+> & { initial_data: (wsData: UserWsDataServerToClient) => void };
 
 type NamespaceSpecificInterServerEvents = object;
 
@@ -65,6 +59,20 @@ export type UserSocket = Socket<
 
 export type UserNamespace = Namespace<
   UserClientToServerEvents,
+  UserServerToClientEvents,
+  NamespaceSpecificInterServerEvents,
+  SocketData
+>;
+
+export type UserSocketAfterMiddlewares = Socket<
+  UserClientToServerEventsAfterMiddlewares,
+  UserServerToClientEvents,
+  NamespaceSpecificInterServerEvents,
+  SocketData
+>;
+
+export type UserNamespaceAfterMiddlewares = Namespace<
+  UserClientToServerEventsAfterMiddlewares,
   UserServerToClientEvents,
   NamespaceSpecificInterServerEvents,
   SocketData

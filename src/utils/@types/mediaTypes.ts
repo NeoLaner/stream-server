@@ -1,5 +1,5 @@
 import { Namespace, Socket } from "socket.io";
-import { EventNames, SocketData } from "./globalTypes";
+import type { EventNames, SocketData } from "./globalTypes";
 
 export type MediaStatus = "played" | "paused";
 

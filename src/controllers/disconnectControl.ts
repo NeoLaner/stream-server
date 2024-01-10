@@ -2,14 +2,14 @@ import { Namespace } from "socket.io";
 import {
   GuestsData,
   UserSocket,
-  UserWsDataClientToServerEvents,
+  UserWsDataAfterMiddlewares,
 } from "../utils/@types/userTypes";
 import { MediaSocketData } from "../utils/@types/mediaTypes";
 
 type DisconnectPreviousSockets = {
   namespace: Namespace;
   namespaceName: string;
-  wsData: UserWsDataClientToServerEvents | MediaSocketData;
+  wsData: UserWsDataAfterMiddlewares | MediaSocketData;
   userSocketMap: Map<string, string>;
   userRoomMap: Map<string, string>;
 };
@@ -82,7 +82,7 @@ export function disconnectController({
 }: DisconnectController) {
   const { userId } = socket.data.user;
   const instanceId = socket.data.instance._id.toString();
-  const dcWsData: UserWsDataClientToServerEvents = {
+  const dcWsData: UserWsDataAfterMiddlewares = {
     payload: {
       userId: userId,
       status: "disconnected",

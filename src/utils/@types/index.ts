@@ -1,18 +1,19 @@
 import { Types } from "mongoose";
 import type { NextFunction, Request, Response } from "express";
 import type {
-  UserSocketData,
   UserDataRes,
   UserEvents,
   UserClientToServerEvents,
-  UserWsDataClientToServerEventsWithoutUserId,
   UserServerToClientEvents,
-  UserWsDataServerToClientEvents,
   GuestsData,
-  UserClientToServerEventsWithoutUserId,
   UserNamespace,
   UserSocket,
-  UserWsDataClientToServerEvents,
+  UserNamespaceAfterMiddlewares,
+  UserSocketAfterMiddlewares,
+  UserWsDataAfterMiddlewares,
+  UserWsDataClientToServer,
+  UserClientToServerEventsAfterMiddlewares,
+  UserWsDataServerToClient,
 } from "./userTypes";
 import type {
   MediaNamespace,
@@ -49,16 +50,18 @@ export type SignInApiParams = {
 export type {
   UserDataApi,
   UserDataRes,
-  UserSocketData,
   UserEvents,
   UserClientToServerEvents,
-  UserWsDataClientToServerEventsWithoutUserId,
   UserServerToClientEvents,
   GuestsData,
-  UserClientToServerEventsWithoutUserId,
   UserNamespace,
   UserSocket,
-  UserWsDataClientToServerEvents,
+  UserNamespaceAfterMiddlewares,
+  UserSocketAfterMiddlewares,
+  UserWsDataAfterMiddlewares,
+  UserWsDataClientToServer,
+  UserClientToServerEventsAfterMiddlewares,
+  UserWsDataServerToClient,
 };
 
 export type MongooseObjectId = Types.ObjectId;
@@ -112,20 +115,20 @@ export type KickSocketData = {
 };
 
 export type EventData<EventType extends EventNames> = {
-  user_waitingForData: UserWsDataServerToClientEvents;
-  user_ready: UserWsDataServerToClientEvents;
-  user_notReady: UserWsDataServerToClientEvents;
-  user_disconnected: UserWsDataServerToClientEvents;
-  initial_data: UserWsDataServerToClientEvents;
+  user_waitingForData: UserWsDataServerToClient;
+  user_ready: UserWsDataServerToClient;
+  user_notReady: UserWsDataServerToClient;
+  user_disconnected: UserWsDataServerToClient;
+  initial_data: UserWsDataServerToClient;
   media_paused: MediaSocketData;
   media_played: MediaSocketData;
   media_seeked: MediaSocketData;
-  set_id: UserSocketData;
-  join_room: UserSocketData;
+  set_id: UserWsDataServerToClient;
+  join_room: UserWsDataServerToClient;
   kick: KickSocketData;
   unsync: KickSocketData;
-  GET_USER: UserSocketData;
-  MESSAGE_EMITTED: UserSocketData;
+  GET_USER: UserWsDataServerToClient;
+  MESSAGE_EMITTED: UserWsDataServerToClient;
 }[EventType];
 
 export type CreateRoomReqDataApi = {

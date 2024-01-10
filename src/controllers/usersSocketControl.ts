@@ -1,12 +1,11 @@
 import { Event } from "socket.io";
 import {
   GuestsData,
-  UserClientToServerEventsWithoutUserId,
   UserEvents,
   UserNamespace,
   UserSocket,
   UserStatus,
-  UserWsDataClientToServerEvents,
+  UserWsDataAfterMiddlewares,
 } from "../utils/@types";
 import { EVENT_NAMES } from "../utils/constants";
 import {
@@ -50,10 +49,7 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     // console.log(guestsDataByRoomId);
   }
 
-  function unsyncHandler(
-    this: UserSocket,
-    wsData: UserWsDataClientToServerEvents & { payload: { targetId: string } }
-  ) {
+  function unsyncHandler(this: UserSocket, wsData: UserWsDataAfterMiddlewares) {
     const socket = this;
     const roomId = socket.data.instance._id.toString();
     const isHost =
@@ -61,10 +57,11 @@ export function usersSocketControl(userNamespace: UserNamespace) {
       socket.data.user._id.toString();
     console.log(socket.data.instance.hostId, socket.data.user._id);
 
-    if (!isHost) return;
-    const curSocketId = userSocketMap.get(wsData.payload.targetId);
+    const { targetId } = wsData.payload;
+    if (!isHost || !targetId) return;
+    const curSocketId = userSocketMap.get(targetId);
     guestsDataByRoomId[roomId] = guestsDataByRoomId[roomId].filter(
-      (guest) => guest.userId !== wsData.payload.targetId
+      (guest) => guest.userId !== targetId
     );
     userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
     if (curSocketId) userNamespace.sockets.get(curSocketId)?.disconnect();
@@ -121,9 +118,7 @@ export function addUserIdToPayload(
 
   //event[1] is wsData which come from client server
   if (!event[1]) event[1] = { payload: { userId: socket.data.user.userId } };
-  const args = event[1] as UserClientToServerEventsWithoutUserId & {
-    payload: { userId: string | undefined };
-  };
+  const args = event[1] as UserWsDataAfterMiddlewares;
 
   args.payload = { ...args.payload, userId: socket.data.user.userId };
 
@@ -141,7 +136,7 @@ export function addStatusToPayload(
 
   //
   if (!event[1]) event[1] = { payload: { userId: socket.data.user.userId } };
-  const args = event[1] as UserWsDataClientToServerEvents;
+  const args = event[1] as UserWsDataAfterMiddlewares;
   const eventName = event[0] as UserEvents;
 
   //for joinRoom
@@ -198,7 +193,7 @@ export function updateGuestsData(
 ) {
   const socket = this;
   const roomId = socket.data.instance._id.toString();
-  const wsData = event[1] as UserWsDataClientToServerEvents;
+  const wsData = event[1] as UserWsDataAfterMiddlewares;
 
   if (!guestsDataByRoomId[roomId]) guestsDataByRoomId[roomId] = [];
   const guestsData = guestsDataByRoomId[roomId];
