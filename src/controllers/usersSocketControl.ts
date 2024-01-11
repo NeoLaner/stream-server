@@ -85,16 +85,15 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     event: Event,
     next: (err?: Error) => void
   ) {
-    const eventName = event[0] as UserEvents;
-    //one user can't join room twice
-    if (eventName !== "join_room") return next();
     const socket = this;
     const { userId } = socket.data.user;
     const previousSocket = userSocketMap.get(userId);
+
+    if (previousSocket === socket.id) return next();
     if (previousSocket) {
       //dc the previous socket of user if he had.
       console.log(
-        "you join room before, previous one disconnect from user namespace"
+        "you connect this namespace before, previous one disconnect from user namespace"
       );
       userNamespace.sockets.get(previousSocket)?.disconnect();
     }
