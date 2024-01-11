@@ -23,18 +23,16 @@ export function userNamespaceRouter(userNamespace: UserNamespace) {
     disconnectPreviousSockets,
   } = usersSocketControl(userNamespace);
   userNamespace.use(authMiddleware);
+  //prevent user from connect to this namespace twice.
+  userNamespace.use(disconnectPreviousSockets);
 
   function socketRouter(socket: UserSocket) {
     const addUserIdToPayloadHandler = addUserIdToPayload.bind(socket);
     const addStatusToPayloadHandler = addStatusToPayload.bind(socket);
     const updateGuestsDataHandler = updateGuestsData.bind(socket);
-    const disconnectPreviousSocketsHandler =
-      disconnectPreviousSockets.bind(socket);
 
     socket.use(addUserIdToPayloadHandler);
     socket.use(addStatusToPayloadHandler);
-    //prevent user from connect to this namespace twice.
-    socket.use(disconnectPreviousSocketsHandler);
 
     const socketAfterMiddlewares = socket as UserSocketAfterMiddlewares;
 

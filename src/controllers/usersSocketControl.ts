@@ -81,11 +81,9 @@ export function usersSocketControl(userNamespace: UserNamespace) {
   }
 
   function disconnectPreviousSockets(
-    this: UserSocket,
-    event: Event,
+    socket: UserSocket,
     next: (err?: Error) => void
   ) {
-    const socket = this;
     const { userId } = socket.data.user;
     const previousSocket = userSocketMap.get(userId);
 
