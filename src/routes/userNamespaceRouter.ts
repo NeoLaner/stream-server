@@ -20,11 +20,11 @@ export function userNamespaceRouter(userNamespace: UserNamespace) {
     unsyncHandler,
     waitingForDataHandler,
     disconnectHandler,
-    disconnectPreviousSockets,
+    disconnectPreviousSocketsHandler,
   } = usersSocketControl(userNamespace);
   userNamespace.use(authMiddleware);
   //prevent user from connect to this namespace twice.
-  userNamespace.use(disconnectPreviousSockets);
+  userNamespace.use(disconnectPreviousSocketsHandler);
 
   function socketRouter(socket: UserSocket) {
     const addUserIdToPayloadHandler = addUserIdToPayload.bind(socket);

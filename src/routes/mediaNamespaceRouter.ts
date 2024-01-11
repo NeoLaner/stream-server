@@ -11,8 +11,12 @@ export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
     playHandler,
     pauseHandler,
     seekHandler,
+    disconnectPreviousSocketsHandler,
   } = mediaSocketControl(mediaNamespace);
   mediaNamespace.use(authMiddleware);
+  //prevent user from connect to this namespace twice.
+  mediaNamespace.use(disconnectPreviousSocketsHandler);
+
   function mediaSocketRouter(socket: MediaSocket) {
     socket.on(EVENT_NAMES.JOIN_ROOM, joinRoomHandler);
     socket.on(EVENT_NAMES.KICK, kickHandler);

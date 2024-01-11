@@ -6,7 +6,6 @@ import {
 import { disconnectPreviousSockets } from "./disconnectControl";
 
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
-const userRoomMapByNamespace: Record<string, Map<string, string>> = {};
 
 export function mediaSocketControl(mediaNamespace: MediaNamespace) {
   // Initialize the user-room map for the namespace if not exists
@@ -15,25 +14,15 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     userSocketMapByNamespace[namespaceName] = new Map();
   }
   const userSocketMap = userSocketMapByNamespace[namespaceName];
-  if (!userRoomMapByNamespace[namespaceName]) {
-    userRoomMapByNamespace[namespaceName] = new Map();
-  }
-  const userRoomMap = userRoomMapByNamespace[namespaceName];
 
   //Handlers
   async function joinRoomHandler(this: MediaSocket) {
     const socket = this;
     const roomId = socket.data.instance._id.toString();
-    disconnectPreviousSockets({
-      namespace: mediaNamespace,
-      namespaceName: "media",
-      socket,
-      userSocketMap,
-      userRoomMap,
-    });
+
     await socket.join(roomId);
     userSocketMap.set(socket.data.user.userId, socket.id);
-    userRoomMap.set(socket.data.user.userId, roomId);
+    // console.log(guestsDataByRoomId);
   }
 
   function kickHandler(
@@ -71,11 +60,23 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     socket.to(roomId).emit("media", wsData);
   }
 
+  const disconnectPreviousSocketsHandler = (
+    socket: MediaSocket,
+    next: (err?: Error) => void
+  ) =>
+    disconnectPreviousSockets({
+      socket,
+      namespace: mediaNamespace,
+      next,
+      userSocketMap,
+    });
+
   return {
     joinRoomHandler,
     kickHandler,
     playHandler,
     pauseHandler,
     seekHandler,
+    disconnectPreviousSocketsHandler,
   };
 }

@@ -8,6 +8,7 @@ import {
   UserWsDataAfterMiddlewares,
 } from "../utils/@types";
 import { EVENT_NAMES } from "../utils/constants";
+import { disconnectPreviousSockets } from "./disconnectControl";
 
 const guestsDataByRoomId: Record<string, GuestsData> = {};
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
@@ -80,23 +81,16 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
   }
 
-  function disconnectPreviousSockets(
+  const disconnectPreviousSocketsHandler = (
     socket: UserSocket,
     next: (err?: Error) => void
-  ) {
-    const { userId } = socket.data.user;
-    const previousSocket = userSocketMap.get(userId);
-
-    if (previousSocket === socket.id) return next();
-    if (previousSocket) {
-      //dc the previous socket of user if he had.
-      console.log(
-        "you connect this namespace before, previous one disconnect from user namespace"
-      );
-      userNamespace.sockets.get(previousSocket)?.disconnect();
-    }
-    next();
-  }
+  ) =>
+    disconnectPreviousSockets({
+      socket,
+      namespace: userNamespace,
+      next,
+      userSocketMap,
+    });
 
   return {
     joinRoomHandler,
@@ -105,7 +99,7 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     waitingForDataHandler,
     initialDataHandler,
     disconnectHandler,
-    disconnectPreviousSockets,
+    disconnectPreviousSocketsHandler,
   };
 }
 

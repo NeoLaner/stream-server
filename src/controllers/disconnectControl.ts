@@ -6,27 +6,29 @@ import {
 
 type DisconnectPreviousSockets = {
   namespace: Namespace;
-  namespaceName: string;
   socket: UserSocket;
   userSocketMap: Map<string, string>;
-  userRoomMap: Map<string, string>;
+  next: (err?: Error) => void;
 };
 
 export function disconnectPreviousSockets({
   namespace,
-  namespaceName,
   socket,
   userSocketMap,
-  userRoomMap,
+  next,
 }: DisconnectPreviousSockets) {
   const { userId } = socket.data.user;
-  const currentSocket = userSocketMap.get(userId);
-  if (currentSocket) {
+  const previousSocket = userSocketMap.get(userId);
+
+  if (previousSocket === socket.id) return next();
+  if (previousSocket) {
     //dc the previous socket of user if he had.
-    console.log("disconnect worked sucka  bliat from", namespaceName);
-    namespace.sockets.get(currentSocket)?.disconnect();
-    userRoomMap.delete(userId);
+    console.log(
+      "you connect this namespace before, previous one disconnect from this namespace"
+    );
+    namespace.sockets.get(previousSocket)?.disconnect();
   }
+  next();
 }
 
 type DisconnectController = {
