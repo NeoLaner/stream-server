@@ -11,6 +11,7 @@ export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
     playHandler,
     pauseHandler,
     seekHandler,
+    addStatusToPayload,
     disconnectPreviousSocketsHandler,
   } = mediaSocketControl(mediaNamespace);
   mediaNamespace.use(authMiddleware);
@@ -18,6 +19,9 @@ export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
   mediaNamespace.use(disconnectPreviousSocketsHandler);
 
   function mediaSocketRouter(socket: MediaSocket) {
+    const addStatusToPayloadHandler = addStatusToPayload.bind(socket);
+    socket.use(addStatusToPayloadHandler);
+
     socket.on(EVENT_NAMES.JOIN_ROOM, joinRoomHandler);
     socket.on(EVENT_NAMES.KICK, kickHandler);
     socket.on(EVENT_NAMES.MEDIA_PLAYED, playHandler);
