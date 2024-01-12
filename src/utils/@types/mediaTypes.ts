@@ -7,29 +7,33 @@ export type DefaultEvents = "set_id" | "join_room" | "kick";
 // eventType: `user_${string}` | "set_id" | "join_room" | "unsync";
 
 export type MediaCaused = "auto" | "manual";
-export type MediaSocketData = {
-  eventType: `media_${string}` | DefaultEvents;
-  payload: {
-    userId: string;
-    status: MediaStatus;
-    playedSeconds: number;
-    caused?: MediaCaused;
-    instanceId: string | string[];
-  };
-};
 
 export type MediaEvents =
   | Extract<EventNames, `media_${string}`>
   | DefaultEvents;
 
+export type MediaWsDataClientToServer = {
+  payload: { playedSeconds?: number; targetId?: string; caused?: MediaCaused };
+};
+
+export type MediaWsDataClientToServerAfterMiddlewares =
+  MediaWsDataClientToServer & { payload: { status: MediaStatus } };
 export type MediaClientToServerEvents = Record<
   MediaEvents,
-  (wsData: MediaSocketData) => void
+  (wsData: MediaWsDataClientToServer) => void
 >;
+
+export type MediaClientToServerEventsAfterMiddlewares = Record<
+  MediaEvents,
+  (wsData: MediaWsDataClientToServerAfterMiddlewares) => void
+>;
+
+export type MediaWsDataServerToClient =
+  MediaWsDataClientToServerAfterMiddlewares;
 
 export type MediaServerToClientEvents = Record<
   "media",
-  (wsData: MediaSocketData) => void
+  (wsData: MediaWsDataClientToServer) => void
 >;
 
 type NamespaceSpecificInterServerEvents = object;
@@ -48,5 +52,9 @@ export type MediaSocket = Socket<
   SocketData
 >;
 
-export type MediaWsDataClientToServerEventsWithoutUserId = MediaSocketData;
-export type MediaWsDataServerToClientEvents = MediaSocketData;
+export type MediaSocketAfterMiddlewares = Socket<
+  MediaClientToServerEventsAfterMiddlewares,
+  MediaServerToClientEvents,
+  NamespaceSpecificInterServerEvents,
+  SocketData
+>;

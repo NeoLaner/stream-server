@@ -4,7 +4,8 @@ import { MediaNamespace } from "../utils/@types";
 import {
   MediaEvents,
   MediaSocket,
-  MediaWsDataClientToServerEventsWithoutUserId,
+  MediaWsDataClientToServerAfterMiddlewares,
+  MediaWsDataClientToServer,
 } from "../utils/@types/mediaTypes";
 
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
@@ -29,15 +30,17 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
 
   function kickHandler(
     this: MediaSocket,
-    wsData: MediaWsDataClientToServerEventsWithoutUserId
+    wsData: MediaWsDataClientToServerAfterMiddlewares
   ) {
-    const curSocketId = userSocketMap.get(wsData.payload.userId);
+    const { targetId } = wsData.payload;
+    if (!targetId) return;
+    const curSocketId = userSocketMap.get(targetId);
     if (curSocketId) mediaNamespace.sockets.get(curSocketId)?.disconnect();
   }
 
   function playHandler(
     this: MediaSocket,
-    wsData: MediaWsDataClientToServerEventsWithoutUserId
+    wsData: MediaWsDataClientToServerAfterMiddlewares
   ) {
     const socket = this;
     const roomId = socket.data.instance._id.toString();
@@ -46,17 +49,14 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
 
   function pauseHandler(
     this: MediaSocket,
-    wsData: MediaWsDataClientToServerEventsWithoutUserId
+    wsData: MediaWsDataClientToServerAfterMiddlewares
   ) {
     const socket = this;
     const roomId = socket.data.instance._id.toString();
     mediaNamespace.to(roomId).emit("media", wsData);
   }
 
-  function seekHandler(
-    this: MediaSocket,
-    wsData: MediaWsDataClientToServerEventsWithoutUserId
-  ) {
+  function seekHandler(this: MediaSocket, wsData: MediaWsDataClientToServer) {
     const socket = this;
     const roomId = socket.data.instance._id.toString();
     socket.to(roomId).emit("media", wsData);
@@ -80,7 +80,7 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
   ) {
     //
     if (!event[1]) event[1] = { payload: {} };
-    const args = event[1] as MediaWsDataClientToServerEventsWithoutUserId;
+    const args = event[1] as MediaWsDataClientToServerAfterMiddlewares;
     const eventName = event[0] as MediaEvents;
 
     //for joinRoom
@@ -98,6 +98,7 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
       default:
         break;
     }
+    console.log(args);
 
     next();
   }

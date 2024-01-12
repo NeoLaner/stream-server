@@ -17,10 +17,16 @@ import type {
 } from "./userTypes";
 import type {
   MediaNamespace,
-  MediaSocketData,
   MediaCaused,
   MediaClientToServerEvents,
   MediaServerToClientEvents,
+  MediaWsDataClientToServerAfterMiddlewares,
+  MediaWsDataClientToServer,
+  MediaStatus,
+  MediaSocketAfterMiddlewares,
+  MediaSocket,
+  MediaClientToServerEventsAfterMiddlewares,
+  MediaWsDataServerToClient,
 } from "./mediaTypes";
 import type {
   InstanceLoginData,
@@ -86,7 +92,13 @@ export {
 //media
 export type {
   MediaNamespace,
-  MediaSocketData,
+  MediaWsDataClientToServerAfterMiddlewares,
+  MediaWsDataClientToServer,
+  MediaStatus,
+  MediaSocketAfterMiddlewares,
+  MediaSocket,
+  MediaClientToServerEventsAfterMiddlewares,
+  MediaWsDataServerToClient,
   MediaCaused,
   MediaClientToServerEvents,
   MediaServerToClientEvents,
@@ -106,27 +118,19 @@ export type PauseVideoDataApi = {
   isPlaying: false;
 };
 
-export type KickSocketData = {
-  eventType: "kick" | "unsync";
-  payload: {
-    userId: string;
-    instanceId: string;
-  };
-};
-
 export type EventData<EventType extends EventNames> = {
   user_waitingForData: UserWsDataServerToClient;
   user_ready: UserWsDataServerToClient;
   user_notReady: UserWsDataServerToClient;
   user_disconnected: UserWsDataServerToClient;
   initial_data: UserWsDataServerToClient;
-  media_paused: MediaSocketData;
-  media_played: MediaSocketData;
-  media_seeked: MediaSocketData;
+  media_paused: MediaWsDataServerToClient;
+  media_played: MediaWsDataServerToClient;
+  media_seeked: MediaWsDataServerToClient;
   set_id: UserWsDataServerToClient;
   join_room: UserWsDataServerToClient;
-  kick: KickSocketData;
-  unsync: KickSocketData;
+  kick: MediaWsDataServerToClient;
+  unsync: UserWsDataServerToClient;
   GET_USER: UserWsDataServerToClient;
   MESSAGE_EMITTED: UserWsDataServerToClient;
 }[EventType];
