@@ -1,10 +1,7 @@
 import { Namespace, Socket } from "socket.io";
-import type { EventNames, SocketData } from "./globalTypes";
+import type { DefaultEvents, EventNames, SocketData } from "./globalTypes";
 
 export type MediaStatus = "played" | "paused";
-
-export type DefaultEvents = "set_id" | "join_room" | "kick";
-// eventType: `user_${string}` | "set_id" | "join_room" | "unsync";
 
 export type MediaCaused = "auto" | "manual";
 

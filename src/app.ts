@@ -12,7 +12,13 @@ import roomRouter from "./routes/roomRouter";
 import instanceRouter from "./routes/instanceRouter";
 import { userNamespaceRouter } from "./routes/userNamespaceRouter";
 import { mediaNamespaceRouter } from "./routes/mediaNamespaceRouter";
-import type { MediaNamespace, SocketData, UserNamespace } from "./utils/@types";
+import type {
+  ChatNamespace,
+  MediaNamespace,
+  SocketData,
+  UserNamespace,
+} from "./utils/@types";
+import { chatNamespaceRouter } from "./routes/chatNamespaceRouter";
 
 const app = express();
 
@@ -89,6 +95,11 @@ const mediaNamespace: MediaNamespace = ioServer.of("/media");
 const { mediaSocketRouter } = mediaNamespaceRouter(mediaNamespace);
 
 mediaNamespace.on("connection", mediaSocketRouter);
+
+//Chat namespace
+const chatNamespace: ChatNamespace = ioServer.of("/chat");
+const { chatSocketRouter } = chatNamespaceRouter(chatNamespace);
+chatNamespace.on("connection", chatSocketRouter);
 
 //Default namespace
 ioServer.on("connection", (socket) => {

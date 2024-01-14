@@ -1,5 +1,10 @@
 import { Namespace, Socket } from "socket.io";
-import type { EventNames, SocketData, UserDataApi } from "./globalTypes";
+import type {
+  DefaultEvents,
+  EventNames,
+  SocketData,
+  UserDataApi,
+} from "./globalTypes";
 
 type Status = "success" | "fail" | "error";
 
@@ -8,7 +13,6 @@ export type UserDataRes = {
   data: { user: Pick<UserDataApi, "_id" | "photo" | "name" | "userId"> };
 };
 
-type DefaultEvents = "join_room" | "kick" | "initial_data" | "unsync";
 type RemoveUserPrefix<T extends string> = T extends `user_${infer U}` ? U : T;
 type UserStatus = RemoveUserPrefix<Extract<EventNames, `user_${string}`>>;
 

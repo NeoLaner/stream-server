@@ -15,6 +15,14 @@ import type {
   UserClientToServerEventsAfterMiddlewares,
   UserWsDataServerToClient,
 } from "./userTypes";
+
+import type {
+  ChatNamespace,
+  ChatServerToClientEvents,
+  ChatSocketAfterMiddlewares,
+  ChatSocket,
+} from "./chatTypes";
+
 import type {
   MediaNamespace,
   MediaCaused,
@@ -28,6 +36,7 @@ import type {
   MediaClientToServerEventsAfterMiddlewares,
   MediaWsDataServerToClient,
 } from "./mediaTypes";
+
 import type {
   InstanceLoginData,
   InstanceRes,
@@ -81,12 +90,12 @@ export type RoomDataRes = {
 
 export type RoomDataReq = Omit<RoomData, "_id" | "isActive">;
 
-export {
-  type InstanceLoginData,
-  type InstanceRes,
-  type InstanceReq,
-  type JwtPayloadInstance,
-  type InstanceData,
+export type {
+  InstanceLoginData,
+  InstanceRes,
+  InstanceReq,
+  JwtPayloadInstance,
+  InstanceData,
 };
 
 //media
@@ -104,14 +113,16 @@ export type {
   MediaServerToClientEvents,
 };
 
+//Chat
+export type {
+  ChatNamespace,
+  ChatServerToClientEvents,
+  ChatSocketAfterMiddlewares,
+  ChatSocket,
+};
 //SOCKET
 export type MessageDataApi = {
-  senderId: string;
-  messageId: string;
-  name: string;
   textContent: string;
-  image?: string;
-  time?: string;
 };
 
 export type PauseVideoDataApi = {
@@ -132,7 +143,7 @@ export type EventData<EventType extends EventNames> = {
   kick: MediaWsDataServerToClient;
   unsync: UserWsDataServerToClient;
   GET_USER: UserWsDataServerToClient;
-  MESSAGE_EMITTED: UserWsDataServerToClient;
+  chat_msgSubmitted: UserWsDataServerToClient;
 }[EventType];
 
 export type CreateRoomReqDataApi = {

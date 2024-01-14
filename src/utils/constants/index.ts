@@ -8,9 +8,9 @@ export const EVENT_NAMES = {
   USER_NOT_READY: "user_notReady",
   USER_WAITING_FOR_DATA: "user_waitingForData",
   USER_DISCONNECTED: "user_disconnected",
-  MESSAGE_EMITTED: "MESSAGE_EMITTED",
   MEDIA_PAUSED: "media_paused",
   MEDIA_PLAYED: "media_played",
   MEDIA_SEEKED: "media_seeked",
+  CHAT_MSG_SUB: "chat_msgSubmitted",
   GET_USER: "GET_USER",
 } as const;
