@@ -8,16 +8,23 @@ import {
 import { EVENT_NAMES } from "../utils/constants";
 
 export function chatNamespaceRouter(chatNamespace: ChatNamespace) {
-  const { joinRoomHandler, disconnectPreviousSocketsHandler } =
-    chatSocketControl(chatNamespace);
+  const {
+    addUserDetails,
+    joinRoomHandler,
+    disconnectPreviousSocketsHandler,
+    msgSubHandler,
+  } = chatSocketControl(chatNamespace);
   chatNamespace.use(authMiddleware);
   //prevent user from connect to this namespace twice.
   chatNamespace.use(disconnectPreviousSocketsHandler);
 
   function chatSocketRouter(socket: ChatSocket) {
+    const addUserDetailsHandler = addUserDetails.bind(socket);
+    socket.use(addUserDetailsHandler);
+
     const socketAfterMiddlewares = socket as ChatSocketAfterMiddlewares;
-    socketAfterMiddlewares.on(EVENT_NAMES.JOIN_ROOM, joinRoomHandler);
-    // socketAfterMiddlewares.on(EVENT_NAMES.CHAT_MSG_SUB );
+    socketAfterMiddlewares.use(joinRoomHandler.bind(socket));
+    socketAfterMiddlewares.on(EVENT_NAMES.CHAT_MSG_SUB, msgSubHandler);
   }
-  return { chatSocketRouter };
+  return { chatSocketRouter, msgSubHandler };
 }

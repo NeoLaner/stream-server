@@ -1,5 +1,11 @@
+import { type Event } from "socket.io";
 import { disconnectPreviousSockets } from "./disconnectControl";
-import { ChatNamespace, ChatSocketAfterMiddlewares } from "../utils/@types";
+import {
+  ChatNamespace,
+  ChatSocket,
+  ChatSocketAfterMiddlewares,
+  ChatWsDataClientToServerAfterMiddlewares,
+} from "../utils/@types";
 
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
 
@@ -12,15 +18,52 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
   const userSocketMap = userSocketMapByNamespace[namespaceName];
 
   //Handlers
-  async function joinRoomHandler(this: ChatSocketAfterMiddlewares) {
+  function joinRoomHandler(
+    this: ChatSocketAfterMiddlewares,
+    event: Event,
+    next: (err?: Error) => void
+  ) {
+    const asyncHandler = async () => {
+      const socket = this;
+      const roomId = socket.data.instance._id.toString();
+      if (userSocketMap.get(socket.data.user.userId) === socket.id)
+        return next();
+      await socket.join(roomId);
+      userSocketMap.set(socket.data.user.userId, socket.id);
+      // console.log(guestsDataByRoomId);
+      next();
+    };
+    void asyncHandler();
+  }
+
+  function addUserDetails(
+    this: ChatSocket,
+    event: Event,
+    next: (err?: Error) => void
+  ) {
+    const socket = this;
+
+    //
+    if (!event[1]) event[1] = { payload: { userId: socket.data.user.userId } };
+    const args = event[1] as ChatWsDataClientToServerAfterMiddlewares;
+    event[1] = {
+      ...args,
+      userId: socket.data.user.userId,
+      userName: socket.data.user.name,
+      created_at: Date.now(),
+    };
+    next();
+  }
+
+  function msgSubHandler(
+    this: ChatSocketAfterMiddlewares,
+    wsData: ChatWsDataClientToServerAfterMiddlewares
+  ) {
     const socket = this;
     const roomId = socket.data.instance._id.toString();
 
-    await socket.join(roomId);
-    userSocketMap.set(socket.data.user.userId, socket.id);
-    // console.log(guestsDataByRoomId);
+    chatNamespace.to(roomId).emit("chat", wsData);
   }
-
   // function kickHandler(
   //   this: ChatSocketAfterMiddlewares,
   //   wsData: MediaWsDataClientToServerAfterMiddlewares
@@ -43,8 +86,10 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
     });
 
   return {
+    addUserDetails,
     joinRoomHandler,
     disconnectPreviousSocketsHandler,
+    msgSubHandler,
     // kickHandler,
   };
 }

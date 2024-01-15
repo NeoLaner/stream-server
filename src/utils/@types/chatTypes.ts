@@ -3,28 +3,29 @@ import type { EventNames, SocketData, DefaultEvents } from "./globalTypes";
 
 type ChatEvents = Extract<EventNames, `chat_${string}`> | DefaultEvents;
 
-type UserWsDataClientToServer = { textContent: string };
-type UserWsDataClientToServerAfterMiddlewares = UserWsDataClientToServer & {
-  userId: string;
-  userName: string;
-  created_at: number;
-};
-type UserWsDataServerToClient = UserWsDataClientToServerAfterMiddlewares;
+export type ChatWsDataClientToServer = { textContent: string };
+export type ChatWsDataClientToServerAfterMiddlewares =
+  ChatWsDataClientToServer & {
+    userId: string;
+    userName: string;
+    created_at: number;
+  };
+export type ChatWsDataServerToClient = ChatWsDataClientToServerAfterMiddlewares;
 
 type ChatClientToServerEvents = Record<
   ChatEvents,
-  (wsData: UserWsDataClientToServer) => void
+  (wsData: ChatWsDataClientToServer) => void
 >;
 
 export type ChatClientToServerEventsAfterMiddlewares = Record<
   ChatEvents,
-  (wsData: UserWsDataClientToServerAfterMiddlewares) => void
+  (wsData: ChatWsDataClientToServerAfterMiddlewares) => void
 >;
 
 export type ChatServerToClientEvents = Record<
   "chat",
-  (wsData: UserWsDataServerToClient) => void
-> & { initial_data: (wsData: UserWsDataServerToClient) => void };
+  (wsData: ChatWsDataServerToClient) => void
+> & { initial_data: (wsData: ChatWsDataServerToClient) => void };
 
 type NamespaceSpecificInterServerEvents = object;
 

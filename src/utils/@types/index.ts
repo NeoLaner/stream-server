@@ -21,6 +21,10 @@ import type {
   ChatServerToClientEvents,
   ChatSocketAfterMiddlewares,
   ChatSocket,
+  ChatClientToServerEventsAfterMiddlewares,
+  ChatWsDataClientToServer,
+  ChatWsDataClientToServerAfterMiddlewares,
+  ChatWsDataServerToClient,
 } from "./chatTypes";
 
 import type {
@@ -119,6 +123,10 @@ export type {
   ChatServerToClientEvents,
   ChatSocketAfterMiddlewares,
   ChatSocket,
+  ChatClientToServerEventsAfterMiddlewares,
+  ChatWsDataClientToServer,
+  ChatWsDataClientToServerAfterMiddlewares,
+  ChatWsDataServerToClient,
 };
 //SOCKET
 export type MessageDataApi = {
