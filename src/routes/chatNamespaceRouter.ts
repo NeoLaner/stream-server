@@ -23,7 +23,7 @@ export function chatNamespaceRouter(chatNamespace: ChatNamespace) {
     socket.use(addUserDetailsHandler);
 
     const socketAfterMiddlewares = socket as ChatSocketAfterMiddlewares;
-    socketAfterMiddlewares.use(joinRoomHandler.bind(socket));
+    socketAfterMiddlewares.on(EVENT_NAMES.JOIN_ROOM, joinRoomHandler);
     socketAfterMiddlewares.on(EVENT_NAMES.CHAT_MSG_SUB, msgSubHandler);
   }
   return { chatSocketRouter, msgSubHandler };

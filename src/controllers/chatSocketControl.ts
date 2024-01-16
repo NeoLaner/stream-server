@@ -18,22 +18,12 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
   const userSocketMap = userSocketMapByNamespace[namespaceName];
 
   //Handlers
-  function joinRoomHandler(
-    this: ChatSocketAfterMiddlewares,
-    event: Event,
-    next: (err?: Error) => void
-  ) {
-    const asyncHandler = async () => {
-      const socket = this;
-      const roomId = socket.data.instance._id.toString();
-      if (userSocketMap.get(socket.data.user.userId) === socket.id)
-        return next();
-      await socket.join(roomId);
-      userSocketMap.set(socket.data.user.userId, socket.id);
-      // console.log(guestsDataByRoomId);
-      next();
-    };
-    void asyncHandler();
+  async function joinRoomHandler(this: ChatSocket) {
+    const socket = this;
+    const roomId = socket.data.instance._id.toString();
+
+    await socket.join(roomId);
+    userSocketMap.set(socket.data.user.userId, socket.id);
   }
 
   function addUserDetails(
