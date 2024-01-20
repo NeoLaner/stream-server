@@ -44,7 +44,7 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
   ) {
     const socket = this;
     const roomId = socket.data.instance._id.toString();
-    mediaNamespace.to(roomId).emit("media", wsData);
+    socket.to(roomId).emit("media", wsData);
   }
 
   function pauseHandler(
@@ -53,7 +53,7 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
   ) {
     const socket = this;
     const roomId = socket.data.instance._id.toString();
-    mediaNamespace.to(roomId).emit("media", wsData);
+    socket.to(roomId).emit("media", wsData);
   }
 
   function seekHandler(this: MediaSocket, wsData: MediaWsDataClientToServer) {
