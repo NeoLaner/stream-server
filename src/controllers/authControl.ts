@@ -35,7 +35,7 @@ function createAndSendTheToken(
     domain:
       process.env.NODE_ENV === "development"
         ? "127.0.0.1" // "localhost" gives an error
-        : "5.34.202.131",
+        : "37.32.14.204",
     path: "/", //sub domain
     sameSite: "strict", // lax for 1st party cookies and none for 3rd party cookies
     httpOnly: httpOnly, // can not manipulate the cookie from browser or read from client side
