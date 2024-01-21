@@ -23,7 +23,8 @@ function createAndSendTheToken(
   jwtPayload: object,
   statusCode: number,
   httpOnly: boolean,
-  res: Response
+  res: Response,
+  path: string = "/"
 ) {
   const token = createToken(jwtPayload);
 
@@ -36,7 +37,7 @@ function createAndSendTheToken(
       process.env.NODE_ENV === "development"
         ? "127.0.0.1" // "localhost" gives an error
         : "37.32.14.204",
-    path: "/", //sub domain
+    path: path, //sub domain
     sameSite: "strict", // lax for 1st party cookies and none for 3rd party cookies
     httpOnly: httpOnly, // can not manipulate the cookie from browser or read from client side
     //just send it over in https
@@ -177,12 +178,21 @@ export const loginInstance: ExpressMiddlewareFn<void> = catchAsync(
       instance: { instanceId, user_id: req.user._id },
     };
 
-    createAndSendTheToken("instanceJwt", jwtPayloadInstance, 200, false, res);
+    createAndSendTheToken(
+      "instanceJwt",
+      jwtPayloadInstance,
+      200,
+      false,
+      res,
+      `/instance/${instanceId.toString()}`
+    );
   }
 );
 
 export const protect = catchAsync(async function (req, res, next) {
   //get token from cookie
+  console.log(req.headers.cookie);
+
   const token = req.headers.cookie
     ?.split("; ")
     .filter((el) => el.includes("jwt="))[0]

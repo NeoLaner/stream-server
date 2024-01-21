@@ -52,10 +52,10 @@ app.get("/test", (req, res) => {
   });
 });
 
-app.use("/api/v1/video", videoRouter);
-app.use("/api/v1/users", userRouter);
-app.use("/api/v1/room", roomRouter);
-app.use("/api/v1/instance", instanceRouter);
+app.use("/video", videoRouter);
+app.use("/users", userRouter);
+app.use("/room", roomRouter);
+app.use("/instance", instanceRouter);
 
 app.all("*", (req, res, next) => {
   return next(new AppError(`Can't find  ${req.originalUrl}`, 404));
