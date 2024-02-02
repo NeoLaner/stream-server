@@ -18,13 +18,14 @@ function createToken(payload: object) {
   return token;
 }
 
-function createAndSendTheToken(
+export function createAndSendTheToken(
   jwtName: string,
   jwtPayload: object,
   statusCode: number,
   httpOnly: boolean,
   res: Response,
-  path: string = "/"
+  path: string = "/",
+  respond?: object
 ) {
   const token = createToken(jwtPayload);
 
@@ -44,13 +45,13 @@ function createAndSendTheToken(
     secure: false,
   };
 
-  const respond = {
+  const respondData = respond || {
     status: "success",
     data: jwtPayload,
   };
 
   res.cookie(jwtName, token, cookieOptions);
-  res.status(statusCode).json(respond);
+  res.status(statusCode).json(respondData);
 }
 
 export const signup: ExpressMiddlewareFn<void> = catchAsync(
@@ -100,7 +101,6 @@ export const signupAsGuest: ExpressMiddlewareFn<void> = catchAsync(
     const { name } = req.body as Req;
 
     const random = Math.random() * 10 ** 16;
-    console.log(random);
 
     const request = {
       name,
@@ -232,14 +232,11 @@ export const loginInstance: ExpressMiddlewareFn<void> = catchAsync(
 
 export const protect = catchAsync(async function (req, res, next) {
   //get token from cookie
-  console.log(req.headers.cookie);
-
   const token = req.headers.cookie
     ?.split("; ")
     .filter((el) => el.includes("jwt="))[0]
     .split("jwt=")[1];
   //check token is exist
-  console.log(token);
 
   if (!token)
     return next(
@@ -267,6 +264,7 @@ export const protect = catchAsync(async function (req, res, next) {
 
 export const protectInstance = catchAsync(async function (req, res, next) {
   //get token from cookie
+  console.log(1);
 
   const token = req.headers.cookie
     ?.split("; ")
@@ -275,11 +273,11 @@ export const protectInstance = catchAsync(async function (req, res, next) {
   //check token is exist
   if (!token) return next(new AppError("No instance token found.", 401));
   // verification token
+  console.log(token);
 
   const decoded = await decodeToken<JwtPayloadInstance>(token);
 
   // check if instance is exist
-
   const curInstance = await Instance.findById(decoded.instance.instanceId);
 
   if (!curInstance)

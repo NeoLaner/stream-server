@@ -60,6 +60,13 @@ import type {
 
 export type { Status, RoomData, SocketData, UserStatus };
 
+export type SignupApiParams = {
+  name: string;
+  userId: string;
+  email: string;
+  password: string;
+};
+
 export type SignInApiParams = {
   email: string;
   password: string;

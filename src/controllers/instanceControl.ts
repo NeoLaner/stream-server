@@ -4,14 +4,17 @@ import {
   type ExpressMiddlewareFn,
   InstanceReq,
   InstanceRes,
+  JwtPayloadInstance,
 } from "../utils/@types";
 import AppError from "../utils/classes/appError";
 import catchAsync from "../utils/factory/catchAsync";
+import { createAndSendTheToken } from "./authControl";
 
 export const createInstance: ExpressMiddlewareFn<void> = catchAsync(
   async function (req, res) {
     const reqData = req.body as Record<keyof InstanceReq, unknown>;
-    const userId = req.user?._id;
+    //eslint-disable-next-line
+    const userId = req.user?._id!;
     const rootRoomData = await Room.findById(reqData.rootRoomId);
 
     if (!rootRoomData)
@@ -43,7 +46,20 @@ export const createInstance: ExpressMiddlewareFn<void> = catchAsync(
       },
     };
 
-    res.status(200).send(respondData);
+    const jwtPayloadInstance: JwtPayloadInstance = {
+      instance: { instanceId: roomInstanceData._id, user_id: userId },
+    };
+
+    createAndSendTheToken(
+      "instanceJwt",
+      jwtPayloadInstance,
+      200,
+      false,
+      res,
+      `/instance/${roomInstanceData._id.toString()}`,
+      respondData
+    );
+    // res.status(200).send(respondData);
   }
 );
 
