@@ -88,6 +88,47 @@ export const signup: ExpressMiddlewareFn<void> = catchAsync(
   }
 );
 
+export const signupAsGuest: ExpressMiddlewareFn<void> = catchAsync(
+  async function signupAsGuest(req, res) {
+    interface Req {
+      name: unknown;
+      email: null;
+      password: null;
+      userId: null;
+      role: null;
+    }
+    const { name } = req.body as Req;
+
+    const random = Math.random() * 10 ** 16;
+    console.log(random);
+
+    const request = {
+      name,
+      email: `${random}@guest.com`,
+      password: 12345678,
+      userId: random,
+      role: "guest",
+    };
+
+    const user = await User.create(request);
+
+    createAndSendTheToken(
+      "jwt",
+      {
+        user: {
+          _id: user._id,
+          userId: user.userId,
+          name: user.name,
+          photo: user.photo,
+        },
+      },
+      200,
+      true,
+      res
+    );
+  }
+);
+
 export const login: ExpressMiddlewareFn<void> = catchAsync(
   async function (req, res, next) {
     const { email, password } = req.body as {
@@ -198,6 +239,8 @@ export const protect = catchAsync(async function (req, res, next) {
     .filter((el) => el.includes("jwt="))[0]
     .split("jwt=")[1];
   //check token is exist
+  console.log(token);
+
   if (!token)
     return next(
       new AppError("You are not logged in, please login to get access ", 401)

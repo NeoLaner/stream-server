@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema<UserDataApi & Methods>({
 
   role: {
     type: String,
-    enum: ["user", "admin"],
+    enum: ["user", "guest", "admin"],
     default: "user",
   },
 
