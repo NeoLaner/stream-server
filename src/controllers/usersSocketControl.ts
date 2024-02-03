@@ -25,6 +25,8 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     const socket = this;
     const roomId = socket.data.instance._id.toString();
 
+    if (guestsDataByRoomId[roomId].length >= 4) return socket.disconnect(); //NOTE:Error handling
+
     await socket.join(roomId);
     userSocketMap.set(socket.data.user.userId, socket.id);
 
@@ -101,7 +103,7 @@ export function usersSocketControl(userNamespace: UserNamespace) {
 }
 
 //Middlewares
-export function addUserIdToPayload(
+export function addUserDetailsToPayload(
   this: UserSocket,
   event: Event,
   next: (err?: Error) => void
@@ -114,7 +116,11 @@ export function addUserIdToPayload(
   if (!event[1]) event[1] = { payload: { userId: socket.data.user.userId } };
   const args = event[1] as UserWsDataAfterMiddlewares;
 
-  args.payload = { ...args.payload, userId: socket.data.user.userId };
+  args.payload = {
+    ...args.payload,
+    userId: socket.data.user.userId,
+    userName: socket.data.user.name,
+  };
 
   next();
 }

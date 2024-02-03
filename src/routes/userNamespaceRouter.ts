@@ -7,7 +7,7 @@ import {
 import { authMiddleware } from "../controllers/authSocketControl";
 import {
   addStatusToPayload,
-  addUserIdToPayload,
+  addUserDetailsToPayload,
   updateGuestsData,
   usersSocketControl,
 } from "../controllers/usersSocketControl";
@@ -27,7 +27,7 @@ export function userNamespaceRouter(userNamespace: UserNamespace) {
   userNamespace.use(disconnectPreviousSocketsHandler);
 
   function socketRouter(socket: UserSocket) {
-    const addUserIdToPayloadHandler = addUserIdToPayload.bind(socket);
+    const addUserIdToPayloadHandler = addUserDetailsToPayload.bind(socket);
     const addStatusToPayloadHandler = addStatusToPayload.bind(socket);
     const updateGuestsDataHandler = updateGuestsData.bind(socket);
 

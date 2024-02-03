@@ -100,7 +100,7 @@ export const signupAsGuest: ExpressMiddlewareFn<void> = catchAsync(
     }
     const { name } = req.body as Req;
 
-    const random = Math.random() * 10 ** 16;
+    const random = Math.random() * 10 ** 17;
 
     const request = {
       name,
