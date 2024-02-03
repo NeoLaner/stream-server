@@ -264,7 +264,6 @@ export const protect = catchAsync(async function (req, res, next) {
 
 export const protectInstance = catchAsync(async function (req, res, next) {
   //get token from cookie
-  console.log(1);
 
   const token = req.headers.cookie
     ?.split("; ")
@@ -273,7 +272,6 @@ export const protectInstance = catchAsync(async function (req, res, next) {
   //check token is exist
   if (!token) return next(new AppError("No instance token found.", 401));
   // verification token
-  console.log(token);
 
   const decoded = await decodeToken<JwtPayloadInstance>(token);
 

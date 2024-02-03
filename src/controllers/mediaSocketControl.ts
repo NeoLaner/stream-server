@@ -25,7 +25,6 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
 
     await socket.join(roomId);
     userSocketMap.set(socket.data.user.userId, socket.id);
-    // console.log(guestsDataByRoomId);
   }
 
   function kickHandler(
@@ -98,7 +97,6 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
       default:
         break;
     }
-    console.log(args);
 
     next();
   }

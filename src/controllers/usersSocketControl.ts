@@ -29,7 +29,6 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     userSocketMap.set(socket.data.user.userId, socket.id);
 
     userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
-    // console.log(guestsDataByRoomId);
   }
 
   function unsyncHandler(this: UserSocket, wsData: UserWsDataAfterMiddlewares) {
@@ -38,7 +37,6 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     const isHost =
       socket.data.instance.hostId.toString() ===
       socket.data.user._id.toString();
-    console.log(socket.data.instance.hostId, socket.data.user._id);
 
     const { targetId } = wsData.payload;
     if (!isHost || !targetId) return;
@@ -48,7 +46,6 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     );
     userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
     if (curSocketId) userNamespace.sockets.get(curSocketId)?.disconnect();
-    console.log(guestsDataByRoomId[roomId]);
   }
 
   function readyHandler(this: UserSocket) {
