@@ -18,7 +18,6 @@ export const getUser: ExpressMiddlewareFn<void> = catchAsync(
     let userData;
     if (user_id) userData = await User.findById(user_id);
     if (!user_id && userId) userData = await User.findOne({ userId });
-    console.log(userId);
 
     if (!userData)
       return next(new AppError("No user data found with this id", 404));
