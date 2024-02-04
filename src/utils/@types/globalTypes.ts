@@ -18,6 +18,8 @@ export type RoomData = {
   roomDescription: string;
 };
 
+export type AllowedLinkNames = "instagram" | "telegram" | "website" | "twitter";
+
 export type UserDataApi = {
   _id: Types.ObjectId;
   name: string;
@@ -35,6 +37,7 @@ export type UserDataApi = {
   phone?: number;
   location?: string;
   aboutUser: string;
+  links: { linkName: AllowedLinkNames; link: string }[];
 };
 
 export type InstanceData = {

@@ -2,6 +2,28 @@ import validator from "validator";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import { UserDataApi } from "../utils/@types/index";
+import { AllowedLinkNames } from "../utils/@types/globalTypes";
+
+// Define enum for allowed link names
+const allowedLinkNames: AllowedLinkNames[] = [
+  "instagram",
+  "telegram",
+  "website",
+  "twitter",
+];
+
+// Define schema for links
+const LinkSchema = new mongoose.Schema({
+  linkName: {
+    type: String,
+    enum: allowedLinkNames,
+    required: true,
+  },
+  link: {
+    type: String,
+    required: true,
+  },
+});
 
 interface Methods {
   changePasswordAfter(JWTTimeStamp: number): boolean;
@@ -80,6 +102,8 @@ const userSchema = new mongoose.Schema<UserDataApi & Methods>({
   aboutUser: {
     type: String,
   },
+
+  links: [LinkSchema],
 });
 
 userSchema.pre("save", async function (next) {
