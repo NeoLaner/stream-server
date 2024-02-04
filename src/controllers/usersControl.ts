@@ -28,6 +28,7 @@ export const getUser: ExpressMiddlewareFn<void> = catchAsync(
       name: userData.name,
       aboutUser: userData.aboutUser,
       userId: userData.userId,
+      links: userData.links,
     };
 
     const respond: UserDataRes = {
