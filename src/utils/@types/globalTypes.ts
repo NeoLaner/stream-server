@@ -15,6 +15,7 @@ export type RoomData = {
   hasSoftSubtitle: boolean;
   subtitles: Array<string>;
   crossorigin: boolean;
+  roomDescription: string;
 };
 
 export type UserDataApi = {
@@ -33,6 +34,7 @@ export type UserDataApi = {
   birthday?: string;
   phone?: number;
   location?: string;
+  aboutUser: string;
 };
 
 export type InstanceData = {

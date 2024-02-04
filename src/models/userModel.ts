@@ -77,10 +77,9 @@ const userSchema = new mongoose.Schema<UserDataApi & Methods>({
     select: false,
   },
 
-  // aboutUser: {
-  //   type: mongoose.Schema.ObjectId,
-  //   ref: AboutUser,
-  // },
+  aboutUser: {
+    type: String,
+  },
 });
 
 userSchema.pre("save", async function (next) {

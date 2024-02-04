@@ -47,6 +47,10 @@ const roomSchema = new mongoose.Schema<RoomData>({
 
   hasHardSubtitle: { type: Boolean, default: false },
   subtitles: { type: [String] },
+
+  roomDescription: {
+    type: String,
+  },
 });
 
 const Room = mongoose.model("Room", roomSchema);
