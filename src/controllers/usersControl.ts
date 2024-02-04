@@ -6,18 +6,11 @@ import catchAsync from "../utils/factory/catchAsync";
 export const getUser: ExpressMiddlewareFn<void> = catchAsync(
   async function (req, res, next) {
     //eslint-disable-next-line
-    const { user_id, userId } = req.body as {
-      user_id?: unknown;
-      userId?: unknown;
-    };
+    const { id: userId } = req.params;
 
-    if (!user_id || userId)
-      return next(
-        new AppError("Please provide a valid user_id or userId", 400)
-      );
-    let userData;
-    if (user_id) userData = await User.findById(user_id);
-    if (!user_id && userId) userData = await User.findOne({ userId });
+    if (!userId)
+      return next(new AppError("Please provide a valid user id", 400));
+    const userData = await User.findOne({ userId });
 
     if (!userData)
       return next(new AppError("No user data found with this id", 404));
