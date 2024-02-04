@@ -9,13 +9,12 @@ import { getUser, getUserViaToken } from "../controllers/usersControl";
 
 const userRouter = express.Router();
 
-userRouter.get("/:id", getUser);
-
 userRouter.post("/signup/guest", signupAsGuest);
 userRouter.post("/signup", signup);
 userRouter.post("/login", login);
 
 userRouter.use(protect);
 userRouter.get("/auth", getUserViaToken);
+userRouter.get("/user/:id", getUser);
 
 export default userRouter;

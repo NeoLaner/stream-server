@@ -37,12 +37,12 @@ export function createAndSendTheToken(
     domain:
       process.env.NODE_ENV === "development"
         ? "127.0.0.1" // "localhost" gives an error
-        : "188.121.117.117",
+        : "scoap.xyz",
     path: path, //sub domain
     sameSite: "strict", // lax for 1st party cookies and none for 3rd party cookies
     httpOnly: httpOnly, // can not manipulate the cookie from browser or read from client side
     //just send it over in https
-    secure: false,
+    secure: true, // NOTE: dynamic and in production must be true
   };
 
   const respondData = respond || {
