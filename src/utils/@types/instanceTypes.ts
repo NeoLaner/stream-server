@@ -1,4 +1,4 @@
-import mongoose, { Types } from "mongoose";
+import { Types } from "mongoose";
 import { type InstanceData, type RoomData, type Status } from "./globalTypes";
 
 export type InstanceReq = {
@@ -30,8 +30,8 @@ export type InstanceRes = {
 };
 
 export type InstanceLoginData = {
-  instanceId: mongoose.Types.ObjectId;
-  user_id: mongoose.Types.ObjectId;
+  instanceId: Types.ObjectId;
+  user_id: Types.ObjectId;
 };
 
 export interface JwtPayloadInstance {

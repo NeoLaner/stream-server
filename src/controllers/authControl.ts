@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { CookieOptions, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
@@ -162,7 +162,7 @@ export const login: ExpressMiddlewareFn<void> = catchAsync(
 
 interface JwtPayloadUser {
   user: {
-    _id: mongoose.ObjectId;
+    _id: Types.ObjectId;
     userId: string;
     photo: string;
     name: string;
@@ -182,11 +182,11 @@ export const loginInstance: ExpressMiddlewareFn<void> = catchAsync(
     const instanceIdStr: string = req.params.instanceId;
 
     // Validate instanceId string format
-    if (!mongoose.Types.ObjectId.isValid(instanceIdStr))
+    if (!Types.ObjectId.isValid(instanceIdStr))
       next(new AppError("invalid instance id", 400));
 
     // Convert to ObjectId
-    const instanceId: mongoose.Types.ObjectId = new mongoose.Types.ObjectId(
+    const instanceId: Types.ObjectId = new mongoose.Types.ObjectId(
       instanceIdStr
     );
 
@@ -263,8 +263,22 @@ export const protect = catchAsync(async function (req, res, next) {
 });
 
 export const protectInstance = catchAsync(async function (req, res, next) {
-  //get token from cookie
+  //get jwtToken from cookie
+  const jwtToken = req.headers.cookie
+    ?.split("; ")
+    .filter((el) => el.includes("jwt="))[0]
+    .split("jwt=")[1];
+  //check token is exist
 
+  if (!jwtToken)
+    return next(
+      new AppError("You are not logged in, please login to get access ", 401)
+    );
+  // verification token
+
+  const jwtDecoded = await decodeToken<JwtPayloadUser>(jwtToken);
+
+  //get token from cookie
   const token = req.headers.cookie
     ?.split("; ")
     .filter((el) => el.includes("instanceJwt="))[0]
@@ -274,7 +288,10 @@ export const protectInstance = catchAsync(async function (req, res, next) {
   // verification token
 
   const decoded = await decodeToken<JwtPayloadInstance>(token);
-
+  if (decoded.instance.user_id !== jwtDecoded.user._id)
+    return next(
+      new AppError("Your instance token does not valid anymore", 401)
+    );
   // check if instance is exist
   const curInstance = await Instance.findById(decoded.instance.instanceId);
 
