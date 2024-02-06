@@ -10,6 +10,8 @@ interface AuthData {
   // other authentication properties
 }
 
+const roomsCapacity: Record<string, number> = {};
+
 export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
   void (async () => {
     // Immediately-invoked async arrow function
@@ -32,6 +34,17 @@ export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
 
       if (!user || !instance)
         return next(new AppError("No user or instance found.", 400));
+
+      const roomId = instance._id.toString();
+
+      if (!roomsCapacity[roomId]) roomsCapacity[roomId] = 0;
+      roomsCapacity[roomId] += 1;
+
+      //4 users * 3 namespace = 12
+      if (roomsCapacity[roomId] > 12) {
+        roomsCapacity[roomId] -= 1;
+        return socket.disconnect();
+      }
 
       socket.data = { user, instance };
 
