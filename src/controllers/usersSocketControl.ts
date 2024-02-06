@@ -25,7 +25,7 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     const socket = this;
     const roomId = socket.data.instance._id.toString();
 
-    if (guestsDataByRoomId[roomId].length >= 4) return socket.disconnect(); //NOTE:Error handling
+    if (guestsDataByRoomId[roomId].length > 4) return socket.disconnect(); //NOTE:Error handling
 
     await socket.join(roomId);
     userSocketMap.set(socket.data.user.userId, socket.id);
