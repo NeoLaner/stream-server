@@ -6,7 +6,7 @@ import {
   ChatSocketAfterMiddlewares,
   ChatWsDataClientToServerAfterMiddlewares,
 } from "../utils/@types";
-import { roomCapacityDec, roomCapacityInc } from "./authSocketControl";
+import { roomCapacityDec } from "./authSocketControl";
 
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
 
@@ -25,7 +25,6 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
 
     await socket.join(roomId);
     userSocketMap.set(socket.data.user.userId, socket.id);
-    roomCapacityInc(roomId);
   }
 
   function addUserDetails(

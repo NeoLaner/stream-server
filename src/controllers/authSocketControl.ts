@@ -12,7 +12,7 @@ interface AuthData {
 
 const roomsCapacity: Record<string, number> = {};
 
-export function roomCapacityInc(roomId: string) {
+function roomCapacityInc(roomId: string) {
   if (!roomsCapacity[roomId]) roomsCapacity[roomId] = 0;
   roomsCapacity[roomId] += 1;
 }
@@ -50,7 +50,7 @@ export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
       if (roomsCapacity[roomId] > 4 * 3) {
         return socket.disconnect();
       }
-
+      roomCapacityInc(roomId);
       socket.data = { user, instance };
 
       next();

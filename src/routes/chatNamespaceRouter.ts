@@ -12,6 +12,7 @@ export function chatNamespaceRouter(chatNamespace: ChatNamespace) {
     addUserDetails,
     joinRoomHandler,
     disconnectPreviousSocketsHandler,
+    disconnectHandler,
     msgSubHandler,
   } = chatSocketControl(chatNamespace);
   chatNamespace.use(authMiddleware);
@@ -25,6 +26,7 @@ export function chatNamespaceRouter(chatNamespace: ChatNamespace) {
     const socketAfterMiddlewares = socket as ChatSocketAfterMiddlewares;
     socketAfterMiddlewares.on(EVENT_NAMES.JOIN_ROOM, joinRoomHandler);
     socketAfterMiddlewares.on(EVENT_NAMES.CHAT_MSG_SUB, msgSubHandler);
+    socketAfterMiddlewares.on("disconnect", disconnectHandler);
   }
   return { chatSocketRouter, msgSubHandler };
 }

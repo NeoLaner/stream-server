@@ -7,7 +7,7 @@ import {
   MediaWsDataClientToServerAfterMiddlewares,
   MediaWsDataClientToServer,
 } from "../utils/@types/mediaTypes";
-import { roomCapacityDec, roomCapacityInc } from "./authSocketControl";
+import { roomCapacityDec } from "./authSocketControl";
 
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
 
@@ -26,7 +26,6 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
 
     await socket.join(roomId);
     userSocketMap.set(socket.data.user.userId, socket.id);
-    roomCapacityInc(roomId);
   }
 
   function kickHandler(
