@@ -9,6 +9,7 @@ import {
 } from "../utils/@types";
 import { EVENT_NAMES } from "../utils/constants";
 import { disconnectPreviousSockets } from "./disconnectControl";
+import { roomCapacityDec, roomCapacityInc } from "./authSocketControl";
 
 const guestsDataByRoomId: Record<string, GuestsData> = {};
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
@@ -27,6 +28,7 @@ export function usersSocketControl(userNamespace: UserNamespace) {
 
     await socket.join(roomId);
     userSocketMap.set(socket.data.user.userId, socket.id);
+    roomCapacityInc(roomId);
 
     userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
   }
@@ -75,6 +77,7 @@ export function usersSocketControl(userNamespace: UserNamespace) {
       (guest) => guest.userId !== socket.data.user.userId
     );
     userSocketMap.delete(userId);
+    roomCapacityDec(roomId);
     userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
   }
 

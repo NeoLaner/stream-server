@@ -12,6 +12,15 @@ interface AuthData {
 
 const roomsCapacity: Record<string, number> = {};
 
+export function roomCapacityInc(roomId: string) {
+  if (!roomsCapacity[roomId]) roomsCapacity[roomId] = 0;
+  roomsCapacity[roomId] += 1;
+}
+
+export function roomCapacityDec(roomId: string) {
+  roomsCapacity[roomId] -= 1;
+}
+
 export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
   void (async () => {
     // Immediately-invoked async arrow function
@@ -37,12 +46,8 @@ export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
 
       const roomId = instance._id.toString();
 
-      if (!roomsCapacity[roomId]) roomsCapacity[roomId] = 0;
-      roomsCapacity[roomId] += 1;
-
       //4 users * 3 namespace = 12
-      if (roomsCapacity[roomId] > 12) {
-        roomsCapacity[roomId] -= 1;
+      if (roomsCapacity[roomId] > 4 * 3) {
         return socket.disconnect();
       }
 

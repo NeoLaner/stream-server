@@ -15,6 +15,7 @@ export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
     pauseHandler,
     seekHandler,
     addStatusToPayload,
+    disconnectHandler,
     disconnectPreviousSocketsHandler,
   } = mediaSocketControl(mediaNamespace);
   mediaNamespace.use(authMiddleware);
@@ -31,6 +32,7 @@ export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
     socketAfterMiddlewares.on(EVENT_NAMES.MEDIA_PLAYED, playHandler);
     socketAfterMiddlewares.on(EVENT_NAMES.MEDIA_PAUSED, pauseHandler);
     socketAfterMiddlewares.on(EVENT_NAMES.MEDIA_SEEKED, seekHandler);
+    socketAfterMiddlewares.on("disconnect", disconnectHandler);
   }
   return { mediaSocketRouter };
 }

@@ -28,6 +28,7 @@ export function disconnectPreviousSockets({
     );
     namespace.sockets.get(previousSocket)?.disconnect();
   }
+
   next();
 }
 

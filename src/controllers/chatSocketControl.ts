@@ -6,6 +6,7 @@ import {
   ChatSocketAfterMiddlewares,
   ChatWsDataClientToServerAfterMiddlewares,
 } from "../utils/@types";
+import { roomCapacityDec, roomCapacityInc } from "./authSocketControl";
 
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
 
@@ -24,6 +25,7 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
 
     await socket.join(roomId);
     userSocketMap.set(socket.data.user.userId, socket.id);
+    roomCapacityInc(roomId);
   }
 
   function addUserDetails(
@@ -75,11 +77,18 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
       userSocketMap,
     });
 
+  function disconnectHandler(this: ChatSocket) {
+    const socket = this;
+    const roomId = socket.data.instance._id.toString();
+    roomCapacityDec(roomId);
+  }
+
   return {
     addUserDetails,
     joinRoomHandler,
     disconnectPreviousSocketsHandler,
     msgSubHandler,
+    disconnectHandler,
     // kickHandler,
   };
 }
