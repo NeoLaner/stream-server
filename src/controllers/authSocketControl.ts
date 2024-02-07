@@ -47,7 +47,7 @@ export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
       const roomId = instance._id.toString();
 
       //4 users * 3 namespace = 12
-      if (roomsCapacity[roomId] > 4 * 3) {
+      if (roomsCapacity[roomId] >= 4 * 3) {
         return socket.disconnect();
       }
       roomCapacityInc(roomId);
