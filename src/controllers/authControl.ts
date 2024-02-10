@@ -1,5 +1,5 @@
 import mongoose, { Types } from "mongoose";
-import { CookieOptions, Response } from "express";
+import { CookieOptions, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
@@ -159,6 +159,19 @@ export const login: ExpressMiddlewareFn<void> = catchAsync(
     );
   }
 );
+
+export const logout: ExpressMiddlewareFn<void> = function (
+  req: Request,
+  res: Response
+) {
+  res.cookie("jwt", "loggedout", {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+    sameSite: "strict",
+    secure: true,
+  });
+  res.status(200).json({ status: "success" });
+};
 
 interface JwtPayloadUser {
   user: {
