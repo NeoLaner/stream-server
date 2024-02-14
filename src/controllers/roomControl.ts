@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Room from "../models/roomModel";
 import {
   RoomDataRes,
@@ -6,6 +7,7 @@ import {
 } from "../utils/@types";
 
 import catchAsync from "../utils/factory/catchAsync";
+import AppError from "../utils/classes/appError";
 
 export const roomCreate: ExpressMiddlewareFn<void> = catchAsync(
   async function (req, res) {
@@ -17,6 +19,24 @@ export const roomCreate: ExpressMiddlewareFn<void> = catchAsync(
       ...reqData,
       roomAuthor: userId,
     });
+
+    const respondData: RoomDataRes = {
+      status: "success",
+      data: { room: data },
+    };
+
+    res.status(200).send(respondData);
+  }
+);
+
+export const getRoom: ExpressMiddlewareFn<void> = catchAsync(
+  async function (req, res, next) {
+    const { id } = req.params;
+    const mongooseId = new mongoose.Types.ObjectId(id);
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    const data = await Room.findById(mongooseId);
+
+    if (!data) return next(new AppError("No room found with this id", 404));
 
     const respondData: RoomDataRes = {
       status: "success",
