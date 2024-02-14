@@ -195,8 +195,9 @@ export const loginInstance: ExpressMiddlewareFn<void> = catchAsync(
     const instanceIdStr: string = req.params.instanceId;
 
     // Validate instanceId string format
+
     if (!Types.ObjectId.isValid(instanceIdStr))
-      next(new AppError("invalid instance id", 400));
+      return next(new AppError("invalid instance id", 400));
 
     // Convert to ObjectId
     const instanceId: Types.ObjectId = new mongoose.Types.ObjectId(

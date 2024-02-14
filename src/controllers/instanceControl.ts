@@ -64,17 +64,19 @@ export const createInstance: ExpressMiddlewareFn<void> = catchAsync(
 );
 
 export const getInstance: ExpressMiddlewareFn<void> = catchAsync(
-  async function (req, res) {
+  async function (req, res, next) {
     const { instanceId } = req.params;
 
     const roomInstanceData = await Instance.findById(instanceId);
     if (!roomInstanceData)
-      throw new AppError("There is no instance with this id", 404);
+      return next(new AppError("There is no instance with this id", 404));
 
     const rootRoomData = await Room.findById(roomInstanceData.rootRoom._id);
 
     if (!rootRoomData)
-      throw new AppError("There is no root room with id you provided.", 404);
+      return next(
+        new AppError("There is no root room with id you provided.", 404)
+      );
 
     const respondData: InstanceRes = {
       status: "success",
