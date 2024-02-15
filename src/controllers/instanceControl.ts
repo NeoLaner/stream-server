@@ -101,3 +101,17 @@ export const getInstance: ExpressMiddlewareFn<void> = catchAsync(
     res.status(200).send(respondData);
   }
 );
+
+export const getCountInstance: ExpressMiddlewareFn<void> = catchAsync(
+  async function (req, res) {
+    const countDocs = await Instance.collection.countDocuments();
+    const respond = {
+      status: "success",
+      data: {
+        instance: { countDocs },
+      },
+    };
+
+    res.status(200).send(respond);
+  }
+);

@@ -46,3 +46,17 @@ export const getRoom: ExpressMiddlewareFn<void> = catchAsync(
     res.status(200).send(respondData);
   }
 );
+
+export const getCountRoom: ExpressMiddlewareFn<void> = catchAsync(
+  async function (req, res) {
+    const countDocs = await Room.collection.countDocuments();
+    const respond = {
+      status: "success",
+      data: {
+        room: { countDocs },
+      },
+    };
+
+    res.status(200).send(respond);
+  }
+);

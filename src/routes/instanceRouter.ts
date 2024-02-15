@@ -4,9 +4,15 @@ import {
   protect,
   protectInstance,
 } from "../controllers/authControl";
-import { createInstance, getInstance } from "../controllers/instanceControl";
+import {
+  createInstance,
+  getCountInstance,
+  getInstance,
+} from "../controllers/instanceControl";
 
 const instanceRouter = express.Router();
+
+instanceRouter.get("/count", getCountInstance);
 
 instanceRouter.use(protect);
 instanceRouter.post("/:instanceId/login", loginInstance);

@@ -55,3 +55,17 @@ export const getUserViaToken: ExpressMiddlewareFn<void> = function (req, res) {
 
   res.status(200).send(respond);
 };
+
+export const getCountUser: ExpressMiddlewareFn<void> = catchAsync(
+  async function (req, res) {
+    const countDocs = await User.collection.countDocuments();
+    const respond = {
+      status: "success",
+      data: {
+        user: { countDocs },
+      },
+    };
+
+    res.status(200).send(respond);
+  }
+);
