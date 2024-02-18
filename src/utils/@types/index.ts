@@ -103,6 +103,11 @@ export type RoomDataRes = {
   };
 };
 
+export type ErrorDataRes = {
+  status: Status;
+  message: string;
+};
+
 export type RoomDataReq = Omit<RoomData, "_id" | "isActive">;
 
 export type {

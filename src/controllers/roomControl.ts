@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import Room from "../models/roomModel";
 import {
   RoomDataRes,
@@ -32,11 +32,16 @@ export const roomCreate: ExpressMiddlewareFn<void> = catchAsync(
 export const getRoom: ExpressMiddlewareFn<void> = catchAsync(
   async function (req, res, next) {
     const { id } = req.params;
+
+    if (!Types.ObjectId.isValid(id))
+      return next(new AppError("invalid instance id.", 400));
+
     const mongooseId = new mongoose.Types.ObjectId(id);
+
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     const data = await Room.findById(mongooseId);
 
-    if (!data) return next(new AppError("No room found with this id", 404));
+    if (!data) return next(new AppError("No room found with this id.", 404));
 
     const respondData: RoomDataRes = {
       status: "success",
