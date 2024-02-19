@@ -7,6 +7,8 @@ import {
   ChatWsDataClientToServerAfterMiddlewares,
 } from "../utils/@types";
 import { roomCapacityDec } from "./authSocketControl";
+import Chat from "../models/chatModel";
+import Message from "../models/messageModel";
 
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
 
@@ -46,7 +48,7 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
     next();
   }
 
-  function msgSubHandler(
+  async function msgSubHandler(
     this: ChatSocketAfterMiddlewares,
     wsData: ChatWsDataClientToServerAfterMiddlewares
   ) {
@@ -54,6 +56,18 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
     const roomId = socket.data.instance._id.toString();
 
     chatNamespace.to(roomId).emit("chat", wsData);
+    try {
+      let chat = await Chat.findById(socket.data.instance._id);
+      if (!chat)
+        chat = await Chat.create({
+          _id: socket.data.instance._id,
+        });
+
+      await Message.create({ chat: socket.data.instance._id, ...wsData });
+    } catch (error) {
+      // Handle errors appropriately
+      console.error("Error saving message:", error);
+    }
   }
   // function kickHandler(
   //   this: ChatSocketAfterMiddlewares,

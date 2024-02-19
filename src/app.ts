@@ -19,6 +19,7 @@ import type {
   UserNamespace,
 } from "./utils/@types";
 import { chatNamespaceRouter } from "./routes/chatNamespaceRouter";
+import chatRouter from "./routes/chatRouter";
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.get("/test", (req, res) => {
 
 app.use("/video", videoRouter);
 app.use("/users", userRouter);
+app.use("/chats", chatRouter);
 app.use("/room", roomRouter);
 app.use("/instance", instanceRouter);
 

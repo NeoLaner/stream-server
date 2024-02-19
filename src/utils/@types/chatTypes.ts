@@ -1,5 +1,11 @@
+import mongoose, { Types } from "mongoose";
 import type { Namespace, Socket } from "socket.io";
-import type { EventNames, SocketData, DefaultEvents } from "./globalTypes";
+import type {
+  EventNames,
+  SocketData,
+  DefaultEvents,
+  Status,
+} from "./globalTypes";
 
 type ChatEvents = Extract<EventNames, `chat_${string}`> | DefaultEvents;
 
@@ -49,3 +55,23 @@ export type ChatSocketAfterMiddlewares = Socket<
   NamespaceSpecificInterServerEvents,
   SocketData
 >;
+
+export type MessageData = {
+  chat: mongoose.ObjectId;
+  textContent: string;
+  userId: string;
+  userName: string;
+  created_at: number;
+};
+
+export type ChatDataApi = {
+  _id: Types.ObjectId;
+  active: boolean;
+};
+
+export type ChatRes = {
+  status: Status;
+  data: {
+    chat: ChatDataApi & { messages: MessageData[] };
+  };
+};
