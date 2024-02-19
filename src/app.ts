@@ -30,10 +30,6 @@ app.use((req, res, next) => {
   next();
 });
 
-const allowedOrigins = new RegExp(
-  `^https?://(www\\.)?${process.env.CLIENT_SERVER}$`
-);
-
 app.use(
   cors({
     //NOTE: allows cross-origin requests to include credentials
@@ -44,7 +40,10 @@ app.use(
     origin:
       process.env.NODE_ENV === "development"
         ? process.env.LOCAL_CLIENT_SERVER
-        : allowedOrigins,
+        : [
+            `https://${process.env.CLIENT_SERVER}`,
+            `https://www.${process.env.CLIENT_SERVER}`,
+          ],
   })
 );
 
