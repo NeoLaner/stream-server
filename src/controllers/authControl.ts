@@ -37,7 +37,7 @@ export function createAndSendTheToken(
     domain:
       process.env.NODE_ENV === "development"
         ? "127.0.0.1" // "localhost" gives an error
-        : "scoap.xyz",
+        : process.env.CLIENT_SERVER,
     path: path, //sub domain
     sameSite: "strict", // lax for 1st party cookies and none for 3rd party cookies
     httpOnly: httpOnly, // can not manipulate the cookie from browser or read from client side
