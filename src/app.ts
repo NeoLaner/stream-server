@@ -34,7 +34,7 @@ const app = express();
 
 app.use(helmet());
 app.use(limiter);
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "10kb" }));
 
 app.use(
   cors({
