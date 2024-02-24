@@ -1,3 +1,4 @@
+import { rateLimit } from "express-rate-limit";
 import bodyParser from "body-parser";
 import express from "express";
 import cors from "cors";
@@ -21,14 +22,17 @@ import type {
 import { chatNamespaceRouter } from "./routes/chatNamespaceRouter";
 import chatRouter from "./routes/chatRouter";
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 150, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  // standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  // legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
 const app = express();
 
+app.use(limiter);
 app.use(bodyParser.json());
-
-app.use((req, res, next) => {
-  // console.log(req.ip);
-  next();
-});
 
 app.use(
   cors({
