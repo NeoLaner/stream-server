@@ -1,10 +1,14 @@
-import { rateLimit } from "express-rate-limit";
-import helmet from "helmet";
-import bodyParser from "body-parser";
 import express from "express";
 import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
+import ExpressMongoSanitize from "express-mongo-sanitize";
+import { rateLimit } from "express-rate-limit";
+import helmet from "helmet";
+import bodyParser from "body-parser";
+//eslint-disable-next-line
+//@ts-ignore
+import xss from "xss-clean";
 
 import userRouter from "./routes/userRouter";
 import AppError from "./utils/classes/appError";
@@ -35,6 +39,9 @@ const app = express();
 app.use(helmet());
 app.use(limiter);
 app.use(bodyParser.json({ limit: "10kb" }));
+app.use(ExpressMongoSanitize());
+//eslint-disable-next-line
+app.use(xss());
 
 app.use(
   cors({
