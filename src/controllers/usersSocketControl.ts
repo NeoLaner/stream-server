@@ -15,11 +15,10 @@ const guestsDataByRoomId: Record<string, GuestsData> = {};
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
 
 export function usersSocketControl(userNamespace: UserNamespace) {
-  const namespaceName = "user";
-  if (!userSocketMapByNamespace[namespaceName]) {
-    userSocketMapByNamespace[namespaceName] = new Map();
+  if (!userSocketMapByNamespace.user) {
+    userSocketMapByNamespace.user = new Map();
   }
-  const userSocketMap = userSocketMapByNamespace[namespaceName];
+  const userSocketMap = userSocketMapByNamespace.user;
 
   //Handlers
   async function joinRoomHandler(this: UserSocket) {

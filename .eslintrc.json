@@ -10,7 +10,8 @@
     "plugin:import/typescript",
     "plugin:@typescript-eslint/recommended-type-checked",
     "plugin:@typescript-eslint/strict",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking"
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:security/recommended-legacy"
   ],
   "plugins": ["prettier", "@typescript-eslint"],
   "parser": "@typescript-eslint/parser",
@@ -61,6 +62,9 @@
     "comma-dangle": "off",
     "@typescript-eslint/comma-dangle": "off",
     "@typescript-eslint/space-before-function-paren": "off",
-    "no-void": "off"
+    "no-void": "off",
+
+    //
+    "security/detect-object-injection": "off"
   }
 }
