@@ -12,7 +12,9 @@
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "baseUrl": "./",
+    "paths": { "@/*": ["src/*"] }
   },
   "include": [".eslintrc.cjs ", "src/**/*.ts", "copy-public.ts"]
 }

@@ -10,23 +10,23 @@ import bodyParser from "body-parser";
 //@ts-ignore
 import xss from "xss-clean";
 
-import userRouter from "./routes/userRouter";
+import userRouter from "./apps/user/entry-points/api/userRouter";
 import AppError from "./utils/classes/appError";
-import globalErrorControl from "./controllers/errorControl";
-import videoRouter from "./routes/videoRouter";
-import roomRouter from "./routes/roomRouter";
-import instanceRouter from "./routes/instanceRouter";
-import { userNamespaceRouter } from "./routes/userNamespaceRouter";
-import { mediaNamespaceRouter } from "./routes/mediaNamespaceRouter";
+import globalErrorControl from "./libraries/error/errorControl";
+import videoRouter from "./apps/stream/domain/videoRouter";
+import roomRouter from "./apps/room/entry-points/api/roomRouter";
+import instanceRouter from "./apps/instance/entry-points/api/instanceRouter";
+import { userNamespaceRouter } from "./apps/user/entry-points/api/userNamespaceRouter";
+import { mediaNamespaceRouter } from "./apps/media/entry-points/api/mediaNamespaceRouter";
 import type {
   ChatNamespace,
   MediaNamespace,
   SocketData,
   UserNamespace,
 } from "./utils/@types";
-import { chatNamespaceRouter } from "./routes/chatNamespaceRouter";
-import chatRouter from "./routes/chatRouter";
-import searchTmdbRouter from "./routes/searchTmdbRouter";
+import { chatNamespaceRouter } from "./apps/chat/entry-points/api/chatNamespaceRouter";
+import chatRouter from "./apps/chat/entry-points/api/chatRouter";
+import searchTmdbRouter from "./apps/tmdb/entry-points/api/searchTmdbRouter";
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
