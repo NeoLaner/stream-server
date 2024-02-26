@@ -2,13 +2,13 @@ import Instance from "../data-access/instanceModel";
 import Room from "../../room/data-access/roomModel";
 import {
   type ExpressMiddlewareFn,
-  InstanceReq,
-  InstanceRes,
-  JwtPayloadInstance,
-} from "../../../utils/@types";
-import AppError from "../../../utils/classes/appError";
-import catchAsync from "../../../utils/factory/catchAsync";
-import { createAndSendTheToken } from "../../../libraries/auth/authControl";
+  type InstanceReq,
+  type InstanceRes,
+  type JwtPayloadInstance,
+} from "@/utils/@types";
+import AppError from "@/utils/classes/appError";
+import catchAsync from "@/utils/factory/catchAsync";
+import { createAndSendTheToken } from "@/libraries/auth/authControl";
 
 export const createInstance: ExpressMiddlewareFn<void> = catchAsync(
   async function (req, res) {

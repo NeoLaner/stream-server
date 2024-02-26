@@ -1,10 +1,10 @@
-import { EVENT_NAMES } from "../../../../utils/constants";
+import { EVENT_NAMES } from "@/utils/constants";
 import {
   UserNamespace,
   UserSocket,
   UserSocketAfterMiddlewares,
-} from "../../../../utils/@types/userTypes";
-import { authMiddleware } from "../../../../libraries/auth/authSocketControl";
+} from "@/utils/@types/userTypes";
+import { authMiddleware } from "@/libraries/auth/authSocketControl";
 import {
   addStatusToPayload,
   addUserDetailsToPayload,

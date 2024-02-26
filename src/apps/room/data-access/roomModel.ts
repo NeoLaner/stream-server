@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { type RoomData } from "../../../utils/@types";
+import { type RoomData } from "@/utils/@types";
 import User from "../../user/data-access/userModel";
 
 const roomSchema = new mongoose.Schema<RoomData>({

@@ -1,8 +1,8 @@
 import validator from "validator";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
-import { UserDataApi } from "../../../utils/@types/index";
-import { AllowedLinkNames } from "../../../utils/@types/globalTypes";
+import { UserDataApi } from "@/utils/@types/index";
+import { AllowedLinkNames } from "@/utils/@types/globalTypes";
 
 // Define enum for allowed link names
 const allowedLinkNames: AllowedLinkNames[] = [

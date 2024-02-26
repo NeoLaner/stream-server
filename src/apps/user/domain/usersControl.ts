@@ -1,7 +1,7 @@
 import User from "../data-access/userModel";
-import { ExpressMiddlewareFn, UserDataRes } from "../../../utils/@types";
-import AppError from "../../../utils/classes/appError";
-import catchAsync from "../../../utils/factory/catchAsync";
+import { ExpressMiddlewareFn, UserDataRes } from "@/utils/@types";
+import AppError from "@/utils/classes/appError";
+import catchAsync from "@/utils/factory/catchAsync";
 
 export const getUser: ExpressMiddlewareFn<void> = catchAsync(
   async function (req, res, next) {

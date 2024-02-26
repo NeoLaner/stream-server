@@ -3,7 +3,7 @@ import {
   loginInstance,
   protect,
   protectInstance,
-} from "../../../../libraries/auth/authControl";
+} from "@/libraries/auth/authControl";
 import {
   createInstance,
   getCountInstance,

@@ -3,13 +3,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import slugify from "slugify";
 
-import { MediaItem } from "../../../utils/@types";
+import { MediaItem } from "@/utils/@types";
 
-import {
-  MWMediaMeta,
-  MWMediaType,
-  MWSeasonMeta,
-} from "../../../utils/@types/mw";
+import { MWMediaMeta, MWMediaType, MWSeasonMeta } from "@/utils/@types/mw";
 import {
   ExternalIdMovieSearchResult,
   TMDBContentTypes,
@@ -23,7 +19,7 @@ import {
   TMDBShowData,
   TMDBShowSearchResult,
 } from "../types/tmdb";
-import { mwFetch } from "../../../utils/factory/fetch";
+import { mwFetch } from "@/utils/factory/fetch";
 
 export function mediaTypeToTMDB(type: MWMediaType): TMDBContentTypes {
   if (type === MWMediaType.MOVIE) return TMDBContentTypes.MOVIE;

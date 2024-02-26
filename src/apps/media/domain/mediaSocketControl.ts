@@ -1,13 +1,13 @@
 import { Event } from "socket.io";
-import { disconnectPreviousSockets } from "../../../libraries/dc/disconnectControl";
-import { MediaNamespace } from "../../../utils/@types";
+import { disconnectPreviousSockets } from "@/libraries/dc/disconnectControl";
+import { MediaNamespace } from "@/utils/@types";
 import {
   MediaEvents,
   MediaSocket,
   MediaWsDataClientToServerAfterMiddlewares,
   MediaWsDataClientToServer,
-} from "../../../utils/@types/mediaTypes";
-import { roomCapacityDec } from "../../../libraries/auth/authSocketControl";
+} from "@/utils/@types/mediaTypes";
+import { roomCapacityDec } from "@/libraries/auth/authSocketControl";
 
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
 

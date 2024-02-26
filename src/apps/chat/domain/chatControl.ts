@@ -1,12 +1,8 @@
 import mongoose from "mongoose";
 import Chat from "../data-access/chatModel";
-import { ExpressMiddlewareFn } from "../../../utils/@types";
-import {
-  ChatDataApi,
-  ChatRes,
-  MessageData,
-} from "../../../utils/@types/chatTypes";
-import catchAsync from "../../../utils/factory/catchAsync";
+import { ExpressMiddlewareFn } from "@/utils/@types";
+import { ChatDataApi, ChatRes, MessageData } from "@/utils/@types/chatTypes";
+import catchAsync from "@/utils/factory/catchAsync";
 
 export const getChat: ExpressMiddlewareFn<void> = catchAsync(
   async function (req, res) {

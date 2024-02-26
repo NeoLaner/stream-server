@@ -1,11 +1,11 @@
-import { authMiddleware } from "../../../../libraries/auth/authSocketControl";
-import { mediaSocketControl } from "../../domain/mediaSocketControl";
-import { MediaNamespace } from "../../../../utils/@types";
+import { authMiddleware } from "@/libraries/auth/authSocketControl";
+import { MediaNamespace } from "@/utils/@types";
 import {
   MediaSocket,
   MediaSocketAfterMiddlewares,
-} from "../../../../utils/@types/mediaTypes";
-import { EVENT_NAMES } from "../../../../utils/constants";
+} from "@/utils/@types/mediaTypes";
+import { EVENT_NAMES } from "@/utils/constants";
+import { mediaSocketControl } from "../../domain/mediaSocketControl";
 
 export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
   const {

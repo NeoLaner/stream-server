@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { ChatDataApi } from "../../../utils/@types/chatTypes";
+import { ChatDataApi } from "@/utils/@types/chatTypes";
 import Message from "./messageModel";
 
 // Define enum for allowed link names

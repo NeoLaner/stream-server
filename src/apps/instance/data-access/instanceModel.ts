@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { InstanceData } from "../../../utils/@types";
+import { InstanceData } from "@/utils/@types";
 import User from "../../user/data-access/userModel";
 import Room from "../../room/data-access/roomModel";
 

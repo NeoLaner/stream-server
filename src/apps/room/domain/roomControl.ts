@@ -4,10 +4,10 @@ import {
   RoomDataRes,
   type ExpressMiddlewareFn,
   RoomDataReq,
-} from "../../../utils/@types";
+} from "@/utils/@types";
 
-import catchAsync from "../../../utils/factory/catchAsync";
-import AppError from "../../../utils/classes/appError";
+import catchAsync from "@/utils/factory/catchAsync";
+import AppError from "@/utils/classes/appError";
 
 export const roomCreate: ExpressMiddlewareFn<void> = catchAsync(
   async function (req, res) {

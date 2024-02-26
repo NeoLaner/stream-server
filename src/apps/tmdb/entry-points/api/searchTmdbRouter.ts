@@ -1,5 +1,5 @@
 import express from "express";
-import { protect } from "../../../../libraries/auth/authControl";
+import { protect } from "@/libraries/auth/authControl";
 import { multiSearchForMedia } from "../../domain/searchTmdbControl";
 
 const searchTmdbRouter = express.Router();

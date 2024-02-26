@@ -1,12 +1,12 @@
 import { type Event } from "socket.io";
-import { disconnectPreviousSockets } from "../../../libraries/dc/disconnectControl";
+import { disconnectPreviousSockets } from "@/libraries/dc/disconnectControl";
 import {
   ChatNamespace,
   ChatSocket,
   ChatSocketAfterMiddlewares,
   ChatWsDataClientToServerAfterMiddlewares,
-} from "../../../utils/@types";
-import { roomCapacityDec } from "../../../libraries/auth/authSocketControl";
+} from "@/utils/@types";
+import { roomCapacityDec } from "@/libraries/auth/authSocketControl";
 import Chat from "../data-access/chatModel";
 import Message from "../data-access/messageModel";
 

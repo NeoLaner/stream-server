@@ -6,10 +6,10 @@ import {
   UserSocket,
   UserStatus,
   UserWsDataAfterMiddlewares,
-} from "../../../utils/@types";
-import { EVENT_NAMES } from "../../../utils/constants";
-import { disconnectPreviousSockets } from "../../../libraries/dc/disconnectControl";
-import { roomCapacityDec } from "../../../libraries/auth/authSocketControl";
+} from "@/utils/@types";
+import { EVENT_NAMES } from "@/utils/constants";
+import { disconnectPreviousSockets } from "@/libraries/dc/disconnectControl";
+import { roomCapacityDec } from "@/libraries/auth/authSocketControl";
 
 const guestsDataByRoomId: Record<string, GuestsData> = {};
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};

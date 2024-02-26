@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs";
-import { ExpressMiddlewareFn } from "../../../../utils/@types";
+import { ExpressMiddlewareFn } from "@/utils/@types";
 
 export const videoStream: ExpressMiddlewareFn<void> = function (req, res) {
   const fileName = "bigbuck1.mp4";

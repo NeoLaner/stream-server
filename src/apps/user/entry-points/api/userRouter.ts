@@ -5,7 +5,7 @@ import {
   protect,
   signup,
   signupAsGuest,
-} from "../../../../libraries/auth/authControl";
+} from "@/libraries/auth/authControl";
 import {
   getCountUser,
   getUser,

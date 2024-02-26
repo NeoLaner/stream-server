@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { MessageData } from "../../../utils/@types/chatTypes";
+import { MessageData } from "@/utils/@types/chatTypes";
 // Define enum for allowed link names
 
 // Define schema for links
