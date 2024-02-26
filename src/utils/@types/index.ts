@@ -201,3 +201,11 @@ export type ExpressErrorMiddlewareFn<ReturnType> = (
   next: NextFunction,
   err: AppErrorType
 ) => ReturnType;
+
+export interface MediaItem {
+  id: string;
+  title: string;
+  year?: number;
+  poster?: string;
+  type: "show" | "movie";
+}

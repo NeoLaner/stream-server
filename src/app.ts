@@ -26,6 +26,7 @@ import type {
 } from "./utils/@types";
 import { chatNamespaceRouter } from "./routes/chatNamespaceRouter";
 import chatRouter from "./routes/chatRouter";
+import searchTmdbRouter from "./routes/searchTmdbRouter";
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -74,6 +75,7 @@ app.use("/users", userRouter);
 app.use("/chats", chatRouter);
 app.use("/room", roomRouter);
 app.use("/instance", instanceRouter);
+app.use("/tmdb", searchTmdbRouter);
 
 app.all("*", (req, res, next) => {
   return next(new AppError(`Can't find  ${req.originalUrl}`, 404));
