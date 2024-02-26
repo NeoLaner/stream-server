@@ -1,6 +1,6 @@
 import express from "express";
 import { protect } from "../controllers/authControl";
-import { multiSearchForMedia } from "../controllers/searchTmdbControl";
+import { multiSearchForMedia } from "../controllers/tmdb/searchTmdbControl";
 
 const searchTmdbRouter = express.Router();
 
