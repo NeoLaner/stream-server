@@ -20,6 +20,7 @@ import {
   TMDBShowSearchResult,
 } from "../types/tmdb";
 import { mwFetch } from "@/utils/factory/fetch";
+import AppError from "@/utils/classes/appError";
 
 export function mediaTypeToTMDB(type: MWMediaType): TMDBContentTypes {
   if (type === MWMediaType.MOVIE) return TMDBContentTypes.MOVIE;
