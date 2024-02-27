@@ -52,9 +52,9 @@ export const getMetaFromId = async function (
     }
   }
 
-  const tmdbmeta = formatTMDBMetaResult(details, type);
-  if (!tmdbmeta) return null;
-  const meta = formatTMDBMeta(tmdbmeta, seasonData);
+  const tmdbMeta = formatTMDBMetaResult(details, type);
+  if (!tmdbMeta) return null;
+  const meta = formatTMDBMeta(tmdbMeta, seasonData);
   if (!meta) return null;
 
   return {
