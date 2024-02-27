@@ -19,15 +19,11 @@ export const getMetaFromId = async function (
   id: string,
   seasonId?: string
 ): Promise<DetailedMeta | null> {
-  console.log(0);
-
   const details = await getMediaDetails(id, mediaTypeToTMDB(type));
-  console.log(1);
 
-  if (!details) throw new AppError("No media found with this id", 404);
-  console.log(2);
-
-  console.log(details);
+  //@ts-ignore
+  if (details.status_code === 34)
+    throw new AppError("No media found with this id", 404);
 
   const imdbId = details.external_ids.imdb_id ?? undefined;
 
