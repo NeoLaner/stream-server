@@ -288,3 +288,11 @@ export interface TMDBSearchResult {
   total_pages: number;
   total_results: number;
 }
+
+export interface MediaItem {
+  id: string;
+  title: string;
+  year?: number;
+  poster?: string;
+  type: "show" | "movie";
+}

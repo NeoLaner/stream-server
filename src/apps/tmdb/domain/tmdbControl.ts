@@ -3,11 +3,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import slugify from "slugify";
 
-import { MediaItem } from "@/utils/@types";
-
 import { MWMediaMeta, MWMediaType, MWSeasonMeta } from "@/utils/@types/mw";
 import {
   ExternalIdMovieSearchResult,
+  MediaItem,
   TMDBContentTypes,
   TMDBEpisodeShort,
   TMDBMediaResult,

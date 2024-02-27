@@ -57,6 +57,7 @@ import type {
   UserStatus,
   EventNames,
 } from "./globalTypes";
+import { MediaItem } from "@/apps/tmdb/types/tmdb";
 
 export type { Status, RoomData, SocketData, UserStatus };
 
@@ -107,6 +108,12 @@ export type ErrorDataRes = {
   status: Status;
   message: string;
 };
+
+export interface DataToResponse<T extends Record<string, object>> {
+  status: Status;
+  data?: T;
+  message?: string;
+}
 
 export type RoomDataReq = Omit<RoomData, "_id" | "isActive">;
 
@@ -175,6 +182,8 @@ export type CreateRoomReqDataApi = {
   videoLink: string;
 };
 
+export type { MediaItem };
+
 //Just for api
 export interface AppErrorType extends Error {
   statusCode: number;
@@ -201,11 +210,3 @@ export type ExpressErrorMiddlewareFn<ReturnType> = (
   next: NextFunction,
   err: AppErrorType
 ) => ReturnType;
-
-export interface MediaItem {
-  id: string;
-  title: string;
-  year?: number;
-  poster?: string;
-  type: "show" | "movie";
-}

@@ -1,4 +1,4 @@
-import { ExpressMiddlewareFn, MediaItem } from "@/utils/@types";
+import { ExpressMiddlewareFn } from "@/utils/@types";
 import { SimpleCache } from "@/utils/factory/cache";
 
 import {
@@ -9,6 +9,7 @@ import {
 import { MWQuery } from "@/utils/@types/mw";
 import catchAsync from "@/utils/factory/catchAsync";
 import AppError from "@/utils/classes/appError";
+import { MediaItem } from "../types/tmdb";
 
 const cache = new SimpleCache<MWQuery, MediaItem[]>();
 cache.setCompare((a, b) => {
@@ -54,15 +55,7 @@ export const multiSearchForMedia: ExpressMiddlewareFn<void> = catchAsync(
 
     res.status(200).send({
       status: "success",
-      data: { data: sortedResult },
+      data: { media: sortedResult },
     });
   }
 );
-
-// export const getDetailsMedia: ExpressMiddlewareFn<void> = catchAsync(
-//   async function (req, res) {
-//     const paramsQuery = req.params.query;
-//     const query = { searchQuery: paramsQuery };
-//     await getmedid;
-//   }
-// );
