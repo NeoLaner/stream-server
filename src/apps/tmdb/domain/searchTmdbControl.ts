@@ -9,7 +9,7 @@ import {
 import { MWQuery } from "@/utils/@types/mw";
 import catchAsync from "@/utils/factory/catchAsync";
 import AppError from "@/utils/classes/appError";
-import { MediaItem } from "../types/tmdb";
+import { MediaItem } from "@/utils/@types";
 
 const cache = new SimpleCache<MWQuery, MediaItem[]>();
 cache.setCompare((a, b) => {
@@ -28,7 +28,7 @@ export const multiSearchForMedia: ExpressMiddlewareFn<void> = catchAsync(
 
       res.status(200).send({
         status: "success",
-        data: { data: cache.get(query) },
+        data: { media: cache.get(query) },
       });
       return;
     }

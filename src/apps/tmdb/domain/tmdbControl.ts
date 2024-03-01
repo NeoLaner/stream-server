@@ -6,7 +6,6 @@ import slugify from "slugify";
 import { MWMediaMeta, MWMediaType, MWSeasonMeta } from "@/utils/@types/mw";
 import {
   ExternalIdMovieSearchResult,
-  MediaItem,
   TMDBContentTypes,
   TMDBEpisodeShort,
   TMDBMediaResult,
@@ -18,6 +17,8 @@ import {
   TMDBShowData,
   TMDBShowSearchResult,
 } from "../types/tmdb";
+import { MediaItem } from "@/utils/@types";
+
 import { mwFetch } from "@/utils/factory/fetch";
 import AppError from "@/utils/classes/appError";
 

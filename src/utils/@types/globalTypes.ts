@@ -67,3 +67,11 @@ export interface SocketData {
 
 export type EventNames = (typeof EVENT_NAMES)[keyof typeof EVENT_NAMES];
 export type DefaultEvents = "join_room" | "kick" | "initial_data" | "unsync";
+
+export interface MediaItem {
+  id: string;
+  title: string;
+  year?: number;
+  poster?: string;
+  type: "show" | "movie";
+}

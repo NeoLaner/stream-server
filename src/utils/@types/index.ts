@@ -57,7 +57,8 @@ import type {
   UserStatus,
   EventNames,
 } from "./globalTypes";
-import { MediaItem } from "@/apps/tmdb/types/tmdb";
+import { MediaItem } from "./globalTypes";
+export type { MediaItem };
 
 export type { Status, RoomData, SocketData, UserStatus };
 
@@ -181,8 +182,6 @@ export type CreateRoomReqDataApi = {
   roomName: string;
   videoLink: string;
 };
-
-export type { MediaItem };
 
 //Just for api
 export interface AppErrorType extends Error {
