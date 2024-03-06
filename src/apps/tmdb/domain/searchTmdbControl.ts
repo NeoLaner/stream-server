@@ -1,15 +1,14 @@
-import { ExpressMiddlewareFn } from "@/utils/@types";
+import { ExpressMiddlewareFn, MediaItem } from "@/utils/@types";
 import { SimpleCache } from "@/utils/factory/cache";
 
+import { MWQuery } from "@/utils/@types/mw";
+import catchAsync from "@/utils/factory/catchAsync";
+import AppError from "@/utils/classes/appError";
 import {
   formatTMDBMetaToMediaItem,
   formatTMDBSearchResult,
   multiSearch,
 } from "./tmdbControl";
-import { MWQuery } from "@/utils/@types/mw";
-import catchAsync from "@/utils/factory/catchAsync";
-import AppError from "@/utils/classes/appError";
-import { MediaItem } from "@/utils/@types";
 
 const cache = new SimpleCache<MWQuery, MediaItem[]>();
 cache.setCompare((a, b) => {

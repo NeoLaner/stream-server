@@ -1,4 +1,4 @@
-import { InstanceData, UserDataApi } from ".";
+import { UserDataApi } from ".";
 
 declare module "express" {
   interface Request {
