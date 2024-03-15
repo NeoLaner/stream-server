@@ -58,6 +58,7 @@ import type {
   EventNames,
 } from "./globalTypes";
 import { MediaItem } from "./globalTypes";
+
 export type { MediaItem };
 
 export type { Status, RoomData, SocketData, UserStatus };

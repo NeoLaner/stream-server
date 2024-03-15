@@ -1,5 +1,4 @@
 import mongoose, { Types } from "mongoose";
-import Room from "../data-access/roomModel";
 import {
   RoomDataRes,
   type ExpressMiddlewareFn,
@@ -8,6 +7,8 @@ import {
 
 import catchAsync from "@/utils/factory/catchAsync";
 import AppError from "@/utils/classes/appError";
+
+import Room from "../data-access/roomModel";
 
 export const roomCreate: ExpressMiddlewareFn<void> = catchAsync(
   async function (req, res) {
