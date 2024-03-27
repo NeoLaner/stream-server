@@ -1,5 +1,3 @@
-import Instance from "../data-access/instanceModel";
-import Room from "../../room/data-access/roomModel";
 import {
   type ExpressMiddlewareFn,
   type InstanceReq,
@@ -9,6 +7,8 @@ import {
 import AppError from "@/utils/classes/appError";
 import catchAsync from "@/utils/factory/catchAsync";
 import { createAndSendTheToken } from "@/libraries/auth/authControl";
+import Instance from "../data-access/instanceModel";
+import Room from "../../room/data-access/roomModel";
 
 export const createInstance: ExpressMiddlewareFn<void> = catchAsync(
   async function (req, res) {
@@ -35,12 +35,11 @@ export const createInstance: ExpressMiddlewareFn<void> = catchAsync(
           guests: [],
           rootRoom: {
             _id: rootRoomData._id,
-            cover: rootRoomData.cover,
             crossorigin: rootRoomData.crossorigin,
             roomAuthor: rootRoomData.roomAuthor,
             roomName: rootRoomData.roomName,
             subtitles: rootRoomData.subtitles,
-            videoLink: rootRoomData.videoLink,
+            videoLinks: rootRoomData.videoLinks,
           },
         },
       },
@@ -87,12 +86,11 @@ export const getInstance: ExpressMiddlewareFn<void> = catchAsync(
           guests: roomInstanceData.guests,
           rootRoom: {
             _id: rootRoomData._id,
-            cover: rootRoomData.cover,
             crossorigin: rootRoomData.crossorigin,
             roomAuthor: rootRoomData.roomAuthor,
             roomName: rootRoomData.roomName,
             subtitles: rootRoomData.subtitles,
-            videoLink: rootRoomData.videoLink,
+            videoLinks: rootRoomData.videoLinks,
           },
         },
       },

@@ -16,12 +16,11 @@ export type InstanceRes = {
       rootRoom: Pick<
         RoomData,
         | "_id"
-        | "cover"
         | "crossorigin"
         | "roomAuthor"
         | "roomName"
         | "subtitles"
-        | "videoLink"
+        | "videoLinks"
       >;
     };
   };

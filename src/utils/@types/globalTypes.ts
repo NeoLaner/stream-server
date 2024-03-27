@@ -1,22 +1,31 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 import { EVENT_NAMES } from "../constants";
 
 export type Status = "success" | "fail" | "error";
 
-export type RoomData = {
+export interface RoomData extends Document {
   _id: Types.ObjectId;
   roomAuthor: Types.ObjectId;
   roomName: string;
-  cover: string;
+  cover?: string; // Optional field
   isActive: boolean;
   isPrivate: boolean;
-  videoLink: string;
-  hasHardSubtitle: boolean;
-  hasSoftSubtitle: boolean;
-  subtitles: Array<string>;
   crossorigin: boolean;
-  roomDescription: string;
-};
+  subtitles: string[]; // Array of strings
+  roomDescription?: string; // Optional field
+  media: {
+    id: string;
+    title: string;
+    type: "movie" | "show"; // Union type
+    year: number;
+    poster?: string; // Optional field
+  };
+  videoLinks: {
+    isHardsub: boolean;
+    name: string;
+    videoLink: string;
+  }[];
+}
 
 export type AllowedLinkNames = "instagram" | "telegram" | "website" | "twitter";
 
