@@ -56,8 +56,9 @@ import type {
   SocketData,
   UserStatus,
   EventNames,
+  VideoLink,
+  MediaItem,
 } from "./globalTypes";
-import { MediaItem } from "./globalTypes";
 
 export type { MediaItem };
 
@@ -118,6 +119,7 @@ export interface DataToResponse<T extends Record<string, object>> {
 }
 
 export type RoomDataReq = Omit<RoomData, "_id" | "isActive">;
+export type { VideoLink };
 
 export type {
   InstanceLoginData,

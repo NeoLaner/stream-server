@@ -2,7 +2,11 @@ import { Document, Types } from "mongoose";
 import { EVENT_NAMES } from "../constants";
 
 export type Status = "success" | "fail" | "error";
-
+export type VideoLink = {
+  isHardsub: boolean;
+  name: string;
+  videoLink: string;
+};
 export interface RoomData extends Document {
   _id: Types.ObjectId;
   roomAuthor: Types.ObjectId;
@@ -17,14 +21,10 @@ export interface RoomData extends Document {
     id: string;
     title: string;
     type: "movie" | "show"; // Union type
-    year: number;
+    year?: number;
     poster?: string; // Optional field
   };
-  videoLinks: {
-    isHardsub: boolean;
-    name: string;
-    videoLink: string;
-  }[];
+  videoLinks: VideoLink[];
 }
 
 export type AllowedLinkNames = "instagram" | "telegram" | "website" | "twitter";

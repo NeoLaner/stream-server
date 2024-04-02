@@ -21,6 +21,7 @@ export type InstanceRes = {
         | "roomName"
         | "subtitles"
         | "videoLinks"
+        | "media"
       >;
     };
   };

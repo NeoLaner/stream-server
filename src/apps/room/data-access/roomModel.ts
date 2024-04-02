@@ -18,7 +18,6 @@ const mediaSchema = new mongoose.Schema<RoomData["media"]>({
   },
   year: {
     type: Number,
-    required: [true, "The media year is required."],
   },
   poster: {
     type: String,
@@ -56,14 +55,10 @@ const roomSchema = new mongoose.Schema<RoomData>({
   },
   media: {
     type: mediaSchema,
-    validate: [
-      {
-        validator: function (this: RoomData) {
-          return this.media || (this.videoLinks && this.videoLinks.length > 0);
-        },
-        message: "At least one of 'media' or 'videoLinks' must be provided.",
-      },
-    ],
+    required: function (this: RoomData) {
+      return !this.videoLinks || this.videoLinks.length === 0; // Media is required if videoLinks are not provided
+    },
+    _id: false,
   },
   videoLinks: {
     type: [
@@ -80,8 +75,10 @@ const roomSchema = new mongoose.Schema<RoomData>({
           type: String,
           required: [true, "You must provide the video link."],
         },
+        _id: false,
       },
     ],
+
     required: function () {
       return !this.media || !this.media.id; // VideoLink is required if media is not provided
     },
