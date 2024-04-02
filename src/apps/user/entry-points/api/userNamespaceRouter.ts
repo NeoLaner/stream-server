@@ -19,6 +19,7 @@ export function userNamespaceRouter(userNamespace: UserNamespace) {
     readyHandler,
     unsyncHandler,
     waitingForDataHandler,
+    changeSourceHandler,
     disconnectHandler,
     disconnectPreviousSocketsHandler,
   } = usersSocketControl(userNamespace);
@@ -43,6 +44,10 @@ export function userNamespaceRouter(userNamespace: UserNamespace) {
     socketAfterMiddlewares.on(
       EVENT_NAMES.USER_WAITING_FOR_DATA,
       waitingForDataHandler
+    );
+    socketAfterMiddlewares.on(
+      EVENT_NAMES.USER_CHANGE_SOURCE,
+      changeSourceHandler
     );
     socketAfterMiddlewares.on(EVENT_NAMES.INITIAL_DATA, initialDataHandler);
     socketAfterMiddlewares.on("disconnecting", disconnectHandler);

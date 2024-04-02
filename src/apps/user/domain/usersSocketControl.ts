@@ -67,6 +67,12 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     socket.emit(EVENT_NAMES.INITIAL_DATA, guestsDataByRoomId[roomId]);
   }
 
+  function changeSourceHandler(this: UserSocket) {
+    const socket = this;
+    const roomId = socket.data.instance._id.toString();
+    userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
+  }
+
   function disconnectHandler(this: UserSocket) {
     const socket = this;
     const { userId } = socket.data.user;
@@ -96,6 +102,7 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     readyHandler,
     waitingForDataHandler,
     initialDataHandler,
+    changeSourceHandler,
     disconnectHandler,
     disconnectPreviousSocketsHandler,
   };
@@ -166,6 +173,9 @@ export function addStatusToPayload(
       break;
     case "user_waitingForData":
       status = "waitingForData";
+      break;
+    case "user_changeSource":
+      status = "notReady";
       break;
     default:
       break;

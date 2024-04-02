@@ -5,6 +5,7 @@ export const EVENT_NAMES = {
   UNSYNC: "unsync",
   INITIAL_DATA: "initial_data",
   USER_READY: "user_ready",
+  USER_CHANGE_SOURCE: "user_changeSource",
   USER_NOT_READY: "user_notReady",
   USER_WAITING_FOR_DATA: "user_waitingForData",
   USER_DISCONNECTED: "user_disconnected",

@@ -4,6 +4,7 @@ import type {
   EventNames,
   SocketData,
   UserDataApi,
+  UserStatus,
 } from "./globalTypes";
 
 type Status = "success" | "fail" | "error";
@@ -12,9 +13,6 @@ export type UserDataRes = {
   status: Status;
   data: { user: Pick<UserDataApi, "_id" | "photo" | "name" | "userId"> };
 };
-
-type RemoveUserPrefix<T extends string> = T extends `user_${infer U}` ? U : T;
-type UserStatus = RemoveUserPrefix<Extract<EventNames, `user_${string}`>>;
 
 export type UserEvents =
   | Extract<EventNames, `user_${string}`>
