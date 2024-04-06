@@ -4,6 +4,10 @@
 import slugify from "slugify";
 
 import { MWMediaMeta, MWMediaType, MWSeasonMeta } from "@/utils/@types/mw";
+import { MediaItem } from "@/utils/@types";
+
+import { mwFetch } from "@/utils/factory/fetch";
+
 import {
   ExternalIdMovieSearchResult,
   TMDBContentTypes,
@@ -17,10 +21,6 @@ import {
   TMDBShowData,
   TMDBShowSearchResult,
 } from "../types/tmdb";
-import { MediaItem } from "@/utils/@types";
-
-import { mwFetch } from "@/utils/factory/fetch";
-import AppError from "@/utils/classes/appError";
 
 export function mediaTypeToTMDB(type: MWMediaType): TMDBContentTypes {
   if (type === MWMediaType.MOVIE) return TMDBContentTypes.MOVIE;
