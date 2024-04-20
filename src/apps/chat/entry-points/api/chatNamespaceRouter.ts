@@ -1,11 +1,11 @@
 import { authMiddleware } from "@/libraries/auth/authSocketControl";
-import { chatSocketControl } from "../../domain/chatSocketControl";
 import {
   ChatNamespace,
   ChatSocket,
   ChatSocketAfterMiddlewares,
 } from "@/utils/@types";
 import { EVENT_NAMES } from "@/utils/constants";
+import { chatSocketControl } from "../../domain/chatSocketControl";
 
 export function chatNamespaceRouter(chatNamespace: ChatNamespace) {
   const {
