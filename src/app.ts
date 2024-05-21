@@ -55,6 +55,7 @@ app.use(
       process.env.NODE_ENV === "development"
         ? process.env.LOCAL_CLIENT_SERVER
         : [
+            `https://beta.scoap.ir`,
             `https://${process.env.CLIENT_SERVER}`,
             `https://www.${process.env.CLIENT_SERVER}`,
           ],

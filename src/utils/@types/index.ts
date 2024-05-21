@@ -17,6 +17,9 @@ import type {
 } from "./userTypes";
 
 import type {
+  ChatRes,
+  ChatDataApi,
+  MessageData,
   ChatNamespace,
   ChatServerToClientEvents,
   ChatSocketAfterMiddlewares,
@@ -146,6 +149,9 @@ export type {
 
 //Chat
 export type {
+  ChatRes,
+  ChatDataApi,
+  MessageData,
   ChatNamespace,
   ChatServerToClientEvents,
   ChatSocketAfterMiddlewares,

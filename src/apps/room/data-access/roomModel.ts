@@ -2,28 +2,6 @@ import mongoose from "mongoose";
 import { type RoomData } from "@/utils/@types";
 import User from "../../user/data-access/userModel";
 
-const mediaSchema = new mongoose.Schema<RoomData["media"]>({
-  id: {
-    type: String,
-    required: [true, "The media id is required."],
-  },
-  title: {
-    type: String,
-    required: [true, "The media title is required."],
-  },
-  type: {
-    type: String,
-    enum: ["movie", "show"],
-    required: [true, "The media type is required."],
-  },
-  year: {
-    type: Number,
-  },
-  poster: {
-    type: String,
-  },
-});
-
 const roomSchema = new mongoose.Schema<RoomData>({
   roomName: {
     type: String,
@@ -53,13 +31,6 @@ const roomSchema = new mongoose.Schema<RoomData>({
   roomDescription: {
     type: String,
   },
-  media: {
-    type: mediaSchema,
-    required: function (this: RoomData) {
-      return !this.videoLinks || this.videoLinks.length === 0; // Media is required if videoLinks are not provided
-    },
-    _id: false,
-  },
   videoLinks: {
     type: [
       {
@@ -73,15 +44,16 @@ const roomSchema = new mongoose.Schema<RoomData>({
         },
         videoLink: {
           type: String,
-          required: [true, "You must provide the video link."],
+        },
+        infoHash: {
+          type: String,
+        },
+        fileIdx: {
+          type: Number,
         },
         _id: false,
       },
     ],
-
-    required: function () {
-      return !this.media || !this.media.id; // VideoLink is required if media is not provided
-    },
   },
 });
 
