@@ -1,21 +1,7 @@
-import express from "express";
 import cors from "cors";
+import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import ExpressMongoSanitize from "express-mongo-sanitize";
-import { rateLimit } from "express-rate-limit";
-import helmet from "helmet";
-import bodyParser from "body-parser";
-//eslint-disable-next-line
-//@ts-ignore
-import xss from "xss-clean";
-
-import userRouter from "./apps/user/entry-points/api/userRouter";
-import AppError from "./utils/classes/appError";
-import globalErrorControl from "./libraries/error/errorControl";
-import videoRouter from "./apps/stream/domain/videoRouter";
-import roomRouter from "./apps/room/entry-points/api/roomRouter";
-import instanceRouter from "./apps/instance/entry-points/api/instanceRouter";
 import { userNamespaceRouter } from "./apps/user/entry-points/api/userNamespaceRouter";
 import { mediaNamespaceRouter } from "./apps/media/entry-points/api/mediaNamespaceRouter";
 import type {
@@ -25,24 +11,8 @@ import type {
   UserNamespace,
 } from "./utils/@types";
 import { chatNamespaceRouter } from "./apps/chat/entry-points/api/chatNamespaceRouter";
-import chatRouter from "./apps/chat/entry-points/api/chatRouter";
-import searchTmdbRouter from "./apps/tmdb/entry-points/api/searchTmdbRouter";
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 150, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-  // standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  // legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-});
 
 const app = express();
-
-app.use(helmet());
-app.use(limiter);
-app.use(bodyParser.json({ limit: "10kb" }));
-app.use(ExpressMongoSanitize());
-//eslint-disable-next-line
-app.use(xss());
 
 app.use(
   cors({
@@ -53,11 +23,12 @@ app.use(
     //This essentially opens up your server to cross-origin requests from any site.
     origin:
       process.env.NODE_ENV === "development"
-        ? process.env.LOCAL_CLIENT_SERVER
+        ? ["http:localhost:3000"]
         : [
-            `https://beta.scoap.ir`,
-            `https://${process.env.CLIENT_SERVER}`,
-            `https://www.${process.env.CLIENT_SERVER}`,
+            `https://scoap.ir`,
+            `https://scoap.ir`,
+            `https://www.scoap.ir`,
+            "http://localhost:3000",
           ],
   })
 );
@@ -70,19 +41,6 @@ app.get("/test", (req, res) => {
     },
   });
 });
-
-app.use("/video", videoRouter);
-app.use("/users", userRouter);
-app.use("/chats", chatRouter);
-app.use("/room", roomRouter);
-app.use("/instance", instanceRouter);
-app.use("/tmdb", searchTmdbRouter);
-
-app.all("*", (req, res, next) => {
-  return next(new AppError(`Can't find  ${req.originalUrl}`, 404));
-});
-
-app.use(globalErrorControl);
 
 const expressServer = http.createServer(app);
 
@@ -102,9 +60,12 @@ const ioServer = new Server<
       process.env.NODE_ENV === "development"
         ? process.env.LOCAL_CLIENT_SERVER
         : [
-            `https://${process.env.CLIENT_SERVER}`,
-            `https://www.${process.env.CLIENT_SERVER}`,
+            `https://scoap.ir`,
+            `https://scoap.ir`,
+            `https://www.scoap.ir`,
+            "http://localhost:3000",
           ],
+    credentials: true,
   },
 });
 
@@ -127,7 +88,7 @@ chatNamespace.on("connection", chatSocketRouter);
 
 //Default namespace
 ioServer.on("connection", (socket) => {
-  console.log("client connected", socket.id);
+  console.log("user connected", socket.id);
 
   socket.on("disconnect", () => {
     console.log("user disconnected", socket.id);

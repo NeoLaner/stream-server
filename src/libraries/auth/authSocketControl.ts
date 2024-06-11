@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import decodeToken from "../../utils/factory/decodeToken";
 import User from "../../apps/user/data-access/userModel";
-import Instance from "../../apps/instance/data-access/instanceModel";
+
 import { JwtPayloadInstance } from "../../utils/@types";
 import AppError from "../../utils/classes/appError";
 
@@ -26,6 +26,9 @@ export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
     // Immediately-invoked async arrow function
     try {
       const auth = socket.handshake.auth as AuthData;
+      console.log("auth");
+
+      console.log(socket.handshake.headers.cookie);
 
       if (typeof auth.instanceJwt !== "string") {
         // Emit an error with next if there's no instanceJwt
@@ -39,19 +42,19 @@ export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
       >(auth.instanceJwt);
 
       const user = await User.findById(decoded.instance.user_id);
-      const instance = await Instance.findById(decoded.instance.instanceId);
+      // const instance = await Instance.findById(decoded.instance.instanceId);
 
-      if (!user || !instance)
-        return next(new AppError("No user or instance found.", 400));
+      // if (!user || !instance)
+      //   return next(new AppError("No user or instance found.", 400));
 
-      const roomId = instance._id.toString();
+      // const roomId = instance._id.toString();
 
-      //4 users * 3 namespace = 12
-      if (roomsCapacity[roomId] >= Number(process.env.MAX_USERS) * 3) {
-        return socket.disconnect();
-      }
-      roomCapacityInc(roomId);
-      socket.data = { user, instance };
+      // //4 users * 3 namespace = 12
+      // if (roomsCapacity[roomId] >= Number(process.env.MAX_USERS) * 3) {
+      //   return socket.disconnect();
+      // }
+      // roomCapacityInc(roomId);
+      // socket.data = { user, instance };
 
       next();
     } catch (error) {

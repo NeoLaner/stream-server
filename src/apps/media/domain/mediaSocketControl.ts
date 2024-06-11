@@ -21,6 +21,7 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
 
   //Handlers
   async function joinRoomHandler(this: MediaSocket) {
+    console.log(2);
     const socket = this;
     const roomId = socket.data.instance._id.toString();
 

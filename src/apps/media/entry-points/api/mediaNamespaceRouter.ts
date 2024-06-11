@@ -18,7 +18,9 @@ export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
     disconnectHandler,
     disconnectPreviousSocketsHandler,
   } = mediaSocketControl(mediaNamespace);
+
   mediaNamespace.use(authMiddleware);
+
   //prevent user from connect to this namespace twice.
   mediaNamespace.use(disconnectPreviousSocketsHandler);
 
