@@ -42,7 +42,7 @@ export function disconnectController({
   socket,
 }: DisconnectController) {
   const { userId, name } = socket.data.user;
-  const instanceId = socket.data.instance._id.toString();
+  const instanceId = socket.data.instance.id.toString();
   const dcWsData: UserWsDataAfterMiddlewares = {
     payload: {
       userId: userId,

@@ -23,7 +23,7 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
   //Handlers
   async function joinRoomHandler(this: ChatSocket) {
     const socket = this;
-    const roomId = socket.data.instance._id.toString();
+    const roomId = socket.data.instance.id.toString();
 
     await socket.join(roomId);
     userSocketMap.set(socket.data.user.userId, socket.id);
@@ -53,7 +53,7 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
     wsData: ChatWsDataClientToServerAfterMiddlewares
   ) {
     const socket = this;
-    const roomId = socket.data.instance._id.toString();
+    const roomId = socket.data.instance.id.toString();
 
     chatNamespace.to(roomId).emit("chat", wsData);
     try {
@@ -92,7 +92,7 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
 
   function disconnectHandler(this: ChatSocket) {
     const socket = this;
-    const roomId = socket.data.instance._id.toString();
+    const roomId = socket.data.instance.id.toString();
     roomCapacityDec(roomId);
   }
 

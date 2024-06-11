@@ -23,7 +23,7 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
   async function joinRoomHandler(this: MediaSocket) {
     console.log(2);
     const socket = this;
-    const roomId = socket.data.instance._id.toString();
+    const roomId = socket.data.instance.id.toString();
 
     await socket.join(roomId);
     userSocketMap.set(socket.data.user.userId, socket.id);
@@ -44,7 +44,7 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     wsData: MediaWsDataClientToServerAfterMiddlewares
   ) {
     const socket = this;
-    const roomId = socket.data.instance._id.toString();
+    const roomId = socket.data.instance.id.toString();
     socket.to(roomId).emit("media", wsData);
   }
 
@@ -53,13 +53,13 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     wsData: MediaWsDataClientToServerAfterMiddlewares
   ) {
     const socket = this;
-    const roomId = socket.data.instance._id.toString();
+    const roomId = socket.data.instance.id.toString();
     socket.to(roomId).emit("media", wsData);
   }
 
   function seekHandler(this: MediaSocket, wsData: MediaWsDataClientToServer) {
     const socket = this;
-    const roomId = socket.data.instance._id.toString();
+    const roomId = socket.data.instance.id.toString();
     socket.to(roomId).emit("media", wsData);
   }
 
@@ -105,7 +105,7 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
 
   function disconnectHandler(this: MediaSocket) {
     const socket = this;
-    const roomId = socket.data.instance._id.toString();
+    const roomId = socket.data.instance.id.toString();
     roomCapacityDec(roomId);
   }
   return {

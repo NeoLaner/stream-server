@@ -14,24 +14,24 @@ import { chatNamespaceRouter } from "./apps/chat/entry-points/api/chatNamespaceR
 
 const app = express();
 
-app.use(
-  cors({
-    //NOTE: allows cross-origin requests to include credentials
-    //(such as cookies, HTTP authentication, and client-side SSL certificates).
-    credentials: true,
-    //NOTE: origin: true (or origin: '*') allows requests from any origin (domain).
-    //This essentially opens up your server to cross-origin requests from any site.
-    origin:
-      process.env.NODE_ENV === "development"
-        ? ["http:localhost:3000"]
-        : [
-            `https://scoap.ir`,
-            `https://scoap.ir`,
-            `https://www.scoap.ir`,
-            "http://localhost:3000",
-          ],
-  })
-);
+// app.use(
+//   cors({
+//     //NOTE: allows cross-origin requests to include credentials
+//     //(such as cookies, HTTP authentication, and client-side SSL certificates).
+//     credentials: true,
+//     //NOTE: origin: true (or origin: '*') allows requests from any origin (domain).
+//     //This essentially opens up your server to cross-origin requests from any site.
+//     origin:
+//       process.env.NODE_ENV === "development"
+//         ? ["http:localhost:3000"]
+//         : [
+//             `https://scoap.ir`,
+//             `https://scoap.ir`,
+//             `https://www.scoap.ir`,
+//             "http://localhost:3000",
+//           ],
+//   })
+// );
 
 app.get("/test", (req, res) => {
   res.json({
@@ -58,12 +58,13 @@ const ioServer = new Server<
   cors: {
     origin:
       process.env.NODE_ENV === "development"
-        ? process.env.LOCAL_CLIENT_SERVER
+        ? [process.env.LOCAL_CLIENT_SERVER!, "http://127.0.0.1:5173"]
         : [
             `https://scoap.ir`,
             `https://scoap.ir`,
             `https://www.scoap.ir`,
             "http://localhost:3000",
+            "http://127.0.0.1:5173",
           ],
     credentials: true,
   },

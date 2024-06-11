@@ -4,6 +4,7 @@ import User from "../../apps/user/data-access/userModel";
 
 import { JwtPayloadInstance } from "../../utils/@types";
 import AppError from "../../utils/classes/appError";
+import axios from "axios";
 
 interface AuthData {
   instanceJwt: unknown;
@@ -21,6 +22,49 @@ export function roomCapacityDec(roomId: string) {
   roomsCapacity[roomId] -= 1;
 }
 
+interface InstanceData {
+  id: string;
+  name: string;
+  ownerId: string;
+  roomId: string;
+  online: boolean;
+  timeWatched: number | null;
+  season: number | null;
+  episode: number | null;
+  guests: any[]; // Replace `any` with the specific type if known
+}
+
+interface ResultData {
+  data: {
+    json: InstanceData;
+  };
+}
+
+interface ResponseData {
+  [key: string]: {
+    result: ResultData;
+  };
+}
+
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  emailVerified: string | null;
+  image: string;
+  addons: string[];
+}
+
+interface UserResultData {
+  data: {
+    json: UserData;
+  };
+}
+
+interface UserResponseData {
+  result: UserResultData;
+}
+
 export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
   void (async () => {
     // Immediately-invoked async arrow function
@@ -28,33 +72,52 @@ export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
       const auth = socket.handshake.auth as AuthData;
       console.log("auth");
 
-      console.log(socket.handshake.headers.cookie);
+      const cookies = socket.handshake.headers.cookie;
+      console.log(cookies);
+      // http://localhost:3000/api/trpc/instance.get?batch=1&input={"0": {"json": {"instanceId": "6666d8bfa561cbeafa014414" }}}
 
-      if (typeof auth.instanceJwt !== "string") {
-        // Emit an error with next if there's no instanceJwt
+      const baseUrl = "http://localhost:3000/api/trpc/instance.get";
+      const params = {
+        batch: 1,
+        input: JSON.stringify({
+          "0": {
+            json: {
+              instanceId: "6666d8bfa561cbeafa014414",
+            },
+          },
+        }),
+      };
+
+      const encodedParams = new URLSearchParams(params).toString();
+      const url = `${baseUrl}?${encodedParams}`;
+
+      const { data: instanceRes }: { data: ResponseData } = await axios.get(
+        url,
+        {
+          headers: {
+            Cookie: cookies,
+          },
+        }
+      );
+      const instanceData = instanceRes[0].result.data.json;
+
+      const userUrl = "http://localhost:3000/api/trpc/user.me";
+
+      const { data: userRes }: { data: UserResponseData } = await axios.get(
+        userUrl,
+        {
+          headers: {
+            Cookie: cookies,
+          },
+        }
+      );
+      const userData = userRes.result.data.json;
+      console.log(userData);
+
+      if (!userData || !instanceRes)
         return next(new Error("No instanceJwt provided."));
-      }
-      const decoded = await decodeToken<
-        Record<
-          Extract<keyof JwtPayloadInstance, "instance">,
-          JwtPayloadInstance["instance"]
-        >
-      >(auth.instanceJwt);
 
-      const user = await User.findById(decoded.instance.user_id);
-      // const instance = await Instance.findById(decoded.instance.instanceId);
-
-      // if (!user || !instance)
-      //   return next(new AppError("No user or instance found.", 400));
-
-      // const roomId = instance._id.toString();
-
-      // //4 users * 3 namespace = 12
-      // if (roomsCapacity[roomId] >= Number(process.env.MAX_USERS) * 3) {
-      //   return socket.disconnect();
-      // }
-      // roomCapacityInc(roomId);
-      // socket.data = { user, instance };
+      socket.data = { user: userData, instance: instanceData };
 
       next();
     } catch (error) {
