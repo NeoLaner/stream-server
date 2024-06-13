@@ -1,6 +1,5 @@
 import { Event } from "socket.io";
 import {
-  GuestsData,
   UserEvents,
   UserNamespace,
   UserSocket,
@@ -10,8 +9,9 @@ import {
 import { EVENT_NAMES } from "@/utils/constants";
 import { disconnectPreviousSockets } from "@/libraries/dc/disconnectControl";
 import { roomCapacityDec } from "@/libraries/auth/authSocketControl";
+import { getGuestsOfRoomData, guestsCache } from "@/utils/factory/cache";
 
-const guestsDataByRoomId: Record<string, GuestsData> = {};
+const expirySeconds = 3600; // 1 hour
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
 
 export function usersSocketControl(userNamespace: UserNamespace) {
@@ -30,24 +30,23 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     await socket.join(roomId);
     userSocketMap.set(socket.data.user.id, socket.id);
 
-    userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
+    userNamespace.to(roomId).emit("user", getGuestsOfRoomData(roomId));
   }
 
   function unsyncHandler(this: UserSocket, wsData: UserWsDataAfterMiddlewares) {
-    console.log("unsyncHandler");
-    const socket = this;
-    const roomId = socket.data.instance.id.toString();
-    const isHost =
-      socket.data.instance.hostId.toString() === socket.data.user.id.toString();
-
-    const { targetId } = wsData.payload;
-    if (!isHost || !targetId) return;
-    const curSocketId = userSocketMap.get(targetId);
-    guestsDataByRoomId[roomId] = guestsDataByRoomId[roomId].filter(
-      (guest) => guest.userId !== targetId
-    );
-    userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
-    if (curSocketId) userNamespace.sockets.get(curSocketId)?.disconnect();
+    // console.log("unsyncHandler");
+    // const socket = this;
+    // const roomId = socket.data.instance.id.toString();
+    // const isHost =
+    //   socket.data.instance.hostId.toString() === socket.data.user.id.toString();
+    // const { targetId } = wsData.payload;
+    // if (!isHost || !targetId) return;
+    // const curSocketId = userSocketMap.get(targetId);
+    // getGuestsOfRoomData(roomId) = guestsCache
+    //   .get(roomId)
+    //   .filter((guest) => guest.userId !== targetId);
+    // userNamespace.to(roomId).emit("user", getGuestsOfRoomData(roomId));
+    // if (curSocketId) userNamespace.sockets.get(curSocketId)?.disconnect();
   }
 
   function readyHandler(this: UserSocket) {
@@ -55,7 +54,7 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     const socket = this;
     const roomId = socket.data.instance.id.toString();
 
-    userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
+    userNamespace.to(roomId).emit("user", getGuestsOfRoomData(roomId));
   }
 
   function waitingForDataHandler(this: UserSocket) {
@@ -63,7 +62,7 @@ export function usersSocketControl(userNamespace: UserNamespace) {
 
     const socket = this;
     const roomId = socket.data.instance.id.toString();
-    userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
+    userNamespace.to(roomId).emit("user", getGuestsOfRoomData(roomId));
   }
 
   function initialDataHandler(this: UserSocket) {
@@ -71,13 +70,13 @@ export function usersSocketControl(userNamespace: UserNamespace) {
 
     const socket = this;
     const roomId = socket.data.instance.id.toString();
-    socket.emit(EVENT_NAMES.INITIAL_DATA, guestsDataByRoomId[roomId]);
+    socket.emit(EVENT_NAMES.INITIAL_DATA, getGuestsOfRoomData(roomId));
   }
 
   function changeSourceHandler(this: UserSocket) {
     const socket = this;
     const roomId = socket.data.instance.id.toString();
-    userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
+    userNamespace.to(roomId).emit("user", getGuestsOfRoomData(roomId));
   }
 
   function disconnectHandler(this: UserSocket) {
@@ -86,12 +85,16 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     const socket = this;
     const { id } = socket.data.user;
     const roomId = socket.data.instance.id.toString();
-    guestsDataByRoomId[roomId] = guestsDataByRoomId[roomId]?.filter(
-      (guest) => guest.userId !== socket.data.user.id
+    guestsCache.set(
+      roomId,
+      getGuestsOfRoomData(roomId)?.filter(
+        (guest) => guest.userId !== socket.data.user.id
+      ),
+      expirySeconds
     );
     userSocketMap.delete(id);
     roomCapacityDec(roomId);
-    userNamespace.to(roomId).emit("user", guestsDataByRoomId[roomId]);
+    userNamespace.to(roomId).emit("user", getGuestsOfRoomData(roomId));
   }
 
   const disconnectPreviousSocketsHandler = (
@@ -172,7 +175,7 @@ export function addStatusToPayload(
     case "kick":
       break;
     case "unsync":
-      status = guestsDataByRoomId[socket.data.instance.id.toString()]?.filter(
+      status = getGuestsOfRoomData(socket.data.instance.id.toString())?.filter(
         (guest) => guest.userId === socket.data.user.id
       )[0]?.status;
       break;
@@ -218,14 +221,15 @@ export function updateGuestsData(
   const roomId = socket.data.instance.id.toString();
   const wsData = event[1] as UserWsDataAfterMiddlewares;
 
-  if (!guestsDataByRoomId[roomId]) guestsDataByRoomId[roomId] = [];
-  const guestsData = guestsDataByRoomId[roomId];
+  const guestsData = getGuestsOfRoomData(roomId);
   const foundIndex = guestsData.findIndex(
     (guest) => guest.userId === socket.data.user.id
   );
   if (foundIndex !== -1)
     guestsData[foundIndex] = wsData.payload; // Update the data
   else guestsData[guestsData.length] = wsData.payload;
+
+  console.log("🥗🥗 GuestsData", guestsData);
 
   next();
 }

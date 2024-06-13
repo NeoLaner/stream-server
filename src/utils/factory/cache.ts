@@ -113,3 +113,15 @@ guestsCache.setCompare((a, b) => a === b);
 // Initialize both caches
 guestsCache.initialize();
 // mediaCache.initialize();
+
+const expirySeconds = 3600; // 1 hour
+
+export function getGuestsOfRoomData(roomId: string) {
+  const guestsData = guestsCache.get(roomId);
+  if (!guestsData) {
+    guestsCache.set(roomId, [], expirySeconds);
+    const NotNullGuestsData = guestsCache.get(roomId) as GuestsData;
+    return NotNullGuestsData;
+  }
+  return guestsData;
+}
