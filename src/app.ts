@@ -1,4 +1,3 @@
-import cors from "cors";
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
@@ -58,9 +57,8 @@ const ioServer = new Server<
   cors: {
     origin:
       process.env.NODE_ENV === "development"
-        ? [process.env.LOCAL_CLIENT_SERVER!, "http://127.0.0.1:5173"]
+        ? process.env.LOCAL_CLIENT_SERVER
         : [
-            `https://scoap.ir`,
             `https://scoap.ir`,
             `https://www.scoap.ir`,
             "http://localhost:3000",

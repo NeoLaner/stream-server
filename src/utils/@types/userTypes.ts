@@ -7,12 +7,7 @@ import type {
   UserStatus,
 } from "./globalTypes";
 
-type Status = "success" | "fail" | "error";
-
-export type UserDataRes = {
-  status: Status;
-  data: { user: Pick<UserDataApi, "_id" | "photo" | "name" | "userId"> };
-};
+export type UserDataRes = Pick<UserDataApi, "id" | "name" | "image">;
 
 export type UserEvents =
   | Extract<EventNames, `user_${string}`>

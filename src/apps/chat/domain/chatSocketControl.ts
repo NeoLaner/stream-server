@@ -26,7 +26,7 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
     const roomId = socket.data.instance.id.toString();
 
     await socket.join(roomId);
-    userSocketMap.set(socket.data.user.userId, socket.id);
+    userSocketMap.set(socket.data.user.id, socket.id);
   }
 
   function addUserDetails(
@@ -37,11 +37,11 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
     const socket = this;
 
     //
-    if (!event[1]) event[1] = { payload: { userId: socket.data.user.userId } };
+    if (!event[1]) event[1] = { payload: { userId: socket.data.user.id } };
     const args = event[1] as ChatWsDataClientToServerAfterMiddlewares;
     event[1] = {
       ...args,
-      userId: socket.data.user.userId,
+      userId: socket.data.user.id,
       userName: socket.data.user.name,
       created_at: Date.now(),
     };
@@ -57,13 +57,13 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
 
     chatNamespace.to(roomId).emit("chat", wsData);
     try {
-      let chat = await Chat.findById(socket.data.instance._id);
+      let chat = await Chat.findById(socket.data.instance.id);
       if (!chat)
         chat = await Chat.create({
-          _id: socket.data.instance._id,
+          id: socket.data.instance.id,
         });
 
-      await Message.create({ chat: socket.data.instance._id, ...wsData });
+      await Message.create({ chat: socket.data.instance.id, ...wsData });
     } catch (error) {
       // Handle errors appropriately
       console.error("Error saving message:", error);

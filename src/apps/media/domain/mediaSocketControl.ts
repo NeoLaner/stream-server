@@ -21,12 +21,12 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
 
   //Handlers
   async function joinRoomHandler(this: MediaSocket) {
-    console.log(2);
     const socket = this;
     const roomId = socket.data.instance.id.toString();
+    console.log("🍕 roomId:", roomId);
 
     await socket.join(roomId);
-    userSocketMap.set(socket.data.user.userId, socket.id);
+    userSocketMap.set(socket.data.user.id, socket.id);
   }
 
   function kickHandler(
@@ -43,6 +43,8 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     this: MediaSocket,
     wsData: MediaWsDataClientToServerAfterMiddlewares
   ) {
+    console.log("playHandler");
+
     const socket = this;
     const roomId = socket.data.instance.id.toString();
     socket.to(roomId).emit("media", wsData);

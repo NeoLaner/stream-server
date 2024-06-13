@@ -1,5 +1,4 @@
 import { Types } from "mongoose";
-import { type InstanceData, type RoomData, type Status } from "./globalTypes";
 
 export type InstanceReq = {
   password?: string;
@@ -7,25 +6,15 @@ export type InstanceReq = {
 };
 
 export type InstanceRes = {
-  status: Status;
-  data: {
-    instance: {
-      _id: Types.ObjectId;
-      hostId: Types.ObjectId;
-      guests: InstanceData["guests"];
-      rootRoom: Pick<
-        RoomData,
-        | "_id"
-        | "crossorigin"
-        | "roomAuthor"
-        | "roomName"
-        | "subtitles"
-        | "videoLinks"
-      >;
-    };
-  };
-  //guests
-  //messages
+  id: string;
+  name: string;
+  ownerId: string;
+  roomId: string;
+  online: boolean;
+  timeWatched: Date | null;
+  season: number | null;
+  episode: number | null;
+  guests: string[]; // Replace `any` with the specific type if known
 };
 
 export type InstanceLoginData = {

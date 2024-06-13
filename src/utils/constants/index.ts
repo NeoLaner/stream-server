@@ -12,6 +12,8 @@ export const EVENT_NAMES = {
   MEDIA_PAUSED: "media_paused",
   MEDIA_PLAYED: "media_played",
   MEDIA_SEEKED: "media_seeked",
+  MEDIA_WAITING_FOR_DATA: "media_waitingForData",
+  MEDIA_RECEIVED_DATA: "media_receivedData",
   CHAT_MSG_SUB: "chat_msgSubmitted",
   GET_USER: "GET_USER",
 } as const;

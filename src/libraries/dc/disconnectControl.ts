@@ -17,8 +17,8 @@ export function disconnectPreviousSockets({
   userSocketMap,
   next,
 }: DisconnectPreviousSockets) {
-  const { userId } = socket.data.user;
-  const previousSocket = userSocketMap.get(userId);
+  const { id } = socket.data.user;
+  const previousSocket = userSocketMap.get(id);
 
   if (previousSocket === socket.id) return next();
   if (previousSocket) {
@@ -41,12 +41,12 @@ export function disconnectController({
   userNamespace,
   socket,
 }: DisconnectController) {
-  const { userId, name } = socket.data.user;
+  const { id, name } = socket.data.user;
   const instanceId = socket.data.instance.id.toString();
   const dcWsData: UserWsDataAfterMiddlewares = {
     payload: {
-      userId: userId,
-      userName: name,
+      userId: id,
+      userName: name!,
       status: "disconnected",
     },
   };

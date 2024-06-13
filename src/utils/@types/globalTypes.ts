@@ -25,27 +25,16 @@ export interface RoomData {
 export type AllowedLinkNames = "instagram" | "telegram" | "website" | "twitter";
 
 export type UserDataApi = {
-  _id: Types.ObjectId;
-  name: string;
+  id: string;
+  name: string | null;
   email: string;
-  userId: string;
-  role: "user" | "admin";
-  createdAt: number;
-  password: string;
-  photo?: string;
-  active: boolean;
-  passwordChangedAt?: Date;
-  passwordResetToken?: string;
-  passwordResetExpires?: Date;
-  birthday?: string;
-  phone?: number;
-  location?: string;
-  aboutUser: string;
-  links: { linkName: AllowedLinkNames; link: string }[];
+  emailVerified: string | null;
+  image: string | null;
+  addons: string[];
 };
 
 export type InstanceData = {
-  _id: Types.ObjectId;
+  id: Types.ObjectId;
   rootRoom: Types.ObjectId;
   hostId: Types.ObjectId;
   password?: string;

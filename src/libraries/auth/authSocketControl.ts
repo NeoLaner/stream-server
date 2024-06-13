@@ -1,10 +1,7 @@
-import { Socket } from "socket.io";
-import decodeToken from "../../utils/factory/decodeToken";
-import User from "../../apps/user/data-access/userModel";
-
-import { JwtPayloadInstance } from "../../utils/@types";
-import AppError from "../../utils/classes/appError";
 import axios from "axios";
+import { Socket } from "socket.io";
+
+import AppError from "../../utils/classes/appError";
 
 interface AuthData {
   instanceJwt: unknown;
@@ -31,7 +28,7 @@ interface InstanceData {
   timeWatched: number | null;
   season: number | null;
   episode: number | null;
-  guests: any[]; // Replace `any` with the specific type if known
+  guests: string[]; // Replace `any` with the specific type if known
 }
 
 interface ResultData {
@@ -88,6 +85,7 @@ export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
         }),
       };
 
+      //@ts-ignore
       const encodedParams = new URLSearchParams(params).toString();
       const url = `${baseUrl}?${encodedParams}`;
 
