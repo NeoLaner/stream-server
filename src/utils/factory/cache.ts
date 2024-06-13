@@ -1,4 +1,6 @@
-export class SimpleCache<Key, Value> {
+import { GuestsData } from "../@types";
+
+class SimpleCache<Key, Value> {
   protected readonly INTERVAL_MS = 2 * 60 * 1000; // 2 minutes
 
   protected _interval: ReturnType<typeof setTimeout> | null = null;
@@ -14,7 +16,7 @@ export class SimpleCache<Key, Value> {
     if (this._interval) throw new Error("cache is already initialized");
     this._interval = setInterval(() => {
       const now = new Date();
-      this._storage.filter((val) => {
+      this._storage = this._storage.filter((val) => {
         if (val.expiry < now) return false; // remove if expiry date is in the past
         return true;
       });
@@ -49,7 +51,7 @@ export class SimpleCache<Key, Value> {
   public get(key: Key): Value | undefined {
     if (!this._compare) throw new Error("Compare function not set");
     const foundValue = this._storage.find(
-      (item) => this._compare && this._compare(item.key, key),
+      (item) => this._compare && this._compare(item.key, key)
     );
     if (!foundValue) return undefined;
     return foundValue.value;
@@ -61,7 +63,7 @@ export class SimpleCache<Key, Value> {
   public set(key: Key, value: Value, expirySeconds: number): void {
     if (!this._compare) throw new Error("Compare function not set");
     const foundValue = this._storage.find(
-      (item) => this._compare && this._compare(item.key, key),
+      (item) => this._compare && this._compare(item.key, key)
     );
     const expiry = new Date(new Date().getTime() + expirySeconds * 1000);
 
@@ -86,7 +88,7 @@ export class SimpleCache<Key, Value> {
    */
   public remove(key: Key): void {
     if (!this._compare) throw new Error("Compare function not set");
-    this._storage.filter((val) => {
+    this._storage = this._storage.filter((val) => {
       if (this._compare && this._compare(val.key, key)) return false; // remove if compare is success
       return true;
     });
@@ -99,3 +101,15 @@ export class SimpleCache<Key, Value> {
     this._storage = [];
   }
 }
+
+// Singleton instances for guests data and media data
+export const guestsCache = new SimpleCache<string, GuestsData>();
+//export const mediaCache = new SimpleCache<string, MediaData>();
+
+// Set the compare function for both caches
+guestsCache.setCompare((a, b) => a === b);
+// mediaCache.setCompare((a, b) => a === b);
+
+// Initialize both caches
+guestsCache.initialize();
+// mediaCache.initialize();
