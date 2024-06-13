@@ -180,6 +180,8 @@ export type EventData<EventType extends EventNames> = {
   media_paused: MediaWsDataServerToClient;
   media_played: MediaWsDataServerToClient;
   media_seeked: MediaWsDataServerToClient;
+  media_waitingForData: MediaWsDataServerToClient;
+  media_receivedData: MediaWsDataServerToClient;
   set_id: UserWsDataServerToClient;
   join_room: UserWsDataServerToClient;
   kick: MediaWsDataServerToClient;
