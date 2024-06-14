@@ -23,7 +23,7 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
   async function joinRoomHandler(this: MediaSocket) {
     const socket = this;
     const roomId = socket.data.instance.id.toString();
-    console.log("🍕 roomId:", roomId);
+    console.log("🍕 joinRoomHandler from media");
 
     await socket.join(roomId);
     userSocketMap.set(socket.data.user.id, socket.id);
@@ -47,7 +47,8 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
 
     const socket = this;
     const roomId = socket.data.instance.id.toString();
-    socket.to(roomId).emit("media", wsData);
+    console.log(roomId);
+    mediaNamespace.to(roomId).emit("media", wsData);
   }
 
   function pauseHandler(
