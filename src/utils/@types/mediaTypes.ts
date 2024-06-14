@@ -10,7 +10,12 @@ export type MediaEvents =
   | DefaultEvents;
 
 export type MediaWsDataClientToServer = {
-  payload: { playedSeconds?: number; targetId?: string; caused?: MediaCaused };
+  payload: {
+    playedSeconds?: number;
+    targetId?: string;
+    caused?: MediaCaused;
+    createdAt?: number;
+  };
 };
 
 export type MediaWsDataClientToServerAfterMiddlewares =

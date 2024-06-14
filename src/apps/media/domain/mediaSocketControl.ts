@@ -48,6 +48,7 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     const socket = this;
     const roomId = socket.data.instance.id.toString();
     console.log(roomId);
+    wsData.payload.createdAt = Date.now();
     mediaNamespace.to(roomId).emit("media", wsData);
   }
 
@@ -63,6 +64,29 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
   function seekHandler(this: MediaSocket, wsData: MediaWsDataClientToServer) {
     const socket = this;
     const roomId = socket.data.instance.id.toString();
+    socket.to(roomId).emit("media", wsData);
+  }
+
+  function waitingForDataHandler(
+    this: MediaSocket,
+    wsData: MediaWsDataClientToServer
+  ) {
+    console.log("waitingForDataHandler");
+
+    const socket = this;
+    const roomId = socket.data.instance.id.toString();
+    socket.to(roomId).emit("media", wsData);
+  }
+
+  function receivedDataHandler(
+    this: MediaSocket,
+    wsData: MediaWsDataClientToServer
+  ) {
+    console.log("receivedDataHandler");
+
+    const socket = this;
+    const roomId = socket.data.instance.id.toString();
+    wsData.payload.createdAt = Date.now();
     socket.to(roomId).emit("media", wsData);
   }
 
@@ -86,7 +110,6 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     if (!event[1]) event[1] = { payload: {} };
     const args = event[1] as MediaWsDataClientToServerAfterMiddlewares;
     const eventName = event[0] as MediaEvents;
-
     //for joinRoom
     switch (eventName) {
       case "media_paused":
@@ -98,6 +121,12 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
       case "media_seeked":
         args.payload.status = "paused";
         args.payload.caused = "manual";
+        break;
+      case "media_receivedData":
+        args.payload.status = "played";
+        break;
+      case "media_waitingForData":
+        args.payload.status = "paused";
         break;
       default:
         break;
@@ -118,6 +147,8 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     pauseHandler,
     seekHandler,
     addStatusToPayload,
+    receivedDataHandler,
+    waitingForDataHandler,
     disconnectHandler,
     disconnectPreviousSocketsHandler,
   };
