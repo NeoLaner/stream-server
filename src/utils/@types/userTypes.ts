@@ -22,8 +22,9 @@ export type UserWsDataAfterMiddlewares = {
   payload: {
     status: UserStatus;
     userId: string;
-    userName: string;
+    userName?: string | null;
     targetId?: string;
+    image?: string | null;
   };
 };
 

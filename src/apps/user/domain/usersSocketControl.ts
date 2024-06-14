@@ -33,22 +33,6 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     userNamespace.to(roomId).emit("user", getGuestsOfRoomData(roomId));
   }
 
-  function unsyncHandler(this: UserSocket, wsData: UserWsDataAfterMiddlewares) {
-    // console.log("unsyncHandler");
-    // const socket = this;
-    // const roomId = socket.data.instance.id.toString();
-    // const isHost =
-    //   socket.data.instance.hostId.toString() === socket.data.user.id.toString();
-    // const { targetId } = wsData.payload;
-    // if (!isHost || !targetId) return;
-    // const curSocketId = userSocketMap.get(targetId);
-    // getGuestsOfRoomData(roomId) = guestsCache
-    //   .get(roomId)
-    //   .filter((guest) => guest.userId !== targetId);
-    // userNamespace.to(roomId).emit("user", getGuestsOfRoomData(roomId));
-    // if (curSocketId) userNamespace.sockets.get(curSocketId)?.disconnect();
-  }
-
   function readyHandler(this: UserSocket) {
     console.log("readyHandler");
     const socket = this;
@@ -112,7 +96,6 @@ export function usersSocketControl(userNamespace: UserNamespace) {
 
   return {
     joinRoomHandler,
-    unsyncHandler,
     readyHandler,
     waitingForDataHandler,
     initialDataHandler,
@@ -140,7 +123,8 @@ export function addUserDetailsToPayload(
   args.payload = {
     ...args.payload,
     userId: socket.data.user.id,
-    userName: socket.data.user.name!,
+    userName: socket.data.user.name,
+    image: socket.data.user.image,
   };
 
   next();

@@ -17,7 +17,6 @@ export function userNamespaceRouter(userNamespace: UserNamespace) {
     joinRoomHandler,
     initialDataHandler,
     readyHandler,
-    unsyncHandler,
     waitingForDataHandler,
     changeSourceHandler,
     disconnectHandler,
@@ -39,7 +38,6 @@ export function userNamespaceRouter(userNamespace: UserNamespace) {
 
     socketAfterMiddlewares.use(updateGuestsDataHandler);
     socketAfterMiddlewares.on(EVENT_NAMES.JOIN_ROOM, joinRoomHandler);
-    socketAfterMiddlewares.on(EVENT_NAMES.UNSYNC, unsyncHandler);
     socketAfterMiddlewares.on(EVENT_NAMES.USER_READY, readyHandler);
     socketAfterMiddlewares.on(
       EVENT_NAMES.USER_WAITING_FOR_DATA,
