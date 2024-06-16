@@ -7,7 +7,7 @@ import catchAsync from "@/utils/factory/catchAsync";
 export const getChat: ExpressMiddlewareFn<void> = catchAsync(
   async function (req, res) {
     const { instanceId } = req.params;
-    const chatId = new mongoose.Types.ObjectId(instanceId);
+    const chatId = new mongoose.string(instanceId);
     const chatData = await Chat.findById(chatId);
     if (!chatData)
       await Chat.create({

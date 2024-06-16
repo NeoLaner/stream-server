@@ -135,8 +135,6 @@ export function addStatusToPayload(
   event: Event,
   next: (err?: Error) => void
 ) {
-  console.log("addStatusToPayload");
-
   //The payload must have id and status when emit to the client side.
   //but the client side send nothing
   const socket = this;
@@ -192,6 +190,7 @@ export function addStatusToPayload(
 
   //assign the status
   args.payload = { ...args.payload, status };
+  console.log("addStatusToPayload", status);
 
   next();
 }

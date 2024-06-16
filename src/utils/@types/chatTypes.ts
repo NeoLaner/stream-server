@@ -65,7 +65,7 @@ export type MessageData = {
 };
 
 export type ChatDataApi = {
-  _id: Types.ObjectId;
+  _id: string;
   active: boolean;
 };
 

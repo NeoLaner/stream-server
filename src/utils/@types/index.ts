@@ -101,7 +101,7 @@ export type {
   UserWsDataServerToClient,
 };
 
-export type MongooseObjectId = Types.ObjectId;
+export type MongooseObjectId = string;
 
 export type RoomDataRes = {
   status: Status;

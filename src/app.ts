@@ -53,9 +53,9 @@ const { mediaSocketRouter } = mediaNamespaceRouter(mediaNamespace);
 mediaNamespace.on("connection", mediaSocketRouter);
 
 //Chat namespace
-const chatNamespace: ChatNamespace = ioServer.of("/chat");
-const { chatSocketRouter } = chatNamespaceRouter(chatNamespace);
-chatNamespace.on("connection", chatSocketRouter);
+// const chatNamespace: ChatNamespace = ioServer.of("/chat");
+// const { chatSocketRouter } = chatNamespaceRouter(chatNamespace);
+// chatNamespace.on("connection", chatSocketRouter);
 
 //Default namespace
 ioServer.on("connection", (socket) => {

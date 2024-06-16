@@ -4,16 +4,11 @@ import { Socket } from "socket.io";
 import AppError from "../../utils/classes/appError";
 
 interface AuthData {
-  instanceJwt: unknown;
+  instanceId: unknown;
   // other authentication properties
 }
 
 const roomsCapacity: Record<string, number> = {};
-
-function roomCapacityInc(roomId: string) {
-  if (!roomsCapacity[roomId]) roomsCapacity[roomId] = 0;
-  roomsCapacity[roomId] += 1;
-}
 
 export function roomCapacityDec(roomId: string) {
   roomsCapacity[roomId] -= 1;
@@ -67,19 +62,20 @@ export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
     // Immediately-invoked async arrow function
     try {
       const auth = socket.handshake.auth as AuthData;
-      console.log("auth");
+      console.log("auth", auth);
 
       const cookies = socket.handshake.headers.cookie;
       console.log(cookies);
       // http://localhost:3000/api/trpc/instance.get?batch=1&input={"0": {"json": {"instanceId": "6666d8bfa561cbeafa014414" }}}
-
-      const baseUrl = "http://localhost:3000/api/trpc/instance.get";
+      const server =
+        process.env.NODE_ENV === "development" ? "localhost:3000" : "scoap.ir";
+      const baseUrl = `http://${server}/api/trpc/instance.get`;
       const params = {
         batch: 1,
         input: JSON.stringify({
           "0": {
             json: {
-              instanceId: "6666d8bfa561cbeafa014414",
+              instanceId: auth.instanceId,
             },
           },
         }),
@@ -99,7 +95,7 @@ export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
       );
       const instanceData = instanceRes[0].result.data.json;
 
-      const userUrl = "http://localhost:3000/api/trpc/user.me";
+      const userUrl = `http://${server}/api/trpc/user.me`;
 
       const { data: userRes }: { data: UserResponseData } = await axios.get(
         userUrl,

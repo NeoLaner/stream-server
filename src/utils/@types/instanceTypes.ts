@@ -18,8 +18,8 @@ export type InstanceRes = {
 };
 
 export type InstanceLoginData = {
-  instanceId: Types.ObjectId;
-  user_id: Types.ObjectId;
+  instanceId: string;
+  user_id: string;
 };
 
 export interface JwtPayloadInstance {

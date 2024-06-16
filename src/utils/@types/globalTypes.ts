@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import { EVENT_NAMES } from "../constants";
 
 export type Status = "success" | "fail" | "error";
@@ -10,8 +9,8 @@ export type VideoLink = {
   fileIdx?: number;
 };
 export interface RoomData {
-  _id: Types.ObjectId;
-  roomAuthor: Types.ObjectId;
+  _id: string;
+  roomAuthor: string;
   roomName: string;
   cover?: string; // Optional field
   isActive?: boolean;
@@ -33,19 +32,35 @@ export type UserDataApi = {
   addons: string[];
 };
 
-export type InstanceData = {
-  id: Types.ObjectId;
-  rootRoom: Types.ObjectId;
-  hostId: Types.ObjectId;
-  password?: string;
-  guests: {
-    _id: string;
-    userId: string;
-    status: UserStatus;
-  }[];
-  // media: object;
-  // messages
-};
+export interface Room {
+  id: string;
+  // Add other fields as needed
+}
+
+export interface User {
+  id: string;
+  // Add other fields as needed
+}
+
+export interface Source {
+  // Define the structure of your Source type
+}
+
+export interface InstanceData {
+  id: string;
+  password?: string | null;
+  name: string;
+  ownerId: string;
+  roomId: string;
+  online: boolean;
+  timeWatched?: Date | null;
+  season?: number | null;
+  episode?: number | null;
+  room: Room;
+  owner: User;
+  guests: string[];
+  sources: Source[];
+}
 
 export type UserStatus =
   | "notReady"

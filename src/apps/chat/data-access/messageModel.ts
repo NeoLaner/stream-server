@@ -6,7 +6,7 @@ import { MessageData } from "@/utils/@types/chatTypes";
 
 const messageSchema = new mongoose.Schema<MessageData>({
   chat: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.string,
     ref: "Chat", // Reference the Chat model
     required: true,
   },

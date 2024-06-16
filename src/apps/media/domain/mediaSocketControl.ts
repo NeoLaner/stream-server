@@ -8,6 +8,7 @@ import {
   MediaWsDataClientToServer,
 } from "@/utils/@types/mediaTypes";
 import { roomCapacityDec } from "@/libraries/auth/authSocketControl";
+import { getGuestsOfRoomData } from "@/utils/factory/cache";
 
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
 
@@ -48,6 +49,13 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     const socket = this;
     const roomId = socket.data.instance.id.toString();
     console.log(roomId);
+    const isHost = socket.data.user.id === socket.data.instance.ownerId;
+    if (!isHost) return null;
+    const guests = getGuestsOfRoomData(roomId);
+    const waitingGuests = guests.filter(
+      (guest) => guest.status === "waitingForData"
+    );
+    if (waitingGuests.length > 0) return;
     wsData.payload.createdAt = Date.now();
     mediaNamespace.to(roomId).emit("media", wsData);
   }
@@ -58,6 +66,9 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
   ) {
     const socket = this;
     const roomId = socket.data.instance.id.toString();
+    const isHost = socket.data.user.id === socket.data.instance.ownerId;
+
+    if (!isHost) return null;
     socket.to(roomId).emit("media", wsData);
   }
 
@@ -87,7 +98,7 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     const socket = this;
     const roomId = socket.data.instance.id.toString();
     wsData.payload.createdAt = Date.now();
-    socket.to(roomId).emit("media", wsData);
+    mediaNamespace.to(roomId).emit("media", wsData);
   }
 
   const disconnectPreviousSocketsHandler = (
