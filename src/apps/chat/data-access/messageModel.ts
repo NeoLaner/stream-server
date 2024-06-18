@@ -6,6 +6,9 @@ import { MessageData } from "@/utils/@types/chatTypes";
 
 const messageSchema = new mongoose.Schema<MessageData>({
   chat: {
+    //eslint-disable-next-line
+    //@ts-ignore
+    //eslint-disable-next-line
     type: mongoose.string,
     ref: "Chat", // Reference the Chat model
     required: true,

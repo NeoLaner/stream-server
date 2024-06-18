@@ -1,4 +1,5 @@
 import { GuestsData } from "../@types";
+import { MediaData } from "../@types/mediaTypes";
 
 class SimpleCache<Key, Value> {
   protected readonly INTERVAL_MS = 2 * 60 * 1000; // 2 minutes
@@ -104,15 +105,15 @@ class SimpleCache<Key, Value> {
 
 // Singleton instances for guests data and media data
 export const guestsCache = new SimpleCache<string, GuestsData>();
-//export const mediaCache = new SimpleCache<string, MediaData>();
+export const mediaCache = new SimpleCache<string, MediaData>();
 
 // Set the compare function for both caches
 guestsCache.setCompare((a, b) => a === b);
-// mediaCache.setCompare((a, b) => a === b);
+mediaCache.setCompare((a, b) => a === b);
 
 // Initialize both caches
 guestsCache.initialize();
-// mediaCache.initialize();
+mediaCache.initialize();
 
 const expirySeconds = 3600; // 1 hour
 
@@ -124,4 +125,14 @@ export function getGuestsOfRoomData(roomId: string) {
     return NotNullGuestsData;
   }
   return guestsData;
+}
+
+export function getMediaOfRoomData(roomId: string) {
+  const mediaData = mediaCache.get(roomId);
+  if (!mediaData) {
+    mediaCache.set(roomId, {}, expirySeconds);
+    const NotNullGuestsData = mediaCache.get(roomId) as MediaData;
+    return NotNullGuestsData;
+  }
+  return mediaData;
 }

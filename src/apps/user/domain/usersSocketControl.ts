@@ -22,8 +22,6 @@ export function usersSocketControl(userNamespace: UserNamespace) {
 
   //Handlers
   async function joinRoomHandler(this: UserSocket) {
-    console.log("joinRoomHandler");
-
     const socket = this;
     const roomId = socket.data.instance.id.toString();
 
@@ -34,7 +32,6 @@ export function usersSocketControl(userNamespace: UserNamespace) {
   }
 
   function readyHandler(this: UserSocket) {
-    console.log("readyHandler");
     const socket = this;
     const roomId = socket.data.instance.id.toString();
 
@@ -42,16 +39,12 @@ export function usersSocketControl(userNamespace: UserNamespace) {
   }
 
   function waitingForDataHandler(this: UserSocket) {
-    console.log("waitingForDataHandler");
-
     const socket = this;
     const roomId = socket.data.instance.id.toString();
     userNamespace.to(roomId).emit("user", getGuestsOfRoomData(roomId));
   }
 
   function initialDataHandler(this: UserSocket) {
-    console.log("waitingForDataHandler");
-
     const socket = this;
     const roomId = socket.data.instance.id.toString();
     socket.emit(EVENT_NAMES.INITIAL_DATA, getGuestsOfRoomData(roomId));
@@ -64,8 +57,6 @@ export function usersSocketControl(userNamespace: UserNamespace) {
   }
 
   function disconnectHandler(this: UserSocket) {
-    console.log("disconnectHandler");
-
     const socket = this;
     const { id } = socket.data.user;
     const roomId = socket.data.instance.id.toString();
@@ -85,7 +76,6 @@ export function usersSocketControl(userNamespace: UserNamespace) {
     socket: UserSocket,
     next: (err?: Error) => void
   ) => {
-    console.log("disconnectPreviousSocketsHandler");
     return disconnectPreviousSockets({
       socket,
       namespace: userNamespace,
@@ -111,7 +101,6 @@ export function addUserDetailsToPayload(
   event: Event,
   next: (err?: Error) => void
 ) {
-  console.log("addUserDetailsToPayload");
   //The payload must have id and status when emit to the client side.
   //but the client side send nothing
   const socket = this;
@@ -184,13 +173,11 @@ export function addStatusToPayload(
   // const previousStatus = guestsDataByRoomId[
   //   socket.data.instance.id.toString()
   // ]?.filter((guest) => guest.id === socket.data.user.id)[0]?.status;
-  // // console.log(statusFromEvent);
   // if (statusFromEvent) status = statusFromEvent;
   // if (!statusFromEvent && previousStatus) status = previousStatus;
 
   //assign the status
   args.payload = { ...args.payload, status };
-  console.log("addStatusToPayload", status);
 
   next();
 }
@@ -211,8 +198,6 @@ export function updateGuestsData(
   if (foundIndex !== -1)
     guestsData[foundIndex] = wsData.payload; // Update the data
   else guestsData[guestsData.length] = wsData.payload;
-
-  console.log("🥗🥗 GuestsData", guestsData);
 
   next();
 }

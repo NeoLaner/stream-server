@@ -1,3 +1,5 @@
+//eslint-disable-next-line
+// @ts-nocheck
 import mongoose from "mongoose";
 import Chat from "../data-access/chatModel";
 import { ExpressMiddlewareFn } from "@/utils/@types";

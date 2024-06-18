@@ -6,9 +6,14 @@ import {
   MediaSocket,
   MediaWsDataClientToServerAfterMiddlewares,
   MediaWsDataClientToServer,
+  MediaSocketAfterMiddlewares,
 } from "@/utils/@types/mediaTypes";
 import { roomCapacityDec } from "@/libraries/auth/authSocketControl";
-import { getGuestsOfRoomData } from "@/utils/factory/cache";
+import {
+  getGuestsOfRoomData,
+  getMediaOfRoomData,
+  mediaCache,
+} from "@/utils/factory/cache";
 
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
 
@@ -48,14 +53,6 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
 
     const socket = this;
     const roomId = socket.data.instance.id.toString();
-    console.log(roomId);
-    const isHost = socket.data.user.id === socket.data.instance.ownerId;
-    if (!isHost) return null;
-    const guests = getGuestsOfRoomData(roomId);
-    const waitingGuests = guests.filter(
-      (guest) => guest.status === "waitingForData"
-    );
-    if (waitingGuests.length > 0) return;
     wsData.payload.createdAt = Date.now();
     mediaNamespace.to(roomId).emit("media", wsData);
   }
@@ -66,9 +63,6 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
   ) {
     const socket = this;
     const roomId = socket.data.instance.id.toString();
-    const isHost = socket.data.user.id === socket.data.instance.ownerId;
-
-    if (!isHost) return null;
     socket.to(roomId).emit("media", wsData);
   }
 
@@ -113,35 +107,66 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     });
 
   function addStatusToPayload(
-    this: MediaSocket,
+    this: MediaSocketAfterMiddlewares,
     event: Event,
     next: (err?: Error) => void
   ) {
+    const socket = this;
+    const roomId = socket.data.instance.id;
+    const isHost = socket.data.user.id === socket.data.instance.ownerId;
     //
+
     if (!event[1]) event[1] = { payload: {} };
     const args = event[1] as MediaWsDataClientToServerAfterMiddlewares;
     const eventName = event[0] as MediaEvents;
     //for joinRoom
+
+    const guests = getGuestsOfRoomData(roomId);
+    const waitingGuests = guests.filter(
+      (guest) => guest.status === "waitingForData"
+    );
+    if (waitingGuests.length > 0 && eventName === "media_played") return;
+
+    const cachedMediaData = getMediaOfRoomData(roomId);
+    console.log("🍗🍗", eventName, cachedMediaData);
+    console.log(roomId);
+
     switch (eventName) {
       case "media_paused":
+        if (!isHost) return next(Error("Only host can play the media"));
         args.payload.status = "paused";
+        args.payload.caused =
+          cachedMediaData.caused === "auto" &&
+          cachedMediaData.status === "paused"
+            ? "auto"
+            : "manual";
         break;
       case "media_played":
+        if (!isHost) return next(Error("Only host can play the media"));
         args.payload.status = "played";
+        args.payload.caused = "auto";
         break;
       case "media_seeked":
+        if (!isHost) return next(Error("Only host can play the media"));
         args.payload.status = "paused";
         args.payload.caused = "manual";
         break;
-      case "media_receivedData":
-        args.payload.status = "played";
-        break;
       case "media_waitingForData":
         args.payload.status = "paused";
+        args.payload.caused =
+          cachedMediaData?.caused === "manual" ? "manual" : "auto";
+        break;
+      case "media_receivedData":
+        args.payload.status =
+          cachedMediaData?.caused === "manual" ? "paused" : "played";
+        args.payload.caused =
+          cachedMediaData?.caused === "manual" ? "manual" : "auto";
         break;
       default:
         break;
     }
+    mediaCache.set(roomId, args.payload, 3600);
+    console.log("🍢🍢", mediaCache.get(roomId));
 
     next();
   }
