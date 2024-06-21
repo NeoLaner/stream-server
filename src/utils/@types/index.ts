@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import type { NextFunction, Request, Response } from "express";
 import type {
   UserDataRes,
@@ -32,16 +31,12 @@ import type {
 
 import type {
   MediaNamespace,
-  MediaCaused,
   MediaClientToServerEvents,
   MediaServerToClientEvents,
-  MediaWsDataClientToServerAfterMiddlewares,
-  MediaWsDataClientToServer,
-  MediaStatus,
-  MediaSocketAfterMiddlewares,
   MediaSocket,
-  MediaClientToServerEventsAfterMiddlewares,
-  MediaWsDataServerToClient,
+  MediaEvents,
+  WsDataCtS,
+  WsDataStC,
 } from "./mediaTypes";
 
 import type {
@@ -58,7 +53,6 @@ import type {
   InstanceData,
   SocketData,
   UserStatus,
-  EventNames,
   VideoLink,
   MediaItem,
 } from "./globalTypes";
@@ -135,16 +129,12 @@ export type {
 //media
 export type {
   MediaNamespace,
-  MediaWsDataClientToServerAfterMiddlewares,
-  MediaWsDataClientToServer,
-  MediaStatus,
-  MediaSocketAfterMiddlewares,
   MediaSocket,
-  MediaClientToServerEventsAfterMiddlewares,
-  MediaWsDataServerToClient,
-  MediaCaused,
   MediaClientToServerEvents,
   MediaServerToClientEvents,
+  MediaEvents,
+  WsDataCtS,
+  WsDataStC,
 };
 
 //Chat
@@ -169,26 +159,6 @@ export type MessageDataApi = {
 export type PauseVideoDataApi = {
   isPlaying: false;
 };
-
-export type EventData<EventType extends EventNames> = {
-  user_waitingForData: UserWsDataServerToClient;
-  user_ready: UserWsDataServerToClient;
-  user_notReady: UserWsDataServerToClient;
-  user_disconnected: UserWsDataServerToClient;
-  user_changeSource: UserWsDataServerToClient;
-  initial_data: UserWsDataServerToClient;
-  media_paused: MediaWsDataServerToClient;
-  media_played: MediaWsDataServerToClient;
-  media_seeked: MediaWsDataServerToClient;
-  media_waitingForData: MediaWsDataServerToClient;
-  media_receivedData: MediaWsDataServerToClient;
-  set_id: UserWsDataServerToClient;
-  join_room: UserWsDataServerToClient;
-  kick: MediaWsDataServerToClient;
-  unsync: UserWsDataServerToClient;
-  GET_USER: UserWsDataServerToClient;
-  chat_msgSubmitted: UserWsDataServerToClient;
-}[EventType];
 
 export type CreateRoomReqDataApi = {
   roomName: string;

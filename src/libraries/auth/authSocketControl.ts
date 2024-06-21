@@ -71,7 +71,7 @@ export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
         process.env.NODE_ENV === "development" ? "localhost:3000" : "scoap.ir";
       const baseUrl = `http://${server}/api/trpc/instance.get`;
       const params = {
-        batch: 1,
+        batch: "1",
         input: JSON.stringify({
           "0": {
             json: {
@@ -81,7 +81,6 @@ export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
         }),
       };
 
-      //@ts-ignore
       const encodedParams = new URLSearchParams(params).toString();
       const url = `${baseUrl}?${encodedParams}`;
 

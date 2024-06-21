@@ -2,7 +2,7 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import { userNamespaceRouter } from "./apps/user/entry-points/api/userNamespaceRouter";
-import { mediaNamespaceRouter } from "./apps/media/entry-points/api/mediaNamespaceRouter";
+import { mediaNamespaceRouter } from "./apps/media/mediaNamespaceRouter";
 import type {
   ChatNamespace,
   MediaNamespace,
@@ -41,10 +41,10 @@ const ioServer = new Server<
 });
 
 //User Namespace
-const userNamespace: UserNamespace = ioServer.of("/user");
-const { socketRouter } = userNamespaceRouter(userNamespace);
+// const userNamespace: UserNamespace = ioServer.of("/user");
+// const { socketRouter } = userNamespaceRouter(userNamespace);
 
-userNamespace.on("connection", socketRouter);
+// userNamespace.on("connection", socketRouter);
 
 //Media namespace
 const mediaNamespace: MediaNamespace = ioServer.of("/media");
