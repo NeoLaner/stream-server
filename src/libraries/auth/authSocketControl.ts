@@ -111,7 +111,7 @@ export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
         return next(new Error("No instanceJwt provided."));
 
       socket.data = { user: userData, instance: instanceData };
-
+      await socket.join(instanceData.id);
       next();
     } catch (error) {
       // Pass any errors to next, and Socket.IO will handle them

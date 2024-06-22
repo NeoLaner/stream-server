@@ -1,14 +1,8 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import { userNamespaceRouter } from "./apps/user/entry-points/api/userNamespaceRouter";
 import { mediaNamespaceRouter } from "./apps/media/mediaNamespaceRouter";
-import type {
-  ChatNamespace,
-  MediaNamespace,
-  SocketData,
-  UserNamespace,
-} from "./utils/@types";
+import type { ChatNamespace, MediaNamespace, SocketData } from "./utils/@types";
 import { chatNamespaceRouter } from "./apps/chat/entry-points/api/chatNamespaceRouter";
 
 const app = express();
@@ -48,22 +42,11 @@ const ioServer = new Server<
 
 //Media namespace
 const mediaNamespace: MediaNamespace = ioServer.of("/media");
-const { mediaSocketRouter } = mediaNamespaceRouter(mediaNamespace);
-
-mediaNamespace.on("connection", mediaSocketRouter);
+mediaNamespace.on("connection", mediaNamespaceRouter(mediaNamespace));
 
 //Chat namespace
 // const chatNamespace: ChatNamespace = ioServer.of("/chat");
 // const { chatSocketRouter } = chatNamespaceRouter(chatNamespace);
 // chatNamespace.on("connection", chatSocketRouter);
-
-//Default namespace
-ioServer.on("connection", (socket) => {
-  console.log("user connected", socket.id);
-
-  socket.on("disconnect", () => {
-    console.log("user disconnected", socket.id);
-  });
-});
 
 export default expressServer;

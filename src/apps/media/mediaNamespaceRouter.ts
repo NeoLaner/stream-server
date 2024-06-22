@@ -1,10 +1,7 @@
 import { authMiddleware } from "@/libraries/auth/authSocketControl";
 import { MediaNamespace } from "@/utils/@types";
 import { MediaSocket } from "@/utils/@types/mediaTypes";
-import {
-  addUserDetailsToPayload,
-  mediaSocketControl,
-} from "./mediaSocketControl";
+import { mediaSocketControl } from "./mediaSocketControl";
 
 export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
   const {
@@ -16,7 +13,6 @@ export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
     dataArrivedHandler,
     disconnectHandler,
     disconnectPreviousSocketsHandler,
-    joinRoomHandler,
   } = mediaSocketControl(mediaNamespace);
 
   //run just for initial connection
@@ -25,10 +21,8 @@ export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
   mediaNamespace.use(disconnectPreviousSocketsHandler);
 
   function mediaSocketRouter(socket: MediaSocket) {
-    const addUserDetailsToPayloadHandler = addUserDetailsToPayload.bind(socket);
-    socket.use(addUserDetailsToPayloadHandler);
     //run for each packet
-    socket.on("joinRoom", joinRoomHandler);
+    // socket.on("joinRoom", joinRoomHandler);
     socket.on("updateUserMediaState", updateUserMediaState);
     socket.on("play", playHandler);
     socket.on("pause", pauseHandler);
@@ -38,5 +32,5 @@ export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
     socket.on("disconnect", disconnectHandler);
     // socketAfterMiddlewares.on(EVENT_NAMES.KICK, kickHandler);
   }
-  return { mediaSocketRouter };
+  return mediaSocketRouter;
 }

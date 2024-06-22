@@ -51,7 +51,7 @@ export type WsDataCtS<K extends MediaEvents> = K extends "updateUserMediaState"
     }
   : { payload: MediaEventPayloads<K> };
 
-export type WsDataCtsBaked<K extends MediaEvents> =
+export type WsDataCtSBaked<K extends MediaEvents> =
   K extends "updateUserMediaState"
     ? {
         payload: MediaUserState;
@@ -65,7 +65,13 @@ export type WsDataStC<K extends MediaEvents> = K extends "updateUserMediaState"
 export type MediaClientToServerEvents = {
   [K in MediaEvents]: MediaEventPayloads<K> extends undefined
     ? () => void
-    : (wsData: WsDataCtsBaked<K>) => void;
+    : (wsData: WsDataCtS<K>) => void;
+};
+
+export type MediaClientToServerProtectedEvents = {
+  [K in MediaEvents]: MediaEventPayloads<K> extends undefined
+    ? () => void
+    : (wsData: WsDataCtSBaked<K>) => void;
 };
 // Define server-to-client event handlers
 export type MediaServerToClientEvents = {
@@ -85,6 +91,13 @@ export type MediaNamespace = Namespace<
 
 export type MediaSocket = Socket<
   MediaClientToServerEvents,
+  MediaServerToClientEvents,
+  NamespaceSpecificInterServerEvents,
+  SocketData
+>;
+
+export type ProtectedSocket = Socket<
+  MediaClientToServerProtectedEvents,
   MediaServerToClientEvents,
   NamespaceSpecificInterServerEvents,
   SocketData

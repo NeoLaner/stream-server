@@ -3,14 +3,13 @@ import { MediaNamespace } from "@/utils/@types";
 import {
   MediaSocket,
   WsDataCtS,
-  WsDataCtsBaked,
+  WsDataCtSBaked,
   WsDataStC,
 } from "@/utils/@types/mediaTypes";
 import {
   getUsersMediaStateCache,
   usersMediaCache,
 } from "@/utils/factory/cache";
-import { Event } from "socket.io";
 
 const expirySeconds = 3600;
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
@@ -35,23 +34,35 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
 
   function updateUserMediaState(
     this: MediaSocket,
-    wsDataCtS: WsDataCtsBaked<"updateUserMediaState">
+    wsDataCtS: WsDataCtS<"updateUserMediaState">
   ) {
     const socket = this;
     const roomId = socket.data.instance.id.toString();
-    const userMediaState = wsDataCtS.payload;
+
+    const wsDataCtSBaked = {
+      payload: {
+        ...wsDataCtS?.payload,
+        id: socket.data.user.id,
+        instanceId: socket.data.instance.id,
+        userName: socket.data.user.name,
+        image: socket.data.user.image,
+        owner: socket.data.user.id === socket.data.instance.ownerId,
+        host: false,
+      },
+    } as WsDataCtSBaked<"updateUserMediaState">;
+    const userMediaState = wsDataCtSBaked.payload;
 
     // Get the current state from the cache
     const usersMediaData = getUsersMediaStateCache(roomId);
-    console.log(usersMediaData);
 
     // Find the user in the array and replace the old state with the new one
+
     const userIndex = usersMediaData.findIndex(
       (user) => user.id === userMediaState.id
     );
+
     if (userIndex !== -1) {
       usersMediaData[userIndex] = {
-        ...usersMediaData[userIndex],
         ...userMediaState,
       };
     } else {
@@ -69,8 +80,6 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
   }
 
   function playHandler(this: MediaSocket) {
-    console.log("playHandler");
-
     const socket = this;
     const roomId = socket.data.instance.id.toString();
     socket.to(roomId).emit("play");
@@ -83,6 +92,8 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
   }
 
   function seekHandler(this: MediaSocket, wsData: WsDataStC<"seek">) {
+    console.log("seek");
+
     const socket = this;
     const roomId = socket.data.instance.id.toString();
     socket.to(roomId).emit("seek", wsData);
@@ -139,38 +150,4 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     disconnectHandler,
     disconnectPreviousSocketsHandler,
   };
-}
-
-export function addUserDetailsToPayload(
-  this: MediaSocket,
-  event: Event,
-  next: (err?: Error) => void
-) {
-  //The payload must have id and status when emit to the client side.
-  //but the client side send nothing
-  const socket = this;
-
-  //event[1] is wsData which come from client server
-  if (!event[1]) next();
-  if (event[0] !== "updateUserMediaState") return next();
-  console.log("event received", event[0]);
-  console.log("event payload", event[1]);
-  if (event[1]) return next(Error("Pass payload for this event"));
-  const args = event[1] as WsDataCtS<"updateUserMediaState">;
-  const wsDataBaked: WsDataCtsBaked<"updateUserMediaState"> = {
-    payload: {
-      ...args.payload,
-      id: socket.data.user.id,
-      instanceId: socket.data.instance.id,
-      userName: socket.data.user.name,
-      image: socket.data.user.image,
-      owner: socket.data.user.id === socket.data.instance.ownerId,
-      host: false,
-    },
-  };
-  args.payload = {
-    ...wsDataBaked.payload,
-  };
-
-  next();
 }
