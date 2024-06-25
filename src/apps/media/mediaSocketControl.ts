@@ -2,6 +2,7 @@ import { disconnectPreviousSockets } from "@/libraries/dc/disconnectControl";
 import { MediaNamespace } from "@/utils/@types";
 import {
   MediaSocket,
+  MediaUserState,
   WsDataCtS,
   WsDataCtSBaked,
   WsDataStC,
@@ -11,6 +12,8 @@ import {
   usersMediaCache,
 } from "@/utils/factory/cache";
 
+const aggregatedUpdates = new Map(); // Temporary storage for updates
+const updateInterval = 1000; // 1 second interval for emitting updates
 const expirySeconds = 3600;
 const userSocketMapByNamespace: Record<string, Map<string, string>> = {};
 
@@ -23,14 +26,6 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
   const userSocketMap = userSocketMapByNamespace[namespaceName];
 
   //Handlers
-  async function joinRoomHandler(this: MediaSocket) {
-    const socket = this;
-    const roomId = socket.data.instance.id.toString();
-    console.log("🍕 joinRoomHandler from media");
-
-    await socket.join(roomId);
-    userSocketMap.set(socket.data.user.id, socket.id);
-  }
 
   function updateUserMediaState(
     this: MediaSocket,
@@ -56,7 +51,6 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     const usersMediaData = getUsersMediaStateCache(roomId);
 
     // Find the user in the array and replace the old state with the new one
-
     const userIndex = usersMediaData.findIndex(
       (user) => user.id === userMediaState.id
     );
@@ -73,11 +67,21 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     // Update the cache with the new state
     usersMediaCache.set(roomId, usersMediaData, expirySeconds);
 
-    // Emit the updated state to the room
-    mediaNamespace
-      .to(roomId)
-      .emit("updateUserMediaState", { payload: usersMediaData });
+    // Store the aggregated updates
+    aggregatedUpdates.set(roomId, usersMediaData);
   }
+
+  // Emit aggregated updates periodically
+  setInterval(() => {
+    aggregatedUpdates.forEach(
+      (usersMediaData: MediaUserState[], roomId: string) => {
+        mediaNamespace
+          .to(roomId)
+          .emit("updateUserMediaState", { payload: usersMediaData });
+      }
+    );
+    aggregatedUpdates.clear(); // Clear after emitting
+  }, updateInterval);
 
   function playHandler(this: MediaSocket) {
     const socket = this;
@@ -117,17 +121,24 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
   const disconnectPreviousSocketsHandler = (
     socket: MediaSocket,
     next: (err?: Error) => void
-  ) =>
+  ) => {
     disconnectPreviousSockets({
       socket,
       namespace: mediaNamespace,
       next,
       userSocketMap,
     });
-
+  };
   function disconnectHandler(this: MediaSocket) {
     // const socket = this;
     // const roomId = socket.data.instance.id.toString();
+    // const userId = socket.data.user.id;
+    // // Get the current state from the cache
+    // let usersMediaData = getUsersMediaStateCache(roomId);
+    // // Remove the user from the array
+    // usersMediaData = usersMediaData.filter((user) => user.id !== userId);
+    // // Update the cache with the new state
+    // usersMediaCache.set(roomId, usersMediaData, expirySeconds);
   }
 
   /*  
@@ -141,7 +152,6 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
 
   return {
     updateUserMediaState,
-    joinRoomHandler,
     playHandler,
     pauseHandler,
     seekHandler,
