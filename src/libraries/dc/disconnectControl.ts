@@ -42,13 +42,13 @@ export function disconnectController({
   socket,
 }: DisconnectController) {
   const { id, name } = socket.data.user;
-  const instanceId = socket.data.instance.id.toString();
+  const roomId = socket.data.room.id.toString();
   const dcWsData: UserWsDataAfterMiddlewares = {
     payload: {
       userId: id,
-      userName: name!,
+      userName: name,
       status: "disconnected",
     },
   };
-  userNamespace.to(instanceId).emit("user", dcWsData);
+  userNamespace.to(roomId).emit("user", dcWsData);
 }

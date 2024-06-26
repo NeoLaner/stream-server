@@ -28,7 +28,7 @@ type MediaEventPayloads<K extends MediaEvents> = {
 // MediaUserState definition
 export type MediaUserState = {
   id: string; // User ID
-  instanceId: string;
+  roomId: string;
   userName: string | null; // User name
   image: string | null;
   videoTs: number; // Timestamp for video
@@ -46,7 +46,7 @@ export type WsDataCtS<K extends MediaEvents> = K extends "updateUserMediaState"
   ? {
       payload: Omit<
         MediaUserState,
-        "id" | "instanceId" | "userName" | "image" | "owner" | "host"
+        "id" | "roomId" | "userName" | "image" | "owner" | "host"
       >;
     }
   : { payload: MediaEventPayloads<K> };

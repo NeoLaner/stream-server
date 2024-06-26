@@ -32,16 +32,16 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     wsDataCtS: WsDataCtS<"updateUserMediaState">
   ) {
     const socket = this;
-    const roomId = socket.data.instance.id.toString();
+    const roomId = socket.data.room.id.toString();
 
     const wsDataCtSBaked = {
       payload: {
         ...wsDataCtS?.payload,
         id: socket.data.user.id,
-        instanceId: socket.data.instance.id,
+        roomId: socket.data.room.id,
         userName: socket.data.user.name,
         image: socket.data.user.image,
-        owner: socket.data.user.id === socket.data.instance.ownerId,
+        owner: socket.data.user.id === socket.data.room.ownerId,
         host: false,
       },
     } as WsDataCtSBaked<"updateUserMediaState">;
@@ -85,13 +85,13 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
 
   function playHandler(this: MediaSocket) {
     const socket = this;
-    const roomId = socket.data.instance.id.toString();
+    const roomId = socket.data.room.id.toString();
     socket.to(roomId).emit("play");
   }
 
   function pauseHandler(this: MediaSocket) {
     const socket = this;
-    const roomId = socket.data.instance.id.toString();
+    const roomId = socket.data.room.id.toString();
     socket.to(roomId).emit("pause");
   }
 
@@ -99,7 +99,7 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     console.log("seek");
 
     const socket = this;
-    const roomId = socket.data.instance.id.toString();
+    const roomId = socket.data.room.id.toString();
     socket.to(roomId).emit("seek", wsData);
   }
 
@@ -107,14 +107,14 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     console.log("waitingForDataHandler");
 
     const socket = this;
-    const roomId = socket.data.instance.id.toString();
+    const roomId = socket.data.room.id.toString();
     socket.to(roomId).emit("waitingForData");
   }
 
   function dataArrivedHandler(this: MediaSocket) {
     console.log("dataArrivedHandler");
     const socket = this;
-    const roomId = socket.data.instance.id.toString();
+    const roomId = socket.data.room.id.toString();
     mediaNamespace.to(roomId).emit("dataArrived");
   }
 
@@ -131,7 +131,7 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
   };
   function disconnectHandler(this: MediaSocket) {
     // const socket = this;
-    // const roomId = socket.data.instance.id.toString();
+    // const roomId = socket.data.room.id.toString();
     // const userId = socket.data.user.id;
     // // Get the current state from the cache
     // let usersMediaData = getUsersMediaStateCache(roomId);

@@ -50,7 +50,6 @@ import type {
   UserDataApi,
   Status,
   RoomData,
-  InstanceData,
   SocketData,
   UserStatus,
   VideoLink,
@@ -118,13 +117,7 @@ export interface DataToResponse<T extends Record<string, object>> {
 export type RoomDataReq = Omit<RoomData, "_id" | "isActive">;
 export type { VideoLink };
 
-export type {
-  InstanceLoginData,
-  InstanceRes,
-  InstanceReq,
-  JwtPayloadInstance,
-  InstanceData,
-};
+export type { InstanceLoginData, InstanceRes, InstanceReq, JwtPayloadInstance };
 
 //media
 export type {

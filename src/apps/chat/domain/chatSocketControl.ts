@@ -23,7 +23,7 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
   //Handlers
   async function joinRoomHandler(this: ChatSocket) {
     const socket = this;
-    const roomId = socket.data.instance.id.toString();
+    const roomId = socket.data.room.id.toString();
 
     await socket.join(roomId);
     userSocketMap.set(socket.data.user.id, socket.id);
@@ -53,17 +53,17 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
     wsData: ChatWsDataClientToServerAfterMiddlewares
   ) {
     const socket = this;
-    const roomId = socket.data.instance.id.toString();
+    const roomId = socket.data.room.id.toString();
 
     chatNamespace.to(roomId).emit("chat", wsData);
     try {
-      let chat = await Chat.findById(socket.data.instance.id);
+      let chat = await Chat.findById(socket.data.room.id);
       if (!chat)
         chat = await Chat.create({
-          id: socket.data.instance.id,
+          id: socket.data.room.id,
         });
 
-      await Message.create({ chat: socket.data.instance.id, ...wsData });
+      await Message.create({ chat: socket.data.room.id, ...wsData });
     } catch (error) {
       // Handle errors appropriately
       console.error("Error saving message:", error);
@@ -92,7 +92,7 @@ export function chatSocketControl(chatNamespace: ChatNamespace) {
 
   function disconnectHandler(this: ChatSocket) {
     const socket = this;
-    const roomId = socket.data.instance.id.toString();
+    const roomId = socket.data.room.id.toString();
     roomCapacityDec(roomId);
   }
 

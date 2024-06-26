@@ -1,10 +1,11 @@
 import axios from "axios";
 import { Socket } from "socket.io";
 
+import { type RoomData } from "@/utils/@types";
 import AppError from "../../utils/classes/appError";
 
 interface AuthData {
-  instanceId: unknown;
+  roomId: unknown;
   // other authentication properties
 }
 
@@ -14,21 +15,9 @@ export function roomCapacityDec(roomId: string) {
   roomsCapacity[roomId] -= 1;
 }
 
-interface InstanceData {
-  id: string;
-  name: string;
-  ownerId: string;
-  roomId: string;
-  online: boolean;
-  timeWatched: number | null;
-  season: number | null;
-  episode: number | null;
-  guests: string[]; // Replace `any` with the specific type if known
-}
-
 interface ResultData {
   data: {
-    json: InstanceData;
+    json: RoomData;
   };
 }
 
@@ -66,16 +55,16 @@ export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
 
       const cookies = socket.handshake.headers.cookie;
       console.log(cookies);
-      // http://localhost:3000/api/trpc/instance.get?batch=1&input={"0": {"json": {"instanceId": "6666d8bfa561cbeafa014414" }}}
+      // http://localhost:3000/api/trpc/room.get?batch=1&input={"0": {"json": {"roomId": "6666d8bfa561cbeafa014414" }}}
       const server =
         process.env.NODE_ENV === "development" ? "localhost:3000" : "scoap.ir";
-      const baseUrl = `http://${server}/api/trpc/instance.get`;
+      const baseUrl = `http://${server}/api/trpc/room.get`;
       const params = {
         batch: "1",
         input: JSON.stringify({
           "0": {
             json: {
-              instanceId: auth.instanceId,
+              roomId: auth.roomId,
             },
           },
         }),
@@ -84,15 +73,12 @@ export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
       const encodedParams = new URLSearchParams(params).toString();
       const url = `${baseUrl}?${encodedParams}`;
 
-      const { data: instanceRes }: { data: ResponseData } = await axios.get(
-        url,
-        {
-          headers: {
-            Cookie: cookies,
-          },
-        }
-      );
-      const instanceData = instanceRes[0].result.data.json;
+      const { data: roomRes }: { data: ResponseData } = await axios.get(url, {
+        headers: {
+          Cookie: cookies,
+        },
+      });
+      const roomData = roomRes[0].result.data.json;
 
       const userUrl = `http://${server}/api/trpc/user.me`;
 
@@ -107,11 +93,10 @@ export function authMiddleware(socket: Socket, next: (err?: Error) => void) {
       const userData = userRes.result.data.json;
       console.log(userData);
 
-      if (!userData || !instanceRes)
-        return next(new Error("No instanceJwt provided."));
+      if (!userData || !roomRes) return next(new Error("No room"));
 
-      socket.data = { user: userData, instance: instanceData };
-      await socket.join(instanceData.id);
+      socket.data = { user: userData, room: roomData };
+      await socket.join(roomData.id);
       next();
     } catch (error) {
       // Pass any errors to next, and Socket.IO will handle them

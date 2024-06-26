@@ -8,18 +8,6 @@ export type VideoLink = {
   infoHash?: string;
   fileIdx?: number;
 };
-export interface RoomData {
-  _id: string;
-  roomAuthor: string;
-  roomName: string;
-  cover?: string; // Optional field
-  isActive?: boolean;
-  isPrivate?: boolean;
-  crossorigin?: boolean;
-  subtitles?: string[]; // Array of strings
-  roomDescription?: string; // Optional field
-  videoLinks: VideoLink[];
-}
 
 export type AllowedLinkNames = "instagram" | "telegram" | "website" | "twitter";
 
@@ -46,20 +34,19 @@ export interface Source {
   // Define the structure of your Source type
 }
 
-export interface InstanceData {
+export interface RoomData {
+  type: string;
   id: string;
-  password?: string | null;
   name: string;
   ownerId: string;
-  roomId: string;
+  imdbId: string;
   online: boolean;
-  timeWatched?: Date | null;
-  season?: number | null;
-  episode?: number | null;
-  room: Room;
-  owner: User;
-  guests: string[];
-  sources: Source[];
+  timeWatched: Date | null;
+  season: number | null;
+  episode: number | null;
+  isPublic: boolean;
+  allowedGuestsId: string[];
+  bannedGuestsId: string[];
 }
 
 export type UserStatus =
@@ -70,7 +57,7 @@ export type UserStatus =
 
 export interface SocketData {
   user: UserDataApi;
-  instance: InstanceData;
+  room: RoomData;
 }
 
 export type EventNames = (typeof EVENT_NAMES)[keyof typeof EVENT_NAMES];
