@@ -6,6 +6,7 @@ import { mediaSocketControl } from "./mediaSocketControl";
 export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
   const {
     updateUserMediaState,
+    updateRoomDataHandler,
     playHandler,
     pauseHandler,
     seekHandler,
@@ -24,6 +25,7 @@ export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
     //run for each packet
     // socket.on("joinRoom", joinRoomHandler);
     socket.on("updateUserMediaState", updateUserMediaState);
+    socket.on("roomDataChanged", updateRoomDataHandler);
     socket.on("play", playHandler);
     socket.on("pause", pauseHandler);
     socket.on("seek", seekHandler);

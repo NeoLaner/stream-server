@@ -150,8 +150,18 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
   }
 */
 
+  function updateRoomDataHandler(
+    this: MediaSocket,
+    wsDataCtS: WsDataCtS<"roomDataChanged">
+  ) {
+    const socket = this;
+    const roomId = socket.data.room.id;
+    socket.to(roomId).emit("roomDataChanged", wsDataCtS);
+  }
+
   return {
     updateUserMediaState,
+    updateRoomDataHandler,
     playHandler,
     pauseHandler,
     seekHandler,

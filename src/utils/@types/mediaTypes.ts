@@ -1,5 +1,5 @@
 import { Namespace, Socket } from "socket.io";
-import type { SocketData } from "./globalTypes";
+import type { RoomData, SocketData } from "./globalTypes";
 
 // Define MediaEvents as a union of string literals
 export type MediaEvents =
@@ -9,15 +9,16 @@ export type MediaEvents =
   | "pause"
   | "waitingForData"
   | "dataArrived"
-  | "joinRoom";
+  | "joinRoom"
+  | "roomDataChanged";
 
 // Define specific payload types for each event
 type SeekPayload = { videoTs: number };
-
 // Create a mapping type to associate each event with its payload type
 type MediaEventPayloads<K extends MediaEvents> = {
   updateUserMediaState: MediaUserState[];
   seek: SeekPayload;
+  roomDataChanged: RoomData;
   play: undefined;
   pause: undefined;
   waitingForData: undefined;
