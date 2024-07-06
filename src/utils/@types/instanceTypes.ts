@@ -1,5 +1,3 @@
-import { Types } from "mongoose";
-
 export type InstanceReq = {
   password?: string;
   rootRoomId: string;
