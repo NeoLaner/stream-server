@@ -15,7 +15,7 @@ export type UserDataApi = {
   id: string;
   name: string | null;
   email: string;
-  emailVerified: string | null;
+  emailVerified: Date | null;
   image: string | null;
   addons: string[];
 };

@@ -159,9 +159,20 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     socket.to(roomId).emit("roomDataChanged", wsDataCtS);
   }
 
+  function updateSourceDataHandler(
+    this: MediaSocket,
+    wsDataCtS: WsDataCtS<"sourceDataChanged">
+  ) {
+    const socket = this;
+    const roomId = socket.data.room.id;
+    wsDataCtS.payload.user = socket.data.user;
+    socket.to(roomId).emit("sourceDataChanged", wsDataCtS);
+  }
+
   return {
     updateUserMediaState,
     updateRoomDataHandler,
+    updateSourceDataHandler,
     playHandler,
     pauseHandler,
     seekHandler,

@@ -7,6 +7,7 @@ export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
   const {
     updateUserMediaState,
     updateRoomDataHandler,
+    updateSourceDataHandler,
     playHandler,
     pauseHandler,
     seekHandler,
@@ -22,10 +23,9 @@ export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
   mediaNamespace.use(disconnectPreviousSocketsHandler);
 
   function mediaSocketRouter(socket: MediaSocket) {
-    //run for each packet
-    // socket.on("joinRoom", joinRoomHandler);
     socket.on("updateUserMediaState", updateUserMediaState);
     socket.on("roomDataChanged", updateRoomDataHandler);
+    socket.on("sourceDataChanged", updateSourceDataHandler);
     socket.on("play", playHandler);
     socket.on("pause", pauseHandler);
     socket.on("seek", seekHandler);

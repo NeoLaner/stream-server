@@ -10,7 +10,26 @@ export type MediaEvents =
   | "waitingForData"
   | "dataArrived"
   | "joinRoom"
-  | "roomDataChanged";
+  | "roomDataChanged"
+  | "sourceDataChanged";
+
+type SourceData = {
+  user: {
+    id: string;
+    name: string | null;
+    email: string | null;
+    emailVerified: Date | null;
+    image: string | null;
+    addons: string[];
+  };
+  id: string;
+  roomId: string;
+  userId: string;
+  videoLink: string | null;
+  infoHash: string | null;
+  fileIdx: number | null;
+  mediaLinkId: string | null;
+};
 
 // Define specific payload types for each event
 type SeekPayload = { videoTs: number };
@@ -19,6 +38,7 @@ type MediaEventPayloads<K extends MediaEvents> = {
   updateUserMediaState: MediaUserState[];
   seek: SeekPayload;
   roomDataChanged: RoomData;
+  sourceDataChanged: SourceData;
   play: undefined;
   pause: undefined;
   waitingForData: undefined;
