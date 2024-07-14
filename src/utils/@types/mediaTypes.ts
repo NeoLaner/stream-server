@@ -11,7 +11,8 @@ export type MediaEvents =
   | "dataArrived"
   | "joinRoom"
   | "roomDataChanged"
-  | "sourceDataChanged";
+  | "sourceDataChanged"
+  | "chat:userMessaged";
 
 type SourceData = {
   user: {
@@ -33,6 +34,12 @@ type SourceData = {
 
 // Define specific payload types for each event
 type SeekPayload = { videoTs: number };
+type UserMessage = {
+  textContent: string;
+  type: "normal" | "normal:server" | "success" | "warning" | "danger";
+  created_at: number;
+  user: { userName: string; image: string; id: string };
+};
 // Create a mapping type to associate each event with its payload type
 type MediaEventPayloads<K extends MediaEvents> = {
   updateUserMediaState: MediaUserState[];
@@ -44,6 +51,7 @@ type MediaEventPayloads<K extends MediaEvents> = {
   waitingForData: undefined;
   dataArrived: undefined;
   joinRoom: undefined;
+  "chat:userMessaged": UserMessage;
 }[K];
 
 // MediaUserState definition
