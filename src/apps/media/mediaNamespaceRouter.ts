@@ -13,6 +13,7 @@ export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
     seekHandler,
     waitingForDataHandler,
     dataArrivedHandler,
+    userMessageHandler,
     disconnectHandler,
     disconnectPreviousSocketsHandler,
   } = mediaSocketControl(mediaNamespace);
@@ -31,6 +32,7 @@ export function mediaNamespaceRouter(mediaNamespace: MediaNamespace) {
     socket.on("seek", seekHandler);
     socket.on("waitingForData", waitingForDataHandler);
     socket.on("dataArrived", dataArrivedHandler);
+    socket.on("chat:userMessaged", userMessageHandler);
     socket.on("disconnect", disconnectHandler);
     // socketAfterMiddlewares.on(EVENT_NAMES.KICK, kickHandler);
   }

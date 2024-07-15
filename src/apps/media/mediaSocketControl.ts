@@ -169,6 +169,23 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     socket.to(roomId).emit("sourceDataChanged", wsDataCtS);
   }
 
+  function userMessageHandler(
+    this: MediaSocket,
+    wsDataCtS: WsDataCtS<"chat:userMessaged">
+  ) {
+    const socket = this;
+    const roomId = socket.data.room.id;
+    const { id, image, name } = socket.data.user;
+    mediaNamespace.to(roomId).emit("chat:userMessaged", {
+      payload: {
+        textContent: wsDataCtS.payload.textContent,
+        user: { id, image, name },
+        type: "normal",
+        created_at: Date.now(),
+      },
+    });
+  }
+
   return {
     updateUserMediaState,
     updateRoomDataHandler,
@@ -178,6 +195,7 @@ export function mediaSocketControl(mediaNamespace: MediaNamespace) {
     seekHandler,
     dataArrivedHandler,
     waitingForDataHandler,
+    userMessageHandler,
     disconnectHandler,
     disconnectPreviousSocketsHandler,
   };

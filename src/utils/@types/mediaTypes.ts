@@ -38,10 +38,23 @@ type UserMessage = {
   textContent: string;
   type: "normal" | "normal:server" | "success" | "warning" | "danger";
   created_at: number;
-  user: { userName: string; image: string; id: string };
+  user: { id: string; name: string | null; image: string | null };
 };
+
+type MediaEventPayloadsCtS<K extends MediaEvents> = {
+  updateUserMediaState: MediaUserState[];
+  seek: SeekPayload;
+  roomDataChanged: RoomData;
+  sourceDataChanged: SourceData;
+  play: undefined;
+  pause: undefined;
+  waitingForData: undefined;
+  dataArrived: undefined;
+  joinRoom: undefined;
+  "chat:userMessaged": Pick<UserMessage, "textContent">;
+}[K];
 // Create a mapping type to associate each event with its payload type
-type MediaEventPayloads<K extends MediaEvents> = {
+type MediaEventPayloadsStC<K extends MediaEvents> = {
   updateUserMediaState: MediaUserState[];
   seek: SeekPayload;
   roomDataChanged: RoomData;
@@ -78,33 +91,33 @@ export type WsDataCtS<K extends MediaEvents> = K extends "updateUserMediaState"
         "id" | "roomId" | "userName" | "image" | "owner" | "host"
       >;
     }
-  : { payload: MediaEventPayloads<K> };
+  : { payload: MediaEventPayloadsCtS<K> };
 
 export type WsDataCtSBaked<K extends MediaEvents> =
   K extends "updateUserMediaState"
     ? {
         payload: MediaUserState;
       }
-    : { payload: MediaEventPayloads<K> };
+    : { payload: MediaEventPayloadsCtS<K> };
 
-export type WsDataStC<K extends MediaEvents> = K extends "updateUserMediaState"
-  ? { payload: MediaUserState[] }
-  : { payload: MediaEventPayloads<K> };
+export type WsDataStC<K extends MediaEvents> = {
+  payload: MediaEventPayloadsStC<K>;
+};
 // Define client-to-server event handlers
 export type MediaClientToServerEvents = {
-  [K in MediaEvents]: MediaEventPayloads<K> extends undefined
+  [K in MediaEvents]: MediaEventPayloadsCtS<K> extends undefined
     ? () => void
     : (wsData: WsDataCtS<K>) => void;
 };
 
 export type MediaClientToServerProtectedEvents = {
-  [K in MediaEvents]: MediaEventPayloads<K> extends undefined
+  [K in MediaEvents]: MediaEventPayloadsCtS<K> extends undefined
     ? () => void
     : (wsData: WsDataCtSBaked<K>) => void;
 };
 // Define server-to-client event handlers
 export type MediaServerToClientEvents = {
-  [K in MediaEvents]: MediaEventPayloads<K> extends undefined
+  [K in MediaEvents]: MediaEventPayloadsStC<K> extends undefined
     ? () => void
     : (wsData: WsDataStC<K>) => void;
 };
